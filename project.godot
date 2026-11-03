@@ -22,6 +22,7 @@ EventBus="*res://src/autoload/event_bus.gd"
 RunState="*res://src/autoload/run_state.gd"
 GameState="*res://src/autoload/game_state.gd"
 SaveManager="*res://src/autoload/save_manager.gd"
+AudioManager="*res://src/autoload/audio_manager.tscn"
 SceneRouter="*res://src/autoload/scene_router.tscn"
 
 [debug]

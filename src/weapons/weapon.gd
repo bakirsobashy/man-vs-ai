@@ -4,6 +4,8 @@ extends Node2D
 ## Each gun keeps its own magazine; the owner sets reload_speed from its current state.
 
 signal ammo_changed(weapon: Weapon, magazine: int, magazine_size: int, reserve: int, reloading: bool)
+## Every shot (the ShotSound node is connected to it in each weapon scene).
+signal shot_fired
 
 ## Name shown on the HUD weapon card and the pickup prompt.
 @export var display_name := "Gun"
@@ -23,6 +25,10 @@ signal ammo_changed(weapon: Weapon, magazine: int, magazine_size: int, reserve: 
 @export_range(0.0, 90.0, 0.5, "suffix:°") var spread_deg := 4.0
 ## Bullets per shot.
 @export_range(1, 20) var pellets := 1
+## Shots per trigger pull (Firecracker: 3); each uses one round. fire_rate counts bursts.
+@export_range(1, 10) var burst := 1
+## Time between the shots of a burst.
+@export_range(0.01, 0.5, 0.01, "suffix:s") var burst_interval := 0.07
 
 @onready var muzzle: Marker2D = %Muzzle
 @onready var range_area: Area2D = %Range
@@ -36,6 +42,9 @@ var reloading := false
 var _reload_progress := 0.0
 var _cooldown := 0.0
 var _pool: BulletPool
+var _burst_left := 0
+var _burst_timer := 0.0
+var _burst_target := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -44,6 +53,12 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	if _burst_left > 0:
+		_burst_timer -= delta
+		if _burst_timer <= 0.0:
+			_burst_timer = burst_interval
+			_burst_left -= 1
+			_shoot(_burst_target)
 	if reloading:
 		_reload_progress += delta * reload_speed / reload_time
 		if _reload_progress >= 1.0:
@@ -66,6 +81,18 @@ func try_fire(target_position: Vector2) -> bool:
 		_pool = BulletPool.find_for(get_tree(), bullet_scene)
 	if _pool == null:
 		return false
+	_cooldown = 1.0 / fire_rate
+	_burst_left = burst - 1
+	_burst_timer = burst_interval
+	_burst_target = target_position
+	_shoot(target_position)
+	return true
+
+
+func _shoot(target_position: Vector2) -> void:
+	if magazine <= 0 or reloading:
+		_burst_left = 0
+		return
 	var aim := (target_position - muzzle.global_position).normalized()
 	var spread := deg_to_rad(spread_deg)
 	for i: int in pellets:
@@ -74,14 +101,14 @@ func try_fire(target_position: Vector2) -> bool:
 			angle = -spread * 0.5 + spread * i / (pellets - 1) + randf_range(-spread, spread) / (pellets * 4.0)
 		_pool.spawn(muzzle.global_position, aim.rotated(angle), damage)
 	magazine -= 1
-	_cooldown = 1.0 / fire_rate
 	muzzle_animation.stop()
 	muzzle_animation.play(&"flash")
+	shot_fired.emit()
 	if magazine == 0:
+		_burst_left = 0
 		start_reload()
 	else:
 		announce()
-	return true
 
 
 func start_reload() -> void:

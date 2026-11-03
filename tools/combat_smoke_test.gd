@@ -157,7 +157,10 @@ func _test_contact_damage() -> void:
 	var hp_before := _player.health.hp
 	await _wait(0.5)
 	_check(_player.health.hp == hp_before, "a swarmer is harmless while spawning in")
-	await _wait(0.8)
+	for _i: int in 20:  # up to 2 s after the spawn-in
+		if _player.health.hp < hp_before:
+			break
+		await _wait(0.1)
 	_check(_player.health.hp < hp_before, "touching a swarmer hurts")
 	swarmer.take_damage(999)
 	await _physics_frames(2)

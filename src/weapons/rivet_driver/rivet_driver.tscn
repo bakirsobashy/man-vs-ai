@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_rivet.tscn" id="2_bullet"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/rivet_driver.svg" id="3_gun"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/muzzle_flash.svg" id="4_flash"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/shot_light.wav" id="90_shot"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_range"]
 radius = 160.0
@@ -79,3 +80,10 @@ shape = SubResource("CircleShape2D_range")
 [node name="MuzzleAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_muzzle")
+
+[node name="ShotSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("90_shot")
+volume_db = -4.0
+max_polyphony = 2
+bus = &"SFX"
+[connection signal="shot_fired" from="." to="ShotSound" method="play"]

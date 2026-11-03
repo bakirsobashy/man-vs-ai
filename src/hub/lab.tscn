@@ -27,6 +27,9 @@
 [ext_resource type="Resource" path="res://data/dialogue/retrieval_lines.tres" id="25_retrieval"]
 [ext_resource type="PackedScene" path="res://src/ui/comic/implant_heart.tscn" id="26_comic_heart"]
 [ext_resource type="PackedScene" path="res://src/ui/comic/implant_legs.tscn" id="27_comic_legs"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/purchase.wav" id="90_purchase"]
+[ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
 
 [sub_resource type="Theme" id="Theme_ui"]
 default_font_size = 12
@@ -343,6 +346,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="PurchaseSound" type="AudioStreamPlayer" parent="LabUI"]
+unique_name_in_owner = true
+stream = ExtResource("90_purchase")
+bus = &"SFX"
+
+[node name="MusicCue" type="Node" parent="."]
+script = ExtResource("91_music_cue")
+stream = ExtResource("92_lab_theme")
 
 [node name="LabDirector" type="Node" parent="." node_paths=PackedStringArray("player", "lab_ui")]
 script = ExtResource("1_director")

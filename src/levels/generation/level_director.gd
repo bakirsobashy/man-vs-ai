@@ -26,6 +26,10 @@ extends Node
 @export var return_to_lab := true
 ## Started when the hero dies; its timeout (connected in the scene) shows the "Retrieved" summary.
 @export var death_timer: Timer
+@export var level_music: AudioStream
+@export var boss_music: AudioStream
+## Played when a room's last wave falls.
+@export var clear_sound: AudioStreamPlayer
 
 var layout: LevelLayout
 var current: RoomNode
@@ -51,6 +55,7 @@ func _ready() -> void:
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.summary_closed.connect(_on_summary_closed)
 	wave_spawner.settings = config.wave_settings
+	AudioManager.play_music(level_music)
 	if not RunState.active:
 		RunState.start_new_run()  # started straight from the editor or a test
 	if RunState.resuming:
@@ -163,6 +168,7 @@ func _begin_fight(room: Room) -> void:
 	if current.type == Room.RoomType.BOSS:
 		var spot := room.feature("BossSpot") as Node2D
 		wave_spawner.spawn_boss(config.boss_scene, spot.global_position, room.enemies)
+		AudioManager.play_music(boss_music)
 		EventBus.banner_requested.emit("BOSS")
 		return
 	var waves := room.waves if room.waves > 0 else _rng.randi_range(config.waves_min, config.waves_max)
@@ -186,6 +192,10 @@ func _on_wave_spawner_room_cleared() -> void:
 	_fight_room = -1
 	node.cleared = true
 	_set_doors(room, Door.Status.OPEN)
+	if clear_sound != null:
+		clear_sound.play()
+	if node.type == Room.RoomType.BOSS:
+		AudioManager.play_music(level_music)
 	match node.type:
 		Room.RoomType.COMBAT:
 			room_reward.drop(room.reward_spot.global_position)

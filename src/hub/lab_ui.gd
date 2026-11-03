@@ -24,6 +24,7 @@ extends CanvasLayer
 @onready var armory_list: Control = %ArmoryList
 @onready var dialogue: DialogueBox = %Dialogue
 @onready var comic_layer: Control = %ComicLayer
+@onready var purchase_sound: AudioStreamPlayer = %PurchaseSound
 
 var _slot := "heart"
 var _sales := 0
@@ -68,6 +69,7 @@ func install(slot_name: String) -> bool:
 	GameState.set_implant(slot_name, implant.tier)
 	GameState.add_stat("implants_installed")
 	SaveManager.save_slot()
+	purchase_sound.play()
 	dialogue.say("Vorn", implant.vorn_line)
 	var comic_flag := "implant_comic_" + slot_name
 	if first and implant_comics.has(slot_name) and not GameState.has_flag(comic_flag):
@@ -84,6 +86,7 @@ func unlock(entry: WeaponCatalogEntry) -> bool:
 		return false
 	GameState.unlock_weapon(entry.id)
 	SaveManager.save_slot()
+	purchase_sound.play()
 	_sales += 1
 	armory_info.text = "\"%s\"" % patch_lines.pick(_sales - 1) if patch_lines != null else ""
 	_refresh_armory()

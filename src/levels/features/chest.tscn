@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://src/pickups/weapon_pickup.tscn" id="4_weapon_pickup"]
 [ext_resource type="Script" path="res://src/components/drops.gd" id="5_drops"]
 [ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="6_crypto"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/chest.wav" id="90_chest"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_chest"]
 size = Vector2(20, 16)
@@ -34,5 +35,10 @@ unique_name_in_owner = true
 script = ExtResource("5_drops")
 crypto_scene = ExtResource("6_crypto")
 scatter = 8.0
+
+[node name="OpenSound" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("90_chest")
+bus = &"SFX"
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://src/ui/title/title.gd" id="1_title"]
 [ext_resource type="PackedScene" path="res://src/ui/title/slot_card.tscn" id="2_card"]
+[ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
 
 [sub_resource type="Theme" id="Theme_ui"]
 default_font_size = 12
@@ -140,6 +142,10 @@ slot = 3
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "Back"
+
+[node name="MusicCue" type="Node" parent="."]
+script = ExtResource("91_music_cue")
+stream = ExtResource("92_lab_theme")
 
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_pressed"]
 [connection signal="pressed" from="SlotPanel/VBox/Back" to="." method="_on_back_pressed"]

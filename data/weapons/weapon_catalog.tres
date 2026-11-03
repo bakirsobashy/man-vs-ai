@@ -5,6 +5,12 @@
 [ext_resource type="PackedScene" path="res://src/weapons/scattergun/scattergun.tscn" id="3_scattergun"]
 [ext_resource type="PackedScene" path="res://src/weapons/buzz_smg/buzz_smg.tscn" id="4_buzz_smg"]
 [ext_resource type="PackedScene" path="res://src/weapons/rivet_driver/rivet_driver.tscn" id="5_rivet_driver"]
+[ext_resource type="PackedScene" path="res://src/weapons/bolt_revolver/bolt_revolver.tscn" id="6_bolt_revolver"]
+[ext_resource type="PackedScene" path="res://src/weapons/ricochet_carbine/ricochet_carbine.tscn" id="7_ricochet_carbine"]
+[ext_resource type="PackedScene" path="res://src/weapons/magnet_coil/magnet_coil.tscn" id="8_magnet_coil"]
+[ext_resource type="PackedScene" path="res://src/weapons/volt_shotgun/volt_shotgun.tscn" id="9_volt_shotgun"]
+[ext_resource type="PackedScene" path="res://src/weapons/longshot/longshot.tscn" id="10_longshot"]
+[ext_resource type="PackedScene" path="res://src/weapons/firecracker/firecracker.tscn" id="11_firecracker"]
 
 [sub_resource type="Resource" id="Resource_scattergun"]
 script = ExtResource("2_entry")
@@ -27,6 +33,48 @@ scene = ExtResource("5_rivet_driver")
 rarity = 0
 unlock_cost = 0
 
+[sub_resource type="Resource" id="Resource_bolt_revolver"]
+script = ExtResource("2_entry")
+id = &"bolt_revolver"
+scene = ExtResource("6_bolt_revolver")
+rarity = 0
+unlock_cost = 60
+
+[sub_resource type="Resource" id="Resource_ricochet_carbine"]
+script = ExtResource("2_entry")
+id = &"ricochet_carbine"
+scene = ExtResource("7_ricochet_carbine")
+rarity = 0
+unlock_cost = 60
+
+[sub_resource type="Resource" id="Resource_magnet_coil"]
+script = ExtResource("2_entry")
+id = &"magnet_coil"
+scene = ExtResource("8_magnet_coil")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_volt_shotgun"]
+script = ExtResource("2_entry")
+id = &"volt_shotgun"
+scene = ExtResource("9_volt_shotgun")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_longshot"]
+script = ExtResource("2_entry")
+id = &"longshot"
+scene = ExtResource("10_longshot")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_firecracker"]
+script = ExtResource("2_entry")
+id = &"firecracker"
+scene = ExtResource("11_firecracker")
+rarity = 1
+unlock_cost = 150
+
 [resource]
 script = ExtResource("1_catalog")
-entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver")])
+entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker")])

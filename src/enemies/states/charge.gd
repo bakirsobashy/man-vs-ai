@@ -9,6 +9,8 @@ extends EnemyState
 @export var stunned_state := &"Stunned"
 @export_range(0.0, 5.0, 0.1, "suffix:s") var stun_time := 1.0
 @export var next_state := &"Approach"
+## SCRAPJAW: smash through cover and keep going (only walls stop the charge).
+@export var plow_through_cover := false
 
 var _travelled := 0.0
 
@@ -29,6 +31,10 @@ func physics_update(delta: float) -> void:
 	var cover := collider as Cover
 	if cover != null:
 		cover.smash(heavy_cover_damage)
+		if plow_through_cover:
+			# Light and medium cover break at once; heavy cover takes a second smash on the next frame.
+			EventBus.screen_shake_requested.emit(0.15)
+			return
 	if cover != null or collider is TileMapLayer:
 		EventBus.screen_shake_requested.emit(0.3)
 		machine.transition_to(stunned_state, {"duration": stun_time})

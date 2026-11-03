@@ -49,4 +49,5 @@ func _on_gui_input(event: InputEvent) -> void:
 	var touch := event as InputEventScreenTouch
 	if (click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT) or (touch != null and touch.pressed):
 		accept_event()
+		AudioManager.click()
 		_next()

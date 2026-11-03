@@ -1,0 +1,625 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/scrapjaw.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/components/drop_chance.gd" id="11_drop_chance"]
+[ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="12_ammo"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="Script" path="res://src/enemies/states/telegraph.gd" id="14_telegraph"]
+[ext_resource type="Script" path="res://src/enemies/states/fire_emitter.gd" id="15_fire"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="16_emitter"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="17_bullet"]
+[ext_resource type="Script" path="res://src/components/contact_hitbox.gd" id="19_contact"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="21_crypto"]
+[ext_resource type="Script" path="res://src/components/boss_phases.gd" id="29_phases"]
+[ext_resource type="Script" path="res://src/enemies/states/phase_resume.gd" id="30_resume"]
+[ext_resource type="Script" path="res://src/enemies/states/charge.gd" id="31_charge"]
+[ext_resource type="Script" path="res://src/enemies/states/magnet_pull.gd" id="32_magnet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_scrap.tscn" id="33_scrap"]
+[ext_resource type="PackedScene" path="res://src/cover/scrap_pile.tscn" id="34_pile"]
+[ext_resource type="Script" path="res://src/enemies/states/spin_chase.gd" id="35_spin"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="36_hit"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/boss_roar.wav" id="37_roar"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
+radius = 16.0
+
+[sub_resource type="Resource" id="Resource_ammo_drop"]
+script = ExtResource("11_drop_chance")
+scene = ExtResource("12_ammo")
+chance = 1.0
+amount = 1
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_charge_tell"]
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2.4, 2.4)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.35, 0.25, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="Animation" id="Animation_spray_tell"]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2.4, 2.4)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.85, 0.4, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, false]
+}
+
+[sub_resource type="Animation" id="Animation_magnet_tell"]
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2.4, 2.4)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.45, 0.75, 1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, false]
+}
+
+[sub_resource type="Animation" id="Animation_grind_tell"]
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2.4, 2.4)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.35, 0.25, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="Animation" id="Animation_grind_tell_fast"]
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2.4, 2.4)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.35, 0.25, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_attack"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"charge_tell": SubResource("Animation_charge_tell"),
+&"grind_tell": SubResource("Animation_grind_tell"),
+&"grind_tell_fast": SubResource("Animation_grind_tell_fast"),
+&"magnet_tell": SubResource("Animation_magnet_tell"),
+&"spray_tell": SubResource("Animation_spray_tell")
+}
+
+[node name="Scrapjaw" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("attack_animation", "nav_agent")]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 34.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+attack_animation = NodePath("AttackAnimation")
+nav_agent = NodePath("NavAgent")
+is_boss = true
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("20_glow")
+
+[node name="AimPivot" type="Node2D" parent="."]
+
+[node name="AimLine" type="Line2D" parent="AimPivot"]
+visible = false
+points = PackedVector2Array(18, 0, 220, 0)
+width = 3.0
+default_color = Color(1, 0.25, 0.2, 0.7)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="ContactHitbox" type="Area2D" parent="."]
+collision_layer = 256
+collision_mask = 0
+monitoring = false
+script = ExtResource("19_contact")
+damage = 2
+
+[node name="Shape" type="CollisionShape2D" parent="ContactHitbox"]
+shape = SubResource("CircleShape2D_contact")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 6.0
+target_desired_distance = 6.0
+radius = 6.0
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 3
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 600
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 64
+ram_scene = ExtResource("9_ram")
+crypto_min = 50
+crypto_max = 50
+crypto_scene = ExtResource("21_crypto")
+extras = Array[ExtResource("11_drop_chance")]([SubResource("Resource_ammo_drop")])
+
+[node name="SprayEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_bullet")
+count = 8
+spread_deg = 315.0
+burst = 3
+burst_interval = 0.35
+aimed = false
+rotate_per_volley_deg = 22.5
+
+[node name="SpiralEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_bullet")
+count = 4
+spread_deg = 270.0
+burst = 20
+burst_interval = 0.15
+aimed = false
+rotate_per_volley_deg = 17.0
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("36_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="RoarSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("37_roar")
+bus = &"SFX"
+
+[node name="Phases" type="Node" parent="." node_paths=PackedStringArray("state_machine", "roar")]
+script = ExtResource("29_phases")
+state_machine = NodePath("../StateMachine")
+roar = NodePath("../RoarSound")
+boss_name = "SCRAPJAW"
+thresholds = Array[float]([0.6, 0.25])
+phase_states = Array[StringName]([&"WreckApproach", &"MagnetTell", &"GrindSpin"])
+phase_names = Array[String](["WRECK", "MAGNET", "GRIND"])
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Resume"
+
+[node name="Resume" type="Node" parent="StateMachine" node_paths=PackedStringArray("phases")]
+script = ExtResource("30_resume")
+phases = NodePath("../../Phases")
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+default_duration = 1.0
+next_state = &"Resume"
+
+[node name="WreckApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 60.0
+max_range = 170.0
+attack_state = &"WreckChargeTell"
+attack_delay_min = 0.6
+attack_delay_max = 1.2
+needs_line_of_sight = false
+
+[node name="WreckChargeTell" type="Node" parent="StateMachine" node_paths=PackedStringArray("aim_node")]
+script = ExtResource("14_telegraph")
+animation_name = &"charge_tell"
+next_state = &"WreckCharge"
+lock_aim = true
+aim_node = NodePath("../../AimPivot")
+
+[node name="WreckCharge" type="Node" parent="StateMachine"]
+script = ExtResource("31_charge")
+speed = 300.0
+max_distance = 560.0
+heavy_cover_damage = 150
+stunned_state = &"Stunned"
+stun_time = 1.0
+next_state = &"WreckSprayTell"
+plow_through_cover = true
+
+[node name="WreckSprayTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+animation_name = &"spray_tell"
+next_state = &"WreckSpray"
+
+[node name="WreckSpray" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../SprayEmitter")
+recover_time = 0.5
+next_state = &"WreckApproach"
+
+[node name="MagnetTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+animation_name = &"magnet_tell"
+next_state = &"MagnetPull"
+
+[node name="MagnetPull" type="Node" parent="StateMachine"]
+script = ExtResource("32_magnet")
+scrap_bullet = ExtResource("33_scrap")
+pile_scene = ExtResource("34_pile")
+next_state = &"MagnetSpray"
+
+[node name="MagnetSpray" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../SprayEmitter")
+recover_time = 0.4
+next_state = &"MagnetApproach"
+
+[node name="MagnetApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 60.0
+max_range = 170.0
+attack_state = &"MagnetChargeTell"
+attack_delay_min = 0.5
+attack_delay_max = 1.0
+needs_line_of_sight = false
+
+[node name="MagnetChargeTell" type="Node" parent="StateMachine" node_paths=PackedStringArray("aim_node")]
+script = ExtResource("14_telegraph")
+animation_name = &"charge_tell"
+next_state = &"MagnetCharge"
+lock_aim = true
+aim_node = NodePath("../../AimPivot")
+
+[node name="MagnetCharge" type="Node" parent="StateMachine"]
+script = ExtResource("31_charge")
+speed = 300.0
+max_distance = 560.0
+heavy_cover_damage = 150
+stunned_state = &"Stunned"
+stun_time = 1.0
+next_state = &"MagnetTell"
+plow_through_cover = true
+
+[node name="GrindSpin" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter", "spin_node")]
+script = ExtResource("35_spin")
+emitter = NodePath("../../SpiralEmitter")
+spin_node = NodePath("../../Sprite")
+next_state = &"GrindChargeTell"
+
+[node name="GrindChargeTell" type="Node" parent="StateMachine" node_paths=PackedStringArray("aim_node")]
+script = ExtResource("14_telegraph")
+animation_name = &"grind_tell"
+next_state = &"GrindCharge"
+lock_aim = true
+aim_node = NodePath("../../AimPivot")
+
+[node name="GrindCharge" type="Node" parent="StateMachine"]
+script = ExtResource("31_charge")
+speed = 340.0
+max_distance = 520.0
+heavy_cover_damage = 150
+stunned_state = &"Stunned"
+stun_time = 0.8
+next_state = &"GrindChargeTell2"
+plow_through_cover = true
+
+[node name="GrindChargeTell2" type="Node" parent="StateMachine" node_paths=PackedStringArray("aim_node")]
+script = ExtResource("14_telegraph")
+animation_name = &"grind_tell_fast"
+next_state = &"GrindCharge2"
+lock_aim = true
+aim_node = NodePath("../../AimPivot")
+
+[node name="GrindCharge2" type="Node" parent="StateMachine"]
+script = ExtResource("31_charge")
+speed = 340.0
+max_distance = 520.0
+heavy_cover_damage = 150
+stunned_state = &"Stunned"
+stun_time = 0.8
+next_state = &"GrindSpin"
+plow_through_cover = true
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="changed" from="Health" to="Phases" method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]

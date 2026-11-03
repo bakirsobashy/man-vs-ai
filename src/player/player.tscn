@@ -18,6 +18,12 @@
 [ext_resource type="PackedScene" path="res://src/player/hero_visual.tscn" id="17_hero_visual"]
 [ext_resource type="Resource" path="res://data/implants/implant_catalog.tres" id="18_implants"]
 [ext_resource type="Resource" path="res://data/weapons/weapon_catalog.tres" id="19_weapons"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hurt.wav" id="90_hurt"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/roll.wav" id="91_roll"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/emp.wav" id="92_emp"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/cover.wav" id="93_cover"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/pickup.wav" id="94_pickup"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/player_death.wav" id="95_player_death"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 6.0
@@ -556,6 +562,40 @@ libraries/ = SubResource("AnimationLibrary_flash")
 [node name="EmpAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_emp")
+
+[node name="HurtSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("90_hurt")
+bus = &"SFX"
+
+[node name="RollSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("91_roll")
+volume_db = -6.0
+bus = &"SFX"
+
+[node name="EmpSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("92_emp")
+volume_db = -2.0
+bus = &"SFX"
+
+[node name="CoverSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("93_cover")
+volume_db = -6.0
+bus = &"SFX"
+
+[node name="PickupSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("94_pickup")
+volume_db = -8.0
+bus = &"SFX"
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("95_player_death")
+bus = &"SFX"
 
 [connection signal="ammo_changed" from="GunPivot/WeaponSlot/ServicePistol" to="." method="_on_weapon_ammo_changed"]
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]

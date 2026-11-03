@@ -97,6 +97,12 @@ extends CharacterBody2D
 @onready var emp_animation: AnimationPlayer = %EmpAnimation
 @onready var roll_shockwave: Area2D = %RollShockwave
 @onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
+@onready var hurt_sound: AudioStreamPlayer = %HurtSound
+@onready var roll_sound: AudioStreamPlayer = %RollSound
+@onready var emp_sound: AudioStreamPlayer = %EmpSound
+@onready var cover_sound: AudioStreamPlayer = %CoverSound
+@onready var pickup_sound: AudioStreamPlayer = %PickupSound
+@onready var death_sound: AudioStreamPlayer = %DeathSound
 
 ## The starter pistol (pre-placed in WeaponSlot). Always carried, infinite ammo.
 var primary: Weapon
@@ -254,6 +260,7 @@ func take_cover(spot: CoverSpot) -> void:
 	cover_normal = spot.normal
 	body_animation.play(&"crouch")
 	haptic(haptic_cover_ms)
+	cover_sound.play()
 
 
 func leave_cover() -> void:
@@ -373,6 +380,7 @@ func fire_emp() -> void:
 			body.call(&"stun", emp_stun_time)
 	emp_animation.stop()
 	emp_animation.play(&"emp")
+	emp_sound.play()
 	haptic(haptic_emp_ms)
 	EventBus.screen_shake_requested.emit(0.4)
 	EventBus.player_emp_changed.emit(emp_charges)
@@ -482,6 +490,8 @@ func _can_use(pickup: Pickup) -> bool:
 
 
 func _apply_pickup(pickup: Pickup) -> void:
+	pickup_sound.pitch_scale = randf_range(0.92, 1.12)
+	pickup_sound.play()
 	match pickup.kind:
 		Pickup.Kind.RAM:
 			GameState.add_ram(pickup.amount)
@@ -554,6 +564,7 @@ func _on_health_changed(hp: int, max_hp: int, armor: int, damaged: bool) -> void
 	if damaged and is_node_ready():
 		flash_animation.stop()
 		flash_animation.play(&"hurt_blink")
+		hurt_sound.play()
 		haptic(haptic_hit_ms)
 		EventBus.screen_shake_requested.emit(hit_shake)
 	EventBus.player_health_changed.emit(hp, max_hp, armor)
@@ -561,6 +572,7 @@ func _on_health_changed(hp: int, max_hp: int, armor: int, damaged: bool) -> void
 
 func _on_health_died() -> void:
 	state_machine.transition_to(&"Dead")
+	death_sound.play()
 	EventBus.player_died.emit()
 
 

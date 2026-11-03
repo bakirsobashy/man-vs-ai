@@ -26,6 +26,8 @@ enum SpawnKind { GROUND = 1, FLYER = 2, STATIONARY = 4 }
 @onready var drops: Drops = %Drops
 @onready var line_of_sight: RayCast2D = %LineOfSight
 @onready var flash_animation: AnimationPlayer = %FlashAnimation
+## Optional "HitSound" node (AudioStreamPlayer2D), played on every hit that lands.
+@onready var hit_sound: AudioStreamPlayer2D = get_node_or_null(^"HitSound") as AudioStreamPlayer2D
 
 var player: Node2D
 ## True while the SpawnIn state runs: harmless, untargetable, bullets pass through.
@@ -74,6 +76,8 @@ func take_damage(amount: int) -> void:
 	if not is_targetable():
 		return
 	health.take_hit(amount)
+	if hit_sound != null:
+		hit_sound.play()
 	if health.is_alive():
 		flash_animation.stop()
 		flash_animation.play(&"hurt")
@@ -89,6 +93,8 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if bullet == null or not bullet.active or not is_targetable() or not bullet.try_hit(self):
 		return
 	take_damage(bullet.hit_damage)
+	if bullet.stun_time > 0.0 and health.is_alive() and not is_boss:
+		stun(bullet.stun_time)
 
 
 func _on_health_changed(hp: int, max_hp: int, _armor: int, _damaged: bool) -> void:

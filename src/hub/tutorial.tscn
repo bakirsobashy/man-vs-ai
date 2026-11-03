@@ -16,6 +16,8 @@
 [ext_resource type="PackedScene" path="res://src/enemies/dummy/target_dummy.tscn" id="20_target"]
 [ext_resource type="PackedScene" path="res://src/enemies/dummy/shooter_dummy_aimed.tscn" id="21_aimed"]
 [ext_resource type="PackedScene" path="res://src/enemies/dummy/shooter_dummy_spread.tscn" id="22_spread"]
+[ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
 
 [sub_resource type="Theme" id="Theme_ui"]
 default_font_size = 12
@@ -198,6 +200,10 @@ step_timer = NodePath("StepTimer")
 [node name="StepTimer" type="Timer" parent="TutorialDirector"]
 wait_time = 1.0
 one_shot = true
+
+[node name="MusicCue" type="Node" parent="."]
+script = ExtResource("91_music_cue")
+stream = ExtResource("92_lab_theme")
 
 [connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
 [connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]

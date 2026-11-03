@@ -12,6 +12,7 @@ func enter(msg: Dictionary) -> void:
 	_finished = false
 	player.rolling_invulnerable = true
 	player.body_animation.play(&"roll")
+	player.roll_sound.play()
 	player.haptic(player.haptic_roll_ms)
 
 
