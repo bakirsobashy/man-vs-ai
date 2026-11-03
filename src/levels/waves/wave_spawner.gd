@@ -2,8 +2,12 @@
 class_name WaveSpawner
 extends Node
 ## Spends each wave's threat budget at the room's hand-placed SpawnPoints (docs/technical.md §6.4).
-## Enemies are copies of authored scenes. When a wave's last enemy dies, the reward drops and the
-## NextWaveTimer (its timeout is connected in the scene) starts the next wave.
+## Enemies are copies of authored scenes. Two modes:
+## - Endless (the M2 arena): every cleared wave drops the reward, and the NextWaveTimer starts the next one.
+## - Room (levels): the LevelDirector calls start_room() or spawn_boss(); after the room's last wave,
+##   room_cleared is emitted (connected to the director in the level scene).
+
+signal room_cleared
 
 @export var settings: WaveSettings
 ## The room's SpawnPoints node.
@@ -19,6 +23,9 @@ extends Node
 var wave := 0
 var alive: Array[Node] = []
 var _rng := RandomNumberGenerator.new()
+var _room_mode := false
+var _waves_left := 0
+var _room_budget := 0.0
 
 
 func _ready() -> void:
@@ -26,15 +33,43 @@ func _ready() -> void:
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 
 
+## Fight in a level room: `wave_count` waves of `budget` threat at the room's SpawnPoints.
+func start_room(points: Node2D, parent: Node2D, wave_count: int, budget: float) -> void:
+	spawn_points = points
+	enemy_parent = parent
+	_room_mode = true
+	_waves_left = wave_count
+	_room_budget = budget
+	wave = 0
+	alive.clear()
+	start_next_wave()
+
+
+## A boss fight: one enemy copy at `at`; room_cleared follows its death.
+func spawn_boss(scene: PackedScene, at: Vector2, parent: Node2D) -> Node2D:
+	enemy_parent = parent
+	_room_mode = true
+	_waves_left = 0
+	alive.clear()
+	_spawn(scene, at)
+	return alive.back() as Node2D
+
+
 func start_next_wave() -> void:
-	if not settings.endless and wave >= settings.waves:
+	if not _room_mode and not settings.endless and wave >= settings.waves:
 		return
 	wave += 1
 	var budget := minf(settings.threat_first_wave + (wave - 1) * settings.threat_per_wave, settings.max_threat)
+	if _room_mode:
+		_waves_left -= 1
+		budget = _room_budget
 	var spent := _spawn_wave(budget)
 	EventBus.wave_started.emit(wave, spent)
 	if alive.is_empty():
-		next_wave_timer.start()
+		if _room_mode:
+			_wave_done()
+		else:
+			next_wave_timer.start()
 
 
 func _spawn_wave(budget: float) -> float:
@@ -95,7 +130,18 @@ func _on_enemy_killed(enemy: Node2D) -> void:
 		return
 	alive.erase(enemy)
 	if alive.is_empty():
-		if reward_drops != null and reward_spot != null:
-			reward_drops.drop(reward_spot.global_position)
-		EventBus.wave_cleared.emit(wave)
-		next_wave_timer.start()
+		_wave_done()
+
+
+func _wave_done() -> void:
+	EventBus.wave_cleared.emit(wave)
+	if _room_mode:
+		if _waves_left > 0:
+			next_wave_timer.start()
+		else:
+			_room_mode = false
+			room_cleared.emit()
+		return
+	if reward_drops != null and reward_spot != null:
+		reward_drops.drop(reward_spot.global_position)
+	next_wave_timer.start()

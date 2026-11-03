@@ -1,0 +1,229 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/generation/level_director.gd" id="1_director"]
+[ext_resource type="Resource" path="res://data/levels/level_1.tres" id="2_config"]
+[ext_resource type="PackedScene" path="res://src/player/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://src/components/bullet_pool.gd" id="4_bullet_pool"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_bullet.tscn" id="5_player_bullet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_pellet.tscn" id="6_player_pellet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_rivet.tscn" id="7_player_rivet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="8_enemy_bullet"]
+[ext_resource type="Script" path="res://src/levels/camera_follow.gd" id="9_camera"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="10_tuning"]
+[ext_resource type="Script" path="res://src/input/touch_controller.gd" id="11_touch"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="12_hud"]
+[ext_resource type="Script" path="res://src/levels/waves/wave_spawner.gd" id="13_wave_spawner"]
+[ext_resource type="Resource" path="res://data/levels/level_1_waves.tres" id="14_waves"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="15_drops"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="16_crypto"]
+[ext_resource type="Script" path="res://src/components/drop_chance.gd" id="17_drop_chance"]
+[ext_resource type="PackedScene" path="res://src/pickups/half_heart.tscn" id="18_half_heart"]
+[ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="19_ammo"]
+[ext_resource type="PackedScene" path="res://src/pickups/armor_pickup.tscn" id="20_armor"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="21_ram"]
+[ext_resource type="PackedScene" path="res://src/levels/features/chest.tscn" id="22_chest"]
+
+[sub_resource type="Resource" id="Resource_reward_heart"]
+script = ExtResource("17_drop_chance")
+scene = ExtResource("18_half_heart")
+chance = 0.1
+amount = 1
+
+[sub_resource type="Resource" id="Resource_reward_ammo"]
+script = ExtResource("17_drop_chance")
+scene = ExtResource("19_ammo")
+chance = 0.25
+amount = 1
+
+[sub_resource type="Resource" id="Resource_reward_armor"]
+script = ExtResource("17_drop_chance")
+scene = ExtResource("20_armor")
+chance = 0.05
+amount = 1
+
+[sub_resource type="Animation" id="Animation_fade_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Fade:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_fade_out"]
+length = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Fade:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../LevelDirector")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.15),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_on_fade_out_finished"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_fade_in"]
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Fade:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 1), Color(0, 0, 0, 0)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../LevelDirector")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_on_fade_in_finished"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_transition"]
+_data = {
+&"RESET": SubResource("Animation_fade_reset"),
+&"fade_in": SubResource("Animation_fade_in"),
+&"fade_out": SubResource("Animation_fade_out")
+}
+
+[node name="Level" type="Node2D"]
+
+[node name="RoomHolder" type="Node2D" parent="."]
+
+[node name="Player" parent="." node_paths=PackedStringArray("touch") instance=ExtResource("3_player")]
+position = Vector2(176, 300)
+touch = NodePath("../TouchController")
+
+[node name="BulletPools" type="Node2D" parent="."]
+position = Vector2(-4096, -4096)
+
+[node name="PlayerBullets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("5_player_bullet")
+size = 128
+
+[node name="PlayerPellets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("6_player_pellet")
+size = 120
+
+[node name="PlayerRivets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("7_player_rivet")
+size = 64
+
+[node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("8_enemy_bullet")
+size = 300
+hostile = true
+
+[node name="Camera" type="Camera2D" parent="." node_paths=PackedStringArray("target")]
+position = Vector2(176, 320)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+script = ExtResource("9_camera")
+target = NodePath("../Player")
+tuning = ExtResource("10_tuning")
+
+[node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("hud")]
+script = ExtResource("11_touch")
+tuning = ExtResource("10_tuning")
+hud = NodePath("../HUD")
+
+[node name="HUD" parent="." instance=ExtResource("12_hud")]
+
+[node name="WaveSpawner" type="Node" parent="." node_paths=PackedStringArray("next_wave_timer")]
+script = ExtResource("13_wave_spawner")
+settings = ExtResource("14_waves")
+next_wave_timer = NodePath("NextWaveTimer")
+
+[node name="NextWaveTimer" type="Timer" parent="WaveSpawner"]
+wait_time = 1.2
+one_shot = true
+
+[node name="RoomRewardDrops" type="Node" parent="."]
+script = ExtResource("15_drops")
+crypto_min = 3
+crypto_max = 6
+crypto_scene = ExtResource("16_crypto")
+extras = Array[ExtResource("17_drop_chance")]([SubResource("Resource_reward_heart"), SubResource("Resource_reward_ammo"), SubResource("Resource_reward_armor")])
+scatter = 16.0
+
+[node name="ArenaRewardDrops" type="Node" parent="."]
+script = ExtResource("15_drops")
+ram_mb = 48
+ram_scene = ExtResource("21_ram")
+crypto_min = 30
+crypto_max = 30
+crypto_scene = ExtResource("16_crypto")
+scatter = 16.0
+
+[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition")]
+script = ExtResource("1_director")
+config = ExtResource("2_config")
+room_holder = NodePath("../RoomHolder")
+player = NodePath("../Player")
+camera = NodePath("../Camera")
+wave_spawner = NodePath("../WaveSpawner")
+room_reward = NodePath("../RoomRewardDrops")
+arena_reward = NodePath("../ArenaRewardDrops")
+chest_scene = ExtResource("22_chest")
+transition = NodePath("../Transition/TransitionAnimation")
+
+[node name="Transition" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Fade" type="ColorRect" parent="Transition"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="TransitionAnimation" type="AnimationPlayer" parent="Transition"]
+libraries/ = SubResource("AnimationLibrary_transition")
+
+[connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
+[connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]
+[connection signal="lifted" from="TouchController" to="Player" method="_on_touch_lifted"]
+[connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]
+[connection signal="timeout" from="WaveSpawner/NextWaveTimer" to="WaveSpawner" method="_on_next_wave_timer_timeout"]
+[connection signal="room_cleared" from="WaveSpawner" to="LevelDirector" method="_on_wave_spawner_room_cleared"]

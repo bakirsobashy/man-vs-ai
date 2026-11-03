@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/features/chest.gd" id="1_chest"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/chest.svg" id="2_sprite"]
+[ext_resource type="Resource" path="res://data/weapons/weapon_catalog.tres" id="3_catalog"]
+[ext_resource type="PackedScene" path="res://src/pickups/weapon_pickup.tscn" id="4_weapon_pickup"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="5_drops"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="6_crypto"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_chest"]
+size = Vector2(20, 16)
+
+[node name="Chest" type="Area2D"]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("1_chest")
+catalog = ExtResource("3_catalog")
+weapon_pickup_scene = ExtResource("4_weapon_pickup")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_chest")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("2_sprite")
+hframes = 2
+
+[node name="DropSpot" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, 22)
+
+[node name="Bonus" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("5_drops")
+crypto_scene = ExtResource("6_crypto")
+scatter = 8.0
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

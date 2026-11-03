@@ -185,4 +185,5 @@ libraries/ = ExtResource("8_flash")
 libraries/ = SubResource("AnimationLibrary_attack")
 
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
 [connection signal="died" from="Health" to="." method="_on_health_died"]

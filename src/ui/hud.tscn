@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/crypto_coin.svg" id="15_coin"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/ram_chip.svg" id="16_ram"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/edge_arrow.svg" id="17_arrow"]
+[ext_resource type="PackedScene" path="res://src/ui/map/map_view.tscn" id="18_map_view"]
 
 [sub_resource type="Theme" id="Theme_hud"]
 default_font_size = 11
@@ -57,7 +58,62 @@ _data = {
 &"banner": SubResource("Animation_banner")
 }
 
+[sub_resource type="Animation" id="Animation_toast_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/ToastLabel:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_toast"]
+length = 2.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/ToastLabel:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.8, 2.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_toast"]
+_data = {
+&"RESET": SubResource("Animation_toast_reset"),
+&"toast": SubResource("Animation_toast")
+}
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.08, 0.09, 0.12, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.55, 0.7, 1)
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_bg"]
+bg_color = Color(0.15, 0.05, 0.05, 0.85)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_fill"]
+bg_color = Color(0.9, 0.2, 0.2, 1)
+
 [node name="HUD" type="CanvasLayer"]
+process_mode = 3
 script = ExtResource("1_hud")
 tuning = ExtResource("3_tuning")
 heart_full = ExtResource("11_heart_full")
@@ -406,6 +462,196 @@ grow_horizontal = 2
 focus_mode = 0
 text = "Take"
 
+[node name="BossBar" type="ProgressBar" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 50.0
+offset_right = -96.0
+offset_bottom = 58.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_boss_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_boss_fill")
+max_value = 300.0
+value = 300.0
+show_percentage = false
+
+[node name="MinimapButton" type="Button" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -82.0
+offset_top = 48.0
+offset_right = -6.0
+offset_bottom = 108.0
+grow_horizontal = 0
+
+[node name="Minimap" parent="Root/MinimapButton" instance=ExtResource("18_map_view")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ToastLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 116.0
+offset_right = -16.0
+offset_bottom = 136.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 12
+text = "Toast"
+horizontal_alignment = 1
+
+[node name="FullMap" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 56.0
+offset_right = -20.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/FullMap"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/FullMap/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "MAP"
+
+[node name="FullMapView" parent="Root/FullMap/VBox" instance=ExtResource("18_map_view")]
+layout_mode = 2
+size_flags_vertical = 3
+cell_step = Vector2(28, 24)
+cell_scale = 2.0
+
+[node name="FullMapClose" type="Button" parent="Root/FullMap/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Close"
+
+[node name="ShopPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 150.0
+offset_right = -20.0
+offset_bottom = -230.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/ShopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/ShopPanel/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "REPAIR STATION"
+
+[node name="ShopInfo" type="Label" parent="Root/ShopPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text = "3 purchases left"
+
+[node name="BuyHeart" type="Button" parent="Root/ShopPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "+1/2 heart"
+
+[node name="BuyArmor" type="Button" parent="Root/ShopPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "+1 armor"
+
+[node name="BuyEmp" type="Button" parent="Root/ShopPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "+1 EMP"
+
+[node name="BuyAmmo" type="Button" parent="Root/ShopPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Refill ammo"
+
+[node name="ShopClose" type="Button" parent="Root/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Leave"
+
+[node name="MemoryPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 150.0
+offset_right = -20.0
+offset_bottom = -250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/MemoryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+
+[node name="MemoryTitle" type="Label" parent="Root/MemoryPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "Memory"
+
+[node name="MemoryBody" type="Label" parent="Root/MemoryPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+size_flags_vertical = 3
+autowrap_mode = 3
+text = "..."
+
+[node name="MemoryClose" type="Button" parent="Root/MemoryPanel/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Close"
+
 [node name="DebugPanel" type="PanelContainer" parent="Root" node_paths=PackedStringArray("hud")]
 unique_name_in_owner = true
 visible = false
@@ -599,6 +845,10 @@ step = 0.05
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_hud")
 
+[node name="ToastAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_toast")
+
 [connection signal="toggled" from="Root/TopBand/Margin/Rows/Row1/DebugButton" to="Root/DebugPanel" method="_on_debug_button_toggled"]
 [connection signal="pressed" from="Root/TopBand/Margin/Rows/Row2/WeaponCard" to="." method="_on_weapon_card_pressed"]
 [connection signal="pressed" from="Root/PromptBubble" to="." method="_on_prompt_bubble_pressed"]
@@ -609,3 +859,11 @@ libraries/ = SubResource("AnimationLibrary_hud")
 [connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/AnchorOption" to="Root/DebugPanel" method="_on_anchor_option_item_selected"]
 [connection signal="toggled" from="Root/DebugPanel/Margin/VBox/Options/ShowStickCheck" to="Root/DebugPanel" method="_on_show_stick_check_toggled"]
 [connection signal="pressed" from="Root/DebugPanel/Margin/VBox/Options/StormButton" to="Root/DebugPanel" method="_on_storm_button_pressed"]
+[connection signal="pressed" from="Root/MinimapButton" to="." method="_on_minimap_button_pressed"]
+[connection signal="pressed" from="Root/FullMap/VBox/FullMapClose" to="." method="_on_full_map_close_pressed"]
+[connection signal="pressed" from="Root/ShopPanel/VBox/BuyHeart" to="." method="_on_buy_heart_pressed"]
+[connection signal="pressed" from="Root/ShopPanel/VBox/BuyArmor" to="." method="_on_buy_armor_pressed"]
+[connection signal="pressed" from="Root/ShopPanel/VBox/BuyEmp" to="." method="_on_buy_emp_pressed"]
+[connection signal="pressed" from="Root/ShopPanel/VBox/BuyAmmo" to="." method="_on_buy_ammo_pressed"]
+[connection signal="pressed" from="Root/ShopPanel/VBox/ShopClose" to="." method="_on_shop_close_pressed"]
+[connection signal="pressed" from="Root/MemoryPanel/VBox/MemoryClose" to="." method="_on_memory_close_pressed"]

@@ -83,6 +83,28 @@ If the gate fails, iterate on M1 before moving on.
 - 60 fps on mid-range phones and at least 30 fps on low-end with 300 bullets on screen.
 
 ## M3: Levels
+**Status: built, device playtest pending.**
+- **Built:**
+  - The level generator (`LevelGenerator`), driven by `data/levels/level_1.tres`, and the `LevelDirector`:
+    - door transitions behind a fade;
+    - locked fights and room rewards;
+    - rooms that keep their state when the hero comes back.
+  - 16 greybox Rustline rooms: start, 8 combat, 2 chest, memory, challenge arena, repair, terminal and boss.
+    Cover and SpawnPoints are hand-placed, and navigation is baked around the cover.
+  - Chests from the weapon catalog, a repair shop, a hacked terminal, the first memory, and the challenge arena.
+  - A stand-in boss (ring and fan attacks, HUD boss bar); beating it reveals an elevator that starts a fresh random level.
+  - HUD: minimap, full map, shop and memory panels, and toasts.
+- **Tests:**
+  - the generator test validates 10,000 levels in about 3 s;
+  - the level smoke test passes 55/55;
+  - the M1 and M2 smoke tests still pass.
+- **Stand-ins until later milestones:**
+  - the boss (SCRAPJAW comes in M4);
+  - the terminal ambush is a normal 3-threat wave (elites come in M5);
+  - death respawns the hero at the room's door (the run ending and the lab come in M4);
+  - the elevator starts another random level 1.
+- **Still to do:** play a level from start to the boss door on a phone and time it (the target is about 10 minutes).
+
 **Scope**
 - The level generator, with validation tests.
 - Door transitions and the minimap.

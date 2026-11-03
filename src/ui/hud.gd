@@ -26,9 +26,20 @@ extends CanvasLayer
 @onready var wave_animation: AnimationPlayer = %WaveAnimation
 @onready var edge_arrows: Control = %EdgeArrows
 @onready var touch_path: Line2D = %TouchPath
+@onready var full_map: Control = %FullMap
+@onready var shop_panel: Control = %ShopPanel
+@onready var shop_info: Label = %ShopInfo
+@onready var shop_buttons: Array[Button] = [%BuyHeart, %BuyArmor, %BuyEmp, %BuyAmmo]
+@onready var memory_panel: Control = %MemoryPanel
+@onready var memory_title: Label = %MemoryTitle
+@onready var memory_body: Label = %MemoryBody
+@onready var toast_label: Label = %ToastLabel
+@onready var toast_animation: AnimationPlayer = %ToastAnimation
+@onready var boss_bar: ProgressBar = %BossBar
 
 var _weapon_text := "Pistol"
 var _ammo_text := ""
+var _station: RepairStation
 
 
 func _ready() -> void:
@@ -39,6 +50,11 @@ func _ready() -> void:
 	EventBus.currency_changed.connect(_on_currency_changed)
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.interact_prompt_changed.connect(_on_interact_prompt_changed)
+	EventBus.banner_requested.connect(_on_banner_requested)
+	EventBus.toast_requested.connect(_on_toast_requested)
+	EventBus.boss_health_changed.connect(_on_boss_health_changed)
+	EventBus.shop_opened.connect(_on_shop_opened)
+	EventBus.memory_opened.connect(_on_memory_opened)
 	set_joystick_zone_top(tuning.joystick_zone_top)
 	hide_stick()
 	_on_currency_changed(RunState.crypto, RunState.ram_mb)
@@ -159,7 +175,94 @@ func _on_interact_prompt_changed(text: String) -> void:
 	prompt_bubble.visible = text != ""
 
 
+## Panels pause the game while they're open (the HUD itself keeps running).
+func _set_panel(panel: Control, open: bool) -> void:
+	panel.visible = open
+	get_tree().paused = full_map.visible or shop_panel.visible or memory_panel.visible
+
+
+func _refresh_shop() -> void:
+	if _station == null:
+		return
+	var labels: Array[String] = ["+1/2 heart", "+1 armor", "+1 EMP", "Refill ammo"]
+	for i: int in shop_buttons.size():
+		shop_buttons[i].text = "%s — %d Crypto" % [labels[i], _station.price(i as RepairStation.Item)]
+		shop_buttons[i].disabled = _station.purchases_left <= 0
+	shop_info.text = "%d purchases left · you have %d Crypto" % [_station.purchases_left, RunState.crypto]
+
+
+func _buy(item: RepairStation.Item) -> void:
+	var hero := get_tree().get_first_node_in_group(&"player") as Player
+	if _station == null or hero == null:
+		return
+	_on_toast_requested(_station.buy(item, hero))
+	_refresh_shop()
+
+
+func _on_banner_requested(text: String) -> void:
+	wave_label.text = text
+	wave_animation.stop()
+	wave_animation.play(&"banner")
+
+
+func _on_toast_requested(text: String) -> void:
+	toast_label.text = text
+	toast_animation.stop()
+	toast_animation.play(&"toast")
+
+
+func _on_boss_health_changed(hp: int, max_hp: int) -> void:
+	boss_bar.max_value = max_hp
+	boss_bar.value = hp
+	boss_bar.visible = hp > 0
+
+
+func _on_shop_opened(station: Node) -> void:
+	_station = station as RepairStation
+	_refresh_shop()
+	_set_panel(shop_panel, true)
+
+
+func _on_memory_opened(title: String, text: String) -> void:
+	memory_title.text = title
+	memory_body.text = text
+	_set_panel(memory_panel, true)
+
+
 # --- Signals connected in hud.tscn ---
+
+func _on_minimap_button_pressed() -> void:
+	_set_panel(full_map, true)
+
+
+func _on_full_map_close_pressed() -> void:
+	_set_panel(full_map, false)
+
+
+func _on_shop_close_pressed() -> void:
+	_station = null
+	_set_panel(shop_panel, false)
+
+
+func _on_memory_close_pressed() -> void:
+	_set_panel(memory_panel, false)
+
+
+func _on_buy_heart_pressed() -> void:
+	_buy(RepairStation.Item.HALF_HEART)
+
+
+func _on_buy_armor_pressed() -> void:
+	_buy(RepairStation.Item.ARMOR)
+
+
+func _on_buy_emp_pressed() -> void:
+	_buy(RepairStation.Item.EMP_CHARGE)
+
+
+func _on_buy_ammo_pressed() -> void:
+	_buy(RepairStation.Item.AMMO)
+
 
 func _on_weapon_card_pressed() -> void:
 	EventBus.weapon_swap_requested.emit()

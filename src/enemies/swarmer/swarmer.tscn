@@ -30,7 +30,7 @@ amount = 1
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 8.0
 
-[node name="Swarmer" type="CharacterBody2D" groups=["enemies"]]
+[node name="Swarmer" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("nav_agent")]
 collision_layer = 8
 collision_mask = 11
 motion_mode = 1
@@ -38,6 +38,7 @@ script = ExtResource("1_enemy")
 move_speed = 60.0
 spawn_kind = 1
 death_fx_scene = ExtResource("10_sparks")
+nav_agent = NodePath("NavAgent")
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_body")
@@ -62,6 +63,11 @@ damage = 1
 
 [node name="Shape" type="CollisionShape2D" parent="ContactHitbox"]
 shape = SubResource("CircleShape2D_contact")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 6.0
+target_desired_distance = 6.0
+radius = 6.0
 
 [node name="LineOfSight" type="RayCast2D" parent="."]
 unique_name_in_owner = true
@@ -106,4 +112,5 @@ unique_name_in_owner = true
 libraries/ = ExtResource("8_flash")
 
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
 [connection signal="died" from="Health" to="." method="_on_health_died"]

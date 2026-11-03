@@ -181,37 +181,53 @@ CrateLight (StaticBody2D)             cover.gd — exports: max_hp = 40, cover_m
 `barrier_medium.tscn` (48×16, 120 HP) and `block_heavy.tscn` (32×32, 300 HP) follow the same tree. Break
 particles and sounds arrive with the art and audio passes.
 
-**Room template** (`src/levels/rooms/rustline/rustline_combat_03.tscn`)
+**Room template** (`src/levels/rooms/rustline/combat_03.tscn`, built in M3)
 ```
-RustlineCombat03 (Node2D)             room.gd
-├─ Floor (TileMapLayer)
-├─ Walls (TileMapLayer)               collision and navigation come from the tileset
-├─ Doors (Node2D)                     DoorN · DoorS · DoorE · DoorW — door.tscn instances, each with an Entry marker;
-│                                     doors the map doesn't use are sealed at runtime
-├─ Cover (Node2D)                     hand-placed cover instances: CrateLight · CrateLight2 · BarrierMedium · …
-├─ SpawnPoints (Node2D)               SpawnPoint · SpawnPoint2 · … — exports: kinds (ground / flyer / stationary), waves (1–3)
-├─ Hazards (Node2D)                   barrels, conveyors (instances)
-├─ ChestSpot (Marker2D)               chest rooms only
-└─ CameraBounds (ReferenceRect)       the camera's limits in this room
+RustlineScrapyard (Node2D)            room.gd — exports: room_type, waves (0 = the level's 1–2)
+├─ Floor (TileMapLayer)               floor tiles, the door gaps included
+├─ Walls (TileMapLayer, group nav_source)  collision from the tileset; a 2-tile gap in the middle of each wall
+├─ %NavRegion (NavigationRegion2D)    local-to-scene NavigationPolygon over the floor, baked when the room loads around
+│                                     the nav_source groups (walls and cover) and re-baked after cover breaks
+├─ %Doors (Node2D)                    North · East · South · West — door.tscn instances, rotated to their wall
+├─ Cover (Node2D, group nav_source)   hand-placed cover instances: Block1 · Barrel1 · Crate1 · …
+├─ %Chest / %Station / %Terminal / %Shrine / %Console / %Elevator   the room's feature (special rooms only)
+├─ %SpawnPoints (Node2D)              Spawn1 … Spawn11 — exports: kinds (ground / flyer / stationary), waves (1–3)
+├─ %DropLayer (Node2D, group drop_layer)  the room's pickups, dropped guns and effects; they stay with the room
+├─ %Enemies (Node2D)                  the WaveSpawner adds enemy copies here
+├─ %RewardSpot · %PlayerStart (Marker2D)  room-clear reward and level start; the boss room adds %BossSpot
+├─ %CameraBounds (ReferenceRect)      the camera's limits in this room
+└─ %RebakeTimer (Timer, 0.3 s)        re-bakes the navigation after cover breaks or regrows (timeout connected in the scene)
 ```
 
-**Level** (`src/levels/generation/level.tscn`, M3; built so far: `controls_test.tscn` for M1 and the M2 arena `combat_test.tscn`)
+**Door** (`src/levels/rooms/door.tscn`, built in M3)
 ```
-Level (Node2D)                        level.gd — exports: config (LevelConfig .tres)
-├─ RoomHolder (Node2D)                the current room's copy goes here (M1/M2: the room instance)
-├─ DropLayer (Node2D, group drop_layer)  pickups, dropped guns, explosions and effects are added here
-├─ Enemies (Node2D)                   the WaveSpawner adds enemy copies here
-├─ Player (player.tscn instance)      touch → TouchController, respawn_point → the room's PlayerStart
+Door (Node2D)                         door.gd — exports: direction (N/E/S/W); status OPEN / LOCKED / SEALED at runtime
+├─ %Sprite (Sprite2D, 3 frames)       open · locked bars · sealed (looks like wall)
+├─ Blocker (StaticBody2D, world)      %BlockerShape 32×16 fills the gap unless OPEN, and stops bullets
+├─ Backstop (StaticBody2D, world)     behind the gap, so nothing leaves the room
+├─ Exit (Area2D, mask: player)        walking in while OPEN emits EventBus.door_entered (connected in the scene)
+└─ %Entry (Marker2D)                  inside the room: where the hero arrives through this door
+```
+
+**Level** (`src/levels/level.tscn`, built in M3; the main scene. The M1 and M2 test levels stay in `src/levels/test/`.)
+```
+Level (Node2D)
+├─ RoomHolder (Node2D)                the current room's copy goes here
+├─ Player (player.tscn instance)      touch → TouchController; the director points respawn_point at the entry door
 ├─ BulletPools (Node2D)               placed far outside the playfield (-4096, -4096): idle bullets wait there
-│                                     PlayerBullets · EnemyBulletsSmall (BulletPool — exports: bullet_scene, size, hostile)
-├─ Camera (CameraFollow: Camera2D)    follows the Player inside the room's CameraBounds
+│                                     PlayerBullets · PlayerPellets · PlayerRivets · EnemyBulletsSmall (BulletPool)
+├─ Camera (CameraFollow: Camera2D)    follows the Player inside the current room's CameraBounds
 ├─ TouchController (TouchController)  exports: tuning (controls_tuning.tres), hud — its signals are connected to Player
-├─ LevelGenerator (Node)              M3: picks room scenes from the config
-├─ WaveSpawner (WaveSpawner)          copies enemy scenes to SpawnPoints from the threat budget (WaveSettings .tres)
-│  ├─ NextWaveTimer (Timer)           starts the next wave (timeout connected in the scene)
-│  └─ RewardDrops (Drops)             the wave-clear reward
-└─ HUD (hud.tscn instance)
+├─ HUD (hud.tscn instance)
+├─ WaveSpawner (WaveSpawner)          room mode: waves at the room's SpawnPoints, then room_cleared → LevelDirector
+│  └─ NextWaveTimer (Timer, 1.2 s)    the pause between a room's waves
+├─ RoomRewardDrops (Drops)            combat-room clear: 3–6 Crypto, ½ heart 10%, ammo 25%, armor 5%
+├─ ArenaRewardDrops (Drops)           challenge arena: 30 Crypto and 48 MB (plus a Rare-or-better chest copy)
+├─ LevelDirector (LevelDirector)      exports: config (data/levels/level_1.tres), fixed_seed, chest_scene and the nodes above
+└─ Transition (CanvasLayer, layer 10) Fade (ColorRect) · TransitionAnimation — the last key of fade_out calls
+                                      LevelDirector._on_fade_out_finished, the last key of fade_in _on_fade_in_finished
 ```
+The M1/M2 test levels (`controls_test.tscn`, `combat_test.tscn`) keep `DropLayer` and `Enemies` at the level root.
 
 **HUD** (`src/ui/hud.tscn`, built in M1)
 ```
@@ -225,10 +241,18 @@ HUD (CanvasLayer)                     hud.gd — exports: tuning
    ├─ TopBand (PanelContainer)        Row1: %Hearts (Heart1–6) · %Armor (Pip1–4) · %EmpLabel · DebugButton
    │                                  Row2: Crypto icon + %CryptoLabel · RAM icon + %RamLabel · %WeaponCard (tap = swap)
    ├─ %WaveLabel (Label)              "WAVE n" banner, faded by WaveAnimation
-   ├─ %PromptBubble (Button, hidden)  "Take Scattergun" — tap to pick up
+   ├─ %PromptBubble (Button, hidden)  "Take Scattergun", "Repair station", "Take the elevator" — tap to use
+   ├─ %BossBar (ProgressBar, hidden)  the boss's health (EventBus.boss_health_changed)
+   ├─ MinimapButton (Button)          Minimap (map_view.tscn instance) — tap for the full map
+   ├─ %ToastLabel (Label)             short messages ("Bought for 15 Crypto"), faded by ToastAnimation
+   ├─ %FullMap (PanelContainer)       a big MapView (cell_step 28×24, cell_scale 2) and Close
+   ├─ %ShopPanel (PanelContainer)     %ShopInfo · %BuyHeart · %BuyArmor · %BuyEmp · %BuyAmmo · Leave
+   ├─ %MemoryPanel (PanelContainer)   %MemoryTitle · %MemoryBody · Close
    └─ %DebugPanel (DebugPanel)        gesture readout, A/B switches, TuningSlider instances, 300-bullet storm
 ```
-Later HUD nodes: `%BossBar`, minimap and pause.
+The HUD runs while the game is paused (`process_mode` Always); the three panels pause the game while they're open.
+The map cell is `map_cell.tscn` (Background, Icon and four link stubs); `MapView` copies one for each known room.
+Later HUD nodes: the pause menu (M4).
 
 **Hero paper doll** (`src/player/hero_visual.tscn`)
 ```
@@ -266,6 +290,12 @@ Settings that depend on the art style get decided at M4: texture filter (nearest
   `mouse_filter = Ignore` on every Control that isn't a button.
 - **Command-line tools see autoloads only from `_initialize()`.** A `--script` tool that uses project classes
   (which use `EventBus`) loads them in `_initialize()`, not `_init()`; see `tools/smoke_test_controls.gd`.
+- **(M3) A room added to the tree can catch the hero where it stood a moment ago.** Every room shares the same origin,
+  so a door `Exit` in the new room may overlap the hero's old spot for one physics step. The `LevelDirector` ignores
+  door signals from the fade-out until the fade-in ends.
+- **(M3) Don't name an inner enum after a global class.** `enum State` inside `door.gd` clashed with the `State` node
+  class; the door's enum is `Status`.
+- **(M3) A Control's `resized` signal fires before `_ready`.** Handlers that use `@onready` nodes check `is_node_ready()`.
 
 ### 1.1 Physics layers
 Layers and masks are set on each node in the Inspector, never in code.
@@ -294,7 +324,8 @@ res://
 ├─ data/                non-world data as .tres resources, edited in the Inspector (§0.4)
 │  ├─ controls/         controls_tuning.tres
 │  ├─ implants/         one ImplantData per slot and tier
-│  ├─ levels/           one LevelConfig per level
+│  ├─ levels/           one LevelConfig per level (level_1.tres) and its WaveSettings
+│  ├─ memories/         one MemoryData per memory room
 │  └─ weapons/          weapon_catalog.tres (combat stats live on the weapon scenes)
 ├─ localization/        CSV translation tables
 ├─ src/                 scenes (.tscn) and their scripts (.gd), grouped by feature
@@ -306,11 +337,14 @@ res://
 │  ├─ bosses/           one folder per boss
 │  ├─ weapons/          one folder per weapon; bullets/ for bullet scenes
 │  ├─ cover/            cover scenes by material
-│  ├─ levels/
-│  │  ├─ generation/    level.tscn, LevelGenerator, WaveSpawner
-│  │  └─ rooms/         room template scenes, one folder per district
+│  ├─ levels/           level.tscn (the main scene), CameraFollow
+│  │  ├─ generation/    LevelConfig, LevelGenerator, LevelLayout, LevelDirector (pure data and logic + the director)
+│  │  ├─ rooms/         room.gd, door.tscn, and room template scenes, one folder per district (rustline/)
+│  │  ├─ features/      chest, repair station, hacked terminal, memory shrine, challenge console, elevator
+│  │  ├─ waves/         WaveSpawner, WaveSettings
+│  │  └─ test/          the M1 controls and M2 combat test levels
 │  ├─ hub/              the lab
-│  └─ ui/               HUD, menus, comic-panel player
+│  └─ ui/               HUD, map/ (minimap and full map), menus, comic-panel player
 ├─ tools/               check scripts (§0.7)
 └─ docs/                design documents (contains .gdignore, so Godot skips it)
 ```
@@ -324,7 +358,7 @@ one feature per folder.
 ### 3.1 Autoloads
 | Autoload | Kind | Responsibility |
 |---|---|---|
-| `EventBus` | Script | Global signals: `enemy_killed`, `room_cleared`, `currency_changed`, `implant_installed`, `player_died`, … |
+| `EventBus` | Script | Global signals: `enemy_killed`, `door_entered`, `room_entered`, `room_cleared`, `currency_changed`, `implant_installed`, `player_died`, … |
 | `GameState` | Script | The loaded save slot: implants, unlocks, Crypto, RAM, memories, endings, stats. Derives `filled_slots` and `humanity_band` |
 | `RunState` | Script | The current run: seed, level index, room states, hearts, armor, weapons and ammo, EMP charges, `revive_used` |
 | `SaveManager` | Script | Slot files, atomic writes, versioning and migrations, run snapshots |
@@ -343,11 +377,12 @@ files live in `data/`.
 |---|---|---|
 | `ImplantData` | `data/implants/*.tres` | slot, tier, cost_mb, modifiers (`Array[StatModifier]`), dialogue tag. Its overlay is the HeroVisual node named `<Slot>Mk<tier>` |
 | `StatModifier` | Inside `ImplantData` | stat (enum), op (add / mul), value |
-| `LevelConfig` | `data/levels/level_1.tres` … | district, room-count ranges, room pool (scene, type, weight), waves and threat per wave, enemy pool (scene, threat cost, first wave), elite chance, chest odds, boss scene |
-| `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries: id, scene, rarity, unlock cost, icon |
+| `LevelConfig` | `data/levels/level_1.tres` … | level number, district, room-count ranges, extra-special weights, room pool (`RoomEntry`: scene, type, weight), boss scene, wave settings, waves per room, room / arena / ambush threat, chest odds (elite chance from M5) |
+| `MemoryData` | `data/memories/l1_the_wedding.tres` … | title, text, half-hearts healed (band variants in M5) |
+| `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries (`WeaponCatalogEntry`): id, scene, rarity, unlock cost (icon in M4) |
 | `ControlsTuning` | `data/controls/controls_tuning.tres` | every threshold from GDD §3.4, plus the M1 A/B switches (cover mode, hero anchor, joystick zone top, show stick) |
 | `SwipePreset` | `data/controls/swipe_low/normal/high.tres` | swipe max time, min distance, min speed |
-| `WaveSettings` | `data/levels/m2_arena_waves.tres` | enemy pool (`EnemySpawnEntry`: scene, threat cost, kind, group size, first wave, weight), threat per wave, cap, endless (part of `LevelConfig` from M3) |
+| `WaveSettings` | `data/levels/level_1_waves.tres`, `m2_arena_waves.tres` | enemy pool (`EnemySpawnEntry`: scene, threat cost, kind, group size, first wave, weight), threat per wave, cap, endless, min spawn distance. A level's is set on its `LevelConfig` |
 | `DropChance` | inside `Drops` nodes | pickup scene, chance, amount |
 
 Designers balance the game in the Inspector, with no code changes.
@@ -501,12 +536,17 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   - the Sniper's `LaserSight` Line2D, whose end point the script updates;
   - the Grenadier's landing circle, a copy of `landing_marker.tscn` placed at the target.
   The telegraph animation's length enforces the 0.4 s minimum.
-- **Movement (M2):** states steer straight with `move_and_slide` and flip their strafe when they bump into something.
-  `NavigationAgent2D` with navigation baked around the cover comes with the M3 room templates.
+- **Movement:** walking robots (Grunt, Charger, Swarmer, the stand-in boss) have a `NavAgent` (`NavigationAgent2D`)
+  node. Moving in, they follow its path around walls and cover (`Enemy.direction_toward()`). Every level room and the
+  M2 arena room bake a map; without one, robots steer straight with `move_and_slide` and flip their strafe when they
+  bump into something.
 - **Bodies:** enemies collide with walls, cover and each other, but not with the hero. They pass through the hero,
   and touch damage comes from `ContactHitbox` areas, which the hero checks every physics frame.
 - **Spawning** (`src/levels/waves/wave_spawner.gd`):
-  - The `WaveSpawner` reads the threat budget and enemy pool from its `WaveSettings` (in M3, from `LevelConfig`).
+  - The `WaveSpawner` reads the enemy pool from its `WaveSettings` (the level's, from `LevelConfig`).
+  - **Room mode (M3):** the `LevelDirector` calls `start_room()` with the room's SpawnPoints, wave count and budget, or
+    `spawn_boss()`. After the last wave, `room_cleared` fires (connected in `level.tscn`). Endless mode stays for the
+    M2 arena.
   - It copies enemy scenes to the room's **hand-placed `SpawnPoint`s**. Each SpawnPoint's `kinds` and `waves` exports limit which enemies can appear there, and in which wave.
   - Spawn points within 3 tiles of the hero are skipped.
   - To make an elite, the spawner turns on the copy's `EliteFX` node and applies the modifier.
@@ -558,40 +598,62 @@ Rooms are separate scenes joined by door transitions (Isaac-style), not one cont
 - There's no corridor routing or overlap solving.
 
 ### 7.2 Algorithm
-1. Seed the generator with `rng.seed = hash([run_seed, level_index])`; the same seed always gives the same level.
+`LevelGenerator` (`src/levels/generation/level_generator.gd`) is pure logic with no nodes. It turns a `LevelConfig` and a
+seed into a `LevelLayout`: a list of `RoomNode`s, each with a type, a grid cell, its doors and a room scene.
+1. Seed the generator with `rng.seed = hash([level_seed, level_number, attempt])`; the same seed always gives the same
+   level. `attempt` counts re-rolls.
 2. Roll room counts from `LevelConfig` and clamp the total to that level's range ([content.md](content.md) §6).
-3. Build the graph:
-   - A main path runs Start → combat rooms → Boss.
-   - Extra combat rooms branch off the main path.
-   - Chest and special rooms are leaves.
-   - The memory room is never adjacent to Start or Boss.
-4. Lay the graph out on an abstract grid (one cell per room, using a random walk). The grid is used for the minimap and for door
-   directions (N/S/E/W).
-5. Pick a room scene for each node from the `LevelConfig` room pool, matching its type and weighted, with no repeats within a level.
-   Every template has all four doors, so any room fits any position.
-6. When the hero enters a room:
-   - add a copy of its scene to `RoomHolder`;
-   - set each door to open, locked or sealed;
-   - place the hero at the entry door's `Entry` marker;
-   - set the camera limits from `CameraBounds`;
-   - let the `WaveSpawner` fill the hand-placed SpawnPoints.
-7. Validate the result: connectivity, counts, and a boss at least 3 rooms from Start. If validation fails, re-roll with the next sub-seed.
+3. Grow the graph on an abstract grid (one cell per room; neighbors share a door, N/E/S/W):
+   - a main path of 2+ combat rooms runs from Start to Boss, each step to a random free neighboring cell;
+   - extra combat rooms branch off Start or a combat room;
+   - the leaves come last: the memory room (attached to a combat room, so never next to Start or Boss), the extra
+     special room (weighted: repair, arena, terminal) and the chest rooms.
+4. Pick a room scene for each node from the `LevelConfig` room pool, matching its type and weighted, avoiding repeats
+   within a level when the pool allows. Every template has all four doors, so any room fits any position.
+5. Validate (`LevelGenerator.validate()`): exactly one start, boss and memory room; counts within range; doors matched
+   on both sides; every room reachable; the boss at least 3 doors from Start; boss, chest and special rooms are dead
+   ends; the memory room doesn't touch Start or Boss. If it fails, re-roll (up to 200 attempts).
 
-A unit test generates 10,000 levels headless and asserts every constraint.
+**Playing a level** (`LevelDirector`, `src/levels/generation/level_director.gd`):
+- The first time the hero enters a room, the director adds a copy of its scene to `RoomHolder`. When the hero leaves, the
+  copy is taken out of the tree but kept, so its pickups, broken cover and opened chest are still there on return.
+  A chest's rarity is rolled from the config's odds when its room is first copied.
+- On entering, it places the hero at the arrival door's `Entry`, points the camera at the room's `CameraBounds`, and
+  sets each door: OPEN (or LOCKED in an uncleared fight) where the map has a neighbor, SEALED elsewhere.
+- Combat and boss rooms fight at once. The arena waits for its console and the terminal can start an ambush. The doors
+  stay locked until the `WaveSpawner` reports `room_cleared`. Then the director drops the reward: the room reward at
+  `RewardSpot`, the arena's Rare-or-better chest and Crypto/RAM, or the boss room's elevator. A hacked terminal's chest
+  prize comes through the director too (`EventBus.reward_chest_requested`), so both roll from the level's odds.
+- A door's `Exit` emits `door_entered`. The director plays `fade_out`, swaps rooms at its last key, then plays
+  `fade_in`; door signals are ignored until the fade-in ends (§1.0).
+- The elevator starts the next level (M3: a fresh random level; M4 will chain L1 → L2 and return to the lab).
+- `EventBus.level_generated`, `room_entered` and `room_cleared` drive the minimap (`MapView`), which shows rooms once the
+  hero has been next to them.
+
+**Tests:** `tools/test_level_generator.gd` validates 10,000 seeds (about 3 s), checks determinism and variety, and
+checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` plays generated levels (§15).
 
 ### 7.3 Room template authoring
 - **Structure:** each room is a scene built entirely in the editor (tree in §0.8). It has:
-  - floor and wall tiles;
-  - four `door.tscn` instances;
-  - hand-placed cover;
-  - hand-placed `SpawnPoint`s;
-  - optional hazards and a `ChestSpot`;
-  - a `CameraBounds` rect.
-- **Size:** 22 tiles wide (walls included) and 32–72 tiles tall.
+  - floor and wall tiles, with a 2-tile door gap in the middle of each wall;
+  - four `door.tscn` instances, rotated to their wall;
+  - hand-placed cover and `SpawnPoint`s;
+  - a `NavRegion` whose outline covers the floor (local to scene, so copies don't share a baked mesh);
+  - the room type's feature, if any (`%Chest`, `%Station`, `%Terminal`, `%Shrine`, `%Console`, `%Elevator` and
+    `%BossSpot`);
+  - `%DropLayer`, `%Enemies`, `%RewardSpot`, `%PlayerStart`, `%CameraBounds` and `%RebakeTimer`.
+- **Size:** 22 tiles wide (walls included) and 28–72 tiles tall. Rooms shorter than the screen (40 tiles) are
+  letterboxed.
 - **Layout rules:**
-  - Cover within about 6 tiles of every walkable spot, mixing light, medium and heavy, with at least one piece next to each door.
-  - At least 8 SpawnPoints per combat room, at least 6 tiles from the doors, mixing ground, flyer and stationary kinds.
+  - Keep 44 px (almost 3 tiles) clear around every door's `Entry`. Leave at least 20 px between cover and walls and
+    16 px between cover pieces, so robots can't get stuck.
+  - Cover within about 6 tiles of every walkable spot, mixing light, medium and heavy.
+  - Combat rooms have 10–14 SpawnPoints, at least 6 tiles from every door Entry. Some take stationary enemies
+    (turrets) as well as ground ones.
   - `CameraBounds` covers the whole room.
+- **M3 set (Rustline, `src/levels/rooms/rustline/`):** start, 8 combat rooms (Alley, Market, Scrapyard, Underpass,
+  Checkpoint, Courtyard, Long Street (2 waves), Garage; 40–64 tiles tall), 2 chest rooms, and one each of memory,
+  challenge arena, repair, terminal and boss. All are greybox.
 - **Launch target:** about 12 combat templates per district, plus 2 for each other room type.
 
 ---
@@ -738,8 +800,20 @@ func restore_purchases() -> void
   - swarmer contact damage;
   - a charger smashing cover;
   - EMP stuns, turret fire and rivet piercing.
-- **Unit tests** for the pure logic: the gesture classifier, level-generator constraints and determinism, economy math, and
-  save migrations. Pick GUT or gdUnit4 at M1.
+- **Level generator test (M3):** run `godot --headless --path . --script res://tools/test_level_generator.gd`.
+  It generates 10,000 levels from `level_1.tres` and checks that every one passes `LevelGenerator.validate()`. It also
+  checks that layouts vary, that a seed always gives the same layout, that `validate()` catches broken layouts, and that
+  chest rarity rolls follow the level's odds.
+- **Level smoke test (M3):** run `godot --headless --path . --script res://tools/smoke_test_level.gd`.
+  It loads `level.tscn` and plays generated levels, checking 55 results. The checks cover:
+  - door states, transitions and arrival at the matching door, with each door leading exactly one room on;
+  - locked fights, spawning, baked navigation, the room reward, and cleared rooms staying cleared;
+  - chests (with their state kept), the memory shrine, the repair shop, and a terminal's ambush and chest prize;
+  - the challenge arena's 3 waves and Rare-or-better chest;
+  - the boss, its HUD bar, the elevator and the next level;
+  - the minimap.
+- **Unit tests** for the remaining pure logic: the gesture classifier, economy math, and save migrations. Pick GUT or
+  gdUnit4 when they grow past the smoke tests.
 - **Playtest builds** include the debug overlay. Optional local telemetry (deaths per room, gesture misclassifications)
   only runs with the tester's consent.
 - Every milestone ends with a playtest on real devices ([roadmap.md](roadmap.md)).

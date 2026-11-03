@@ -94,7 +94,8 @@ var rolling_invulnerable := false
 var cover: Cover
 var cover_normal := Vector2.ZERO
 var _reload_multiplier := 1.0
-var _prompt_pickup: WeaponPickup
+var _prompt_target: Interactable
+var _prompt_text := ""
 
 
 func _ready() -> void:
@@ -194,14 +195,23 @@ func swap_weapon() -> void:
 		_activate(primary)
 
 
-## Pick up the gun the prompt is showing. The current found gun is dropped in its place.
+## Use whatever the HUD prompt is showing (a floor gun, a station, the elevator…).
 func interact() -> void:
-	if _prompt_pickup == null or not is_instance_valid(_prompt_pickup) or state_machine.is_in(&"Dead"):
+	if _prompt_target == null or not is_instance_valid(_prompt_target) or state_machine.is_in(&"Dead"):
 		return
-	var pickup := _prompt_pickup
-	_prompt_pickup = null
+	if _prompt_target.can_interact(self):
+		_prompt_target.interact(self)
+	# Hide the bubble now; the next physics frame shows whatever can still be used here.
+	_prompt_target = null
+	_prompt_text = ""
 	EventBus.interact_prompt_changed.emit("")
+
+
+## Take the gun from a floor pickup. The current found gun is dropped in its place.
+func take_weapon(pickup: WeaponPickup) -> void:
 	var gun := pickup.take()
+	if gun == null:
+		return
 	if secondary != null:
 		_drop_weapon(secondary, pickup.global_position)
 	gun.reparent(weapon_slot, false)
@@ -210,6 +220,27 @@ func interact() -> void:
 	gun.ammo_changed.connect(_on_weapon_ammo_changed)
 	secondary = gun
 	_activate(gun)
+
+
+## Repair-station and terminal items. False when the hero doesn't need it (nothing is applied).
+func apply_repair(item: RepairStation.Item) -> bool:
+	match item:
+		RepairStation.Item.HALF_HEART:
+			if health.hp >= health.max_hp:
+				return false
+			health.heal(1)
+		RepairStation.Item.ARMOR:
+			if health.armor >= health.max_armor:
+				return false
+			health.add_armor(1)
+		RepairStation.Item.EMP_CHARGE:
+			emp_charges += 1
+			EventBus.player_emp_changed.emit(emp_charges)
+		RepairStation.Item.AMMO:
+			if secondary == null or not secondary.needs_ammo():
+				return false
+			secondary.add_ammo_share(1.0)
+	return true
 
 
 func take_explosion_hit(amount: int) -> void:
@@ -280,7 +311,7 @@ func _drop_weapon(gun: Weapon, at: Vector2) -> void:
 		gun.queue_free()
 		return
 	var pickup := weapon_pickup_scene.instantiate() as WeaponPickup
-	pickup.position = at
+	pickup.position = (layer as Node2D).to_local(at) if layer is Node2D else at
 	layer.add_child(pickup)
 	pickup.hold(gun)
 
@@ -359,20 +390,21 @@ func _apply_pickup(pickup: Pickup) -> void:
 
 
 func _update_interact_prompt() -> void:
-	var nearest: WeaponPickup = null
+	var nearest: Interactable = null
 	var nearest_distance := INF
 	for area: Area2D in interact_sensor.get_overlapping_areas():
-		var pickup := area as WeaponPickup
-		if pickup == null or pickup.is_queued_for_deletion() or pickup.weapon() == null:
+		var target := area as Interactable
+		if target == null or target.is_queued_for_deletion() or not target.can_interact(self):
 			continue
-		var distance := global_position.distance_to(pickup.global_position)
+		var distance := global_position.distance_to(target.global_position)
 		if distance < nearest_distance:
 			nearest_distance = distance
-			nearest = pickup
-	if nearest == _prompt_pickup:
-		return
-	_prompt_pickup = nearest
-	EventBus.interact_prompt_changed.emit("" if nearest == null else "Take %s" % nearest.weapon().display_name)
+			nearest = target
+	var text := nearest.prompt_text() if nearest != null else ""
+	_prompt_target = nearest
+	if text != _prompt_text:
+		_prompt_text = text
+		EventBus.interact_prompt_changed.emit(text)
 
 
 # --- Touch intents (connected from the TouchController in the level scene) ---

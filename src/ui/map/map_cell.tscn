@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/map/map_cell.gd" id="1_cell"]
+
+[node name="MapCell" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 12.0
+offset_bottom = 10.0
+mouse_filter = 2
+script = ExtResource("1_cell")
+
+[node name="Background" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 12.0
+offset_bottom = 10.0
+mouse_filter = 2
+color = Color(0.25, 0.28, 0.34, 0.85)
+
+[node name="Icon" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 2.0
+offset_top = 1.0
+offset_right = 10.0
+offset_bottom = 9.0
+mouse_filter = 2
+
+[node name="LinkNorth" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 5.0
+offset_top = -1.0
+offset_right = 7.0
+offset_bottom = 0.0
+mouse_filter = 2
+color = Color(0.75, 0.8, 0.9, 0.9)
+
+[node name="LinkEast" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = 4.0
+offset_right = 13.0
+offset_bottom = 6.0
+mouse_filter = 2
+color = Color(0.75, 0.8, 0.9, 0.9)
+
+[node name="LinkSouth" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 5.0
+offset_top = 10.0
+offset_right = 7.0
+offset_bottom = 11.0
+mouse_filter = 2
+color = Color(0.75, 0.8, 0.9, 0.9)
+
+[node name="LinkWest" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -1.0
+offset_top = 4.0
+offset_right = 0.0
+offset_bottom = 6.0
+mouse_filter = 2
+color = Color(0.75, 0.8, 0.9, 0.9)
