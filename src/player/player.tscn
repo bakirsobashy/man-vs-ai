@@ -43,6 +43,12 @@ radius = 40.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_shockwave"]
 radius = 24.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_target_bg"]
+bg_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_target_fill"]
+bg_color = Color(1, 0.3, 0.25, 1)
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
 radius = 18.0
 
@@ -428,6 +434,18 @@ visible = false
 top_level = true
 z_index = 10
 texture = ExtResource("5_reticle")
+
+[node name="TargetHp" type="ProgressBar" parent="Reticle"]
+unique_name_in_owner = true
+visible = false
+offset_left = -10.0
+offset_top = 10.0
+offset_right = 10.0
+offset_bottom = 13.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_target_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_target_fill")
+show_percentage = false
 
 [node name="Hurtbox" type="Area2D" parent="."]
 unique_name_in_owner = true

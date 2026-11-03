@@ -161,6 +161,24 @@ If the gate fails, iterate on M1 before moving on.
 - An external playtest with 10+ people, including a "would you play again?" question.
 
 ## M5: Content production
+**Status: in progress, built district by district (the owner's choice). Level 2 is playable.**
+- **Built so far (Level 2, Neon Bazaar):**
+  - **The campaign:** runs go L1 → lab → L2. Hearts, armor and the found gun carry between levels, and death
+    restarts at Level 1.
+  - **Neon Bazaar:** 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
+  - **Elite modifiers** (Overclocked, Armored, Splitter, Shielded), from Level 2 at 10%.
+  - **GLITCH**, with decoys, holo-wall cages and the Static Storm.
+  - **Guns:** the Junk Cannon, Arc Caster and Overclock Pistol (12 of 21 guns).
+  - **Implants:** Hawk Optics and Neural Coprocessor (4 of 6 implants).
+  - **Story:** memory band variants, Mira's Drawing, the Level 2 lab talk, and Vorn's band-aware idle lines.
+- **Owner decisions:** Vorn is morally grey (Q1), the Normal ending has Patched and Hollow flavors (Q8), and
+  post-game is NG+ threat levels (Q5).
+- **Tests:**
+  - every earlier suite still passes;
+  - the Level 2 smoke test passes 44/44;
+  - the generator validates 10,000 layouts for each campaign level.
+- **Next:** Level 3 (The Foundry), then L4, L5, the endings and NG+, then balance.
+
 **Scope**
 - Districts 2–5: templates, hazards and tilesets.
 - The remaining 8 enemy types and the elite modifiers.

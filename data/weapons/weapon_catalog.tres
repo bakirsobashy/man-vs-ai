@@ -11,6 +11,9 @@
 [ext_resource type="PackedScene" path="res://src/weapons/volt_shotgun/volt_shotgun.tscn" id="9_volt_shotgun"]
 [ext_resource type="PackedScene" path="res://src/weapons/longshot/longshot.tscn" id="10_longshot"]
 [ext_resource type="PackedScene" path="res://src/weapons/firecracker/firecracker.tscn" id="11_firecracker"]
+[ext_resource type="PackedScene" path="res://src/weapons/junk_cannon/junk_cannon.tscn" id="12_junk_cannon"]
+[ext_resource type="PackedScene" path="res://src/weapons/arc_caster/arc_caster.tscn" id="13_arc_caster"]
+[ext_resource type="PackedScene" path="res://src/weapons/overclock_pistol/overclock_pistol.tscn" id="14_overclock_pistol"]
 
 [sub_resource type="Resource" id="Resource_scattergun"]
 script = ExtResource("2_entry")
@@ -75,6 +78,27 @@ scene = ExtResource("11_firecracker")
 rarity = 1
 unlock_cost = 150
 
+[sub_resource type="Resource" id="Resource_junk_cannon"]
+script = ExtResource("2_entry")
+id = &"junk_cannon"
+scene = ExtResource("12_junk_cannon")
+rarity = 0
+unlock_cost = 60
+
+[sub_resource type="Resource" id="Resource_arc_caster"]
+script = ExtResource("2_entry")
+id = &"arc_caster"
+scene = ExtResource("13_arc_caster")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_overclock_pistol"]
+script = ExtResource("2_entry")
+id = &"overclock_pistol"
+scene = ExtResource("14_overclock_pistol")
+rarity = 1
+unlock_cost = 150
+
 [resource]
 script = ExtResource("1_catalog")
-entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker")])
+entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker"), SubResource("Resource_junk_cannon"), SubResource("Resource_arc_caster"), SubResource("Resource_overclock_pistol")])

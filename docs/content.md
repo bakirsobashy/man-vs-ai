@@ -80,7 +80,9 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 
 - **New-save pool:** #0–#3.
 - **Built in M4:** #0–#3 plus the armory's first six unlocks: #4 Bolt Revolver, #6 Ricochet Carbine, #8 Magnet Coil,
-  #9 Volt Shotgun, #10 Longshot and #11 Firecracker. The others arrive in M5.
+  #9 Volt Shotgun, #10 Longshot and #11 Firecracker.
+- **Built in M5 so far:** #5 Junk Cannon (big chunks of 15+ damage knock robots back 18 px), #7 Arc Caster (chains
+  within 72 px) and #13 Overclock Pistol (reaches 9 shots/s after 2 s of fire; a 0.5 s pause resets it).
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
 - **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
   Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
@@ -106,6 +108,11 @@ Arena: a scrapyard full of light cover.
 - Contact damage is 1 heart; drops are 64 MB, 50 Crypto and an ammo pickup.
 
 ### GLITCH† (L2, The Liar). Teaches reading bullets and beating auto-aim. HP 700
+**Built in M5** (`src/bosses/glitch/`):
+- Decoys keep 2 (then 4) copies alive at 8 hand-placed teleport spots.
+- Fan bursts: 5 bullets over 45°.
+- The holo-wall cage lasts 3 s.
+- Drops 80 MB and 60 Crypto.
 | Phase | HP | Attacks |
 |---|---|---|
 | 1 · Decoys | 100–65% | 2 decoys (no shadow, slight flicker). The real Glitch fires aimed fan bursts; decoys fire hollow, outline-only bullets that do no damage. Auto-aim may pick a decoy, and shooting one pops it |
@@ -152,8 +159,12 @@ The first kill unlocks the M7 Line Rifle.
 
 Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero animation and direction.
 
-**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. The other four slots show in surgery as
-"arrives in M5".
+**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. **M5:** Eyes and Brain, all three tiers.
+Implementation notes:
+- Threat Sight lengthens every enemy tell by 0.2 s and tints bullets heading at the hero.
+- Failsafe refills itself at the start of each level.
+
+Arms and Lungs show in surgery as "arrives in M5" until Level 3.
 
 ---
 

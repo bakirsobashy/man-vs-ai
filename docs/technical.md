@@ -347,6 +347,7 @@ Layers and masks are set on each node in the Inspector, never in code.
 | 7 | pickups | Hearts, ammo, currency (detect the player) |
 | 8 | interactables | Chests, stations, NPCs, doors, weapon pickups (detected by the hero's InteractSensor) |
 | 9 | enemy_contact | `ContactHitbox` areas of enemies that hurt by touch (detected by the hero's Hurtbox) |
+| 10 | sight_blockers | Holo-signs (M5): only line-of-sight rays (hero and enemy `LineOfSight`, mask 515) hit them; bullets and bodies pass |
 
 ---
 
@@ -416,10 +417,11 @@ files live in `data/`.
 |---|---|---|
 | `ImplantData` | `data/implants/heart_mk1.tres` … `legs_mk3.tres` | slot, tier, display name, description, cost_mb, modifiers (`Array[StatModifier]`), Vorn's line. Its overlay is the HeroVisual node named `<Slot>Mk<tier>` |
 | `StatModifier` | Inside `ImplantData` | stat (max HP, start armor, move speed, roll distance, heal every N rooms, roll shockwave), value; tiers add up |
-| `ImplantCatalog` | `data/implants/implant_catalog.tres` | every installable tier (M4: Heart and Legs, Mk I–III) |
+| `ImplantCatalog` | `data/implants/implant_catalog.tres` | every installable tier (Heart, Legs, Eyes and Brain so far, Mk I–III) |
+| `Campaign` | `data/levels/campaign.tres` | the run's LevelConfigs in order; the level scene plays `config_for(RunState.level_number)` |
 | `Conversation` / `DialogueLine` | `data/dialogue/lab_intro.tres`, `l1_first_clear.tres` | lines (speaker, text) for the DialogueBox |
 | `LineSet` | `data/dialogue/retrieval_lines.tres`, `patch_lines.tres` | alternative lines for one moment, cycled |
-| `LevelConfig` | `data/levels/level_1.tres` … | level number, district, room-count ranges, extra-special weights, room pool (`RoomEntry`: scene, type, weight), boss scene, wave settings, waves per room, room / arena / ambush threat, chest odds (elite chance from M5) |
+| `LevelConfig` | `data/levels/level_1.tres`, `level_2.tres` … | level number, district, music and boss music, room-count ranges, extra-special weights, room pool (`RoomEntry`: scene, type, weight), boss scene, wave settings, waves per room, room / arena / ambush threat, elite chance, chest odds |
 | `MemoryData` | `data/memories/l1_the_wedding.tres` … | title, text, half-hearts healed (band variants in M5) |
 | `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries (`WeaponCatalogEntry`): id, scene, rarity, unlock cost (icon later). 9 guns in M4 |
 | `ControlsTuning` | `data/controls/controls_tuning.tres` | every threshold from GDD §3.4, plus the M1 A/B switches (cover mode, hero anchor, joystick zone top, show stick) |
@@ -601,6 +603,21 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   - Spawn points within 3 tiles of the hero are skipped.
   - To make an elite, the spawner turns on the copy's `EliteFX` node and applies the modifier.
 - **Deaths:** copies report through `EventBus.enemy_killed`, so no per-copy wiring is needed.
+- **Level 2 robots (M5):**
+  - **Shotgunner:** a closing approach and a 5-bullet pump spread.
+  - **Drone** (`circle.gd`): spawn kind Flyer, with no collision mask, so it flies over walls and cover. It circles
+    the hero inside the room's `CameraBounds`. Its shots (`enemy_bullet_aerial.tscn`, `aerial`, mask: world) pass
+    over cover and ignore cover protection.
+  - **Hacker** (`hack.gd`): copies `rig_charge.tscn` onto the intact cover nearest the hero. The charge blinks for
+    1.5 s, then an explosion breaks the cover. The Hacker also shields the nearest ally for 3 hits.
+- **Elites (M5):** single enemies roll the level's `elite_chance`. `Enemy.make_elite()` applies the modifier:
+  - Overclocked: ×1.5 speed, faster attacks via `attack_rate` and the emitter interval;
+  - Armored: ×2 HP, ×0.8 speed;
+  - Splitter: the WaveSpawner copies 2 `splitter_scene` Swarmers where it died;
+  - Shielded: absorbs 3 hits (`ShieldBubble`).
+
+  An elite costs 2× threat, drops 3× RAM and shows its `EliteFX` ring in the modifier's color. With elites, a hacked
+  terminal's ambush is one elite (`spawn_elite_ambush`).
 
 ### 6.4.1 Weapons, pickups and drops (M2)
 - **Two slots:**
@@ -651,7 +668,18 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
 - **Grind** (`spin_chase.gd`): spins the sprite and walks at the hero while `SpiralEmitter` fires; then double charges.
 - **Arena:** `rooms/rustline/boss.tscn`, a scrapyard of light cover, with `%BossSpot` and `Cover/ScrapSpots` (group `scrap_spots`).
 - The HUD boss bar listens to `EventBus.boss_health_changed`. The old stand-in (`src/enemies/boss_standin/`) stays
-  as a placeholder for the L2–L5 bosses.
+  as a placeholder for the L3–L5 bosses until they're built.
+
+**GLITCH** (`src/bosses/glitch/glitch.tscn`, M5) uses the same pattern, with HP 700 and thresholds [0.65, 0.3]:
+- **Decoys** (`summon_decoys.gd`): keeps 2 `glitch_decoy.tscn` copies on free `TeleportSpots`. Decoys are 1-HP
+  enemies in the `glitch_decoys` group, with no shadow and a flicker. Their hollow bullets do no damage (the hero
+  ignores zero-damage bullets).
+- **Holo-walls:** `teleport.gd` blinks to a spot far from the hero; `cage.gd` copies `holo_cage.tscn` around the hero.
+  Its four walls block movement and bullets, its corners are open, and its `LifeTimer` removes it after 3 s.
+- **Static Storm:** 4 decoys, faster blinks, and `EventBus.screen_glitch_requested`. The HUD's `GlitchOverlay` plays
+  `glitch`, or the gentle `glitch_soft` with the reduced-flashing setting.
+- `clears_group_on_death` removes the decoys when GLITCH falls. The arena (`rooms/neon/boss.tscn`) holds
+  `TeleportSpots` (group `teleport_spots`).
 
 ---
 
@@ -698,6 +726,9 @@ seed into a `LevelLayout`: a list of `RoomNode`s, each with a type, a grid cell,
   chain L1 → lab → L2). On death, the `DeathTimer` (1.2 s) shows the HUD's Retrieved summary, the run ends, and its
   button returns to the lab. Tests turn off `return_to_lab` to keep the M3 in-place level loop.
 - When the level is freed, the director frees the visited rooms it kept outside the tree.
+- **Campaign (M5):** the director's `campaign` picks the LevelConfig for `RunState.level_number`. The boss elevator
+  calls `_finish_level()`: it saves the hero's state, then `RunState.advance_level()` sets `in_lab`, and the run file
+  is kept. The lab's elevator (named after the next district) continues the run. After the last level, the run ends.
 - `EventBus.level_generated`, `room_entered` and `room_cleared` drive the minimap (`MapView`), which shows rooms once the
   hero has been next to them.
 
@@ -909,6 +940,15 @@ func restore_purchases() -> void
   slot and run files (including a corrupt and a future-version file), settings, and the real scene flow from the title
   through the prologue, the tutorial, the lab, a run, Save and quit, Continue run, death, and the boss elevator. It
   saves to `user://test_saves/`, never to real slots.
+- **Level 2 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l2.gd`. It checks 44
+  results:
+  - holo-signs, Drones, Hackers, every elite modifier and the elite ambush;
+  - GLITCH's three phases;
+  - the Junk Cannon, Arc Caster and Overclock Pistol;
+  - Hawk Optics and Neural Coprocessor at every tier;
+  - memory band variants and the Level 2 lab talks.
+
+  The generator test now validates 10,000 layouts for every campaign level, and the flow test covers L1 → lab → L2.
 - **Unit tests** for the remaining pure logic: the gesture classifier and economy math. Pick GUT or
   gdUnit4 when they grow past the smoke tests.
 - **Playtest builds** include the debug overlay. Optional local telemetry (deaths per room, gesture misclassifications)

@@ -1,10 +1,10 @@
 extends Node
-## The M3 level generator test (started by tools/test_level_generator.gd).
-## Generates LEVELS layouts from data/levels/level_1.tres and checks every one against LevelGenerator.validate().
+## The level generator test (started by tools/test_level_generator.gd).
+## Generates LEVELS layouts for every level in data/levels/campaign.tres and checks each against LevelGenerator.validate().
 ## It also checks that the same seed gives the same layout, that layouts vary, and that validate() catches
 ## broken layouts.
 
-const CONFIG_PATH := "res://data/levels/level_1.tres"
+const CAMPAIGN_PATH := "res://data/levels/campaign.tres"
 const LEVELS := 10000
 
 var _failures := 0
@@ -15,7 +15,21 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	var config := load(CONFIG_PATH) as LevelConfig
+	var campaign := load(CAMPAIGN_PATH) as Campaign
+	for config: LevelConfig in campaign.levels:
+		_test_level(config)
+	var config := campaign.levels[0]
+	var again := LevelGenerator.generate(config, 4242)
+	_check(_signature(again) == _signature(LevelGenerator.generate(config, 4242)), "the same seed gives the same layout")
+	_check(_signature(again) != _signature(LevelGenerator.generate(config, 4243)), "a different seed gives a different layout")
+	_test_validate_catches_broken_layouts(config)
+	_test_chest_rarity_odds(config)
+
+	print("Level generator test finished: %d failure(s)" % _failures)
+	get_tree().quit(1 if _failures > 0 else 0)
+
+
+func _test_level(config: LevelConfig) -> void:
 	var started := Time.get_ticks_msec()
 	var invalid := 0
 	var first_error := ""
@@ -40,21 +54,12 @@ func _run() -> void:
 		boss_depth_min = mini(boss_depth_min, depth)
 		boss_depth_max = maxi(boss_depth_max, depth)
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
-	_check(invalid == 0, "%d generated levels pass every rule (%d invalid%s) in %.1f s"
-		% [LEVELS, invalid, ", first: " + first_error if first_error != "" else "", seconds])
+	_check(invalid == 0, "Level %d (%s): %d generated levels pass every rule (%d invalid%s) in %.1f s"
+		% [config.level_number, config.district_name, LEVELS, invalid, ", first: " + first_error if first_error != "" else "", seconds])
 	_check(signatures.size() > LEVELS * 0.9, "layouts vary (%d distinct of %d)" % [signatures.size(), LEVELS])
 	print("      room counts: %s · boss depth %d–%d" % [totals, boss_depth_min, boss_depth_max])
 	print("      extra specials: arena %d · repair %d · terminal %d"
 		% [specials.get(Room.RoomType.ARENA, 0), specials.get(Room.RoomType.REPAIR, 0), specials.get(Room.RoomType.TERMINAL, 0)])
-
-	var again := LevelGenerator.generate(config, 4242)
-	_check(_signature(again) == _signature(LevelGenerator.generate(config, 4242)), "the same seed gives the same layout")
-	_check(_signature(again) != _signature(LevelGenerator.generate(config, 4243)), "a different seed gives a different layout")
-	_test_validate_catches_broken_layouts(config)
-	_test_chest_rarity_odds(config)
-
-	print("Level generator test finished: %d failure(s)" % _failures)
-	get_tree().quit(1 if _failures > 0 else 0)
 
 
 func _test_validate_catches_broken_layouts(config: LevelConfig) -> void:

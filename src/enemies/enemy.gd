@@ -147,6 +147,14 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	take_damage(bullet.hit_damage)
 	if bullet.stun_time > 0.0 and health.is_alive() and not is_boss:
 		stun(bullet.stun_time)
+	if bullet.knockback > 0.0 and bullet.hit_damage >= bullet.knockback_min_damage and health.is_alive() and not is_boss:
+		_shove.call_deferred(bullet.direction * bullet.knockback)
+
+
+## Knockback: a short push that walls and cover stop.
+func _shove(offset: Vector2) -> void:
+	if is_inside_tree():
+		move_and_collide(offset)
 
 
 func _on_health_changed(hp: int, max_hp: int, _armor: int, _damaged: bool) -> void:

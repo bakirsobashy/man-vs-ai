@@ -32,6 +32,8 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_aerial.tscn" id="33_aerial"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_hollow.tscn" id="34_hollow"]
 [ext_resource type="PackedScene" path="res://src/enemies/swarmer/swarmer.tscn" id="35_swarmer"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_scrap.tscn" id="36_scrap_shot"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_arc.tscn" id="37_arc"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
@@ -185,6 +187,16 @@ size = 16
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("27_firecracker")
 size = 64
+
+[node name="PlayerScrap" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("36_scrap_shot")
+size = 24
+
+[node name="PlayerArcs" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("37_arc")
+size = 40
 
 [node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")

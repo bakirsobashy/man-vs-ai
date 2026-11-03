@@ -80,13 +80,15 @@ machines: sparks and scrap, no gore. The family's deaths are **never shown on sc
   three-note lullaby. That lullaby is the game's human leitmotif.
 - Her drawings, recordings and Button are the memory items.
 
-### Dr. Elias Vorn† (the mad scientist) [LOCKED: rescuer and lab owner; role OPEN]
+### Dr. Elias Vorn† (the mad scientist) [LOCKED: rescuer and lab owner; morally grey, decided in M5]
 - A former military cyberneticist who built augmentations during the war, then was banned and disgraced under the Accord.
   Brilliant, theatrical, and unsettlingly kind.
 - He pulled Kade from the wreckage, brought him to the underground lab, and does all the implant surgery. His retrieval
   drone brings Kade back after every death.
-- **His true role is [OPEN]:** ally, hidden villain, or morally grey ([open-questions.md](open-questions.md) Q1).
-- **Writing rule until that's decided:** every Vorn line has to read naturally under all three interpretations. Examples:
+- **His true role is morally grey** (Q1, decided in M5). He saved Kade and means it, and he also wanted a test
+  subject. He is proud of his work and honestly fond of Kade, and he never quite says which matters more. Each ending
+  shows a different side of him.
+- **Writing rule:** his lines stay warm and a little clinical, and never confirm or deny a hidden agenda outright. Examples:
   - *"You were always going to come to me, Sergeant."*
   - *"I can't give you back what you lost. I can give you what you need."*
   - *"Every part I give you is a part you chose."*
@@ -182,10 +184,10 @@ Kade stands over Zero's core as a man. The Syndicate's backups burn. Vorn offers
 and Kade refuses. The final panel shows Kade at the family memorial, setting down Button while the music box plays clean.
 *"I'm still here. That's how I know I won."*
 
-### Normal (1–5 slots)
+### Normal (1–5 slots; two flavors, decided in M5)
 Kade wins, but some memories are gone where the machines went in. The final panel shows Kade in the rain, half his face
-reflecting neon, while the music box skips a note. He keeps walking. Patched and Hollow could get different closing lines
-([OPEN], Q8).
+reflecting neon, while the music box skips a note. He keeps walking. Patched (1–2 slots) and Hollow (3–5) get different
+closing lines and panel details (Q8).
 
 ### Transformation (6 slots, the bad ending)
 Zero falls, and the Syndicate's robots kneel to the stronger machine. Kade's system warns that memory is low, so he

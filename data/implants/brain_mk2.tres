@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ImplantData" format=3]
+
+[ext_resource type="Script" path="res://src/player/implants/implant_data.gd" id="1_implant"]
+[ext_resource type="Script" path="res://src/player/implants/stat_modifier.gd" id="2_modifier"]
+
+[sub_resource type="Resource" id="Resource_mod0"]
+script = ExtResource("2_modifier")
+stat = 11
+value = 32.0
+
+[sub_resource type="Resource" id="Resource_mod1"]
+script = ExtResource("2_modifier")
+stat = 12
+value = 1.0
+
+[resource]
+script = ExtResource("1_implant")
+slot = "brain"
+tier = 2
+display_name = "Neural Coprocessor Mk II"
+description = "EMP stun radius 4 to 6 tiles, and the stun lasts 2.5 s."
+cost_mb = 512
+modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_mod0"), SubResource("Resource_mod1")])
+vorn_line = "Think louder, Sergeant. The machines will hear you."

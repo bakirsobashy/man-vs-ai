@@ -29,6 +29,14 @@ signal shot_fired
 @export_range(1, 10) var burst := 1
 ## Time between the shots of a burst.
 @export_range(0.01, 0.5, 0.01, "suffix:s") var burst_interval := 0.07
+## Junk Cannon: each shot's damage is random between damage and damage_max (0 = always `damage`).
+@export_range(0, 999) var damage_max := 0
+## Overclock Pistol: the fire rate climbs to this while the trigger stays held (0 = no ramp).
+@export_range(0.0, 30.0, 0.1, "suffix:/s") var ramp_fire_rate := 0.0
+## Seconds of continuous fire to reach ramp_fire_rate.
+@export_range(0.1, 10.0, 0.1, "suffix:s") var ramp_time := 2.0
+## A pause longer than this resets the ramp.
+@export_range(0.05, 2.0, 0.05, "suffix:s") var ramp_reset := 0.5
 
 @onready var muzzle: Marker2D = %Muzzle
 @onready var range_area: Area2D = %Range
@@ -45,6 +53,10 @@ var _pool: BulletPool
 var _burst_left := 0
 var _burst_timer := 0.0
 var _burst_target := Vector2.ZERO
+var _ramp_elapsed := 0.0
+var _since_shot := 99.0
+## Hawk Optics Mk II: chance that a bullet deals double damage (set by the hero).
+var crit_chance := 0.0
 
 
 func _ready() -> void:
@@ -53,6 +65,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	_since_shot += delta
+	_ramp_elapsed = _ramp_elapsed + delta if _since_shot < ramp_reset else 0.0
 	if _burst_left > 0:
 		_burst_timer -= delta
 		if _burst_timer <= 0.0:
@@ -81,7 +95,8 @@ func try_fire(target_position: Vector2) -> bool:
 		_pool = BulletPool.find_for(get_tree(), bullet_scene)
 	if _pool == null:
 		return false
-	_cooldown = 1.0 / fire_rate
+	_cooldown = 1.0 / current_fire_rate()
+	_since_shot = 0.0
 	_burst_left = burst - 1
 	_burst_timer = burst_interval
 	_burst_target = target_position
@@ -99,7 +114,7 @@ func _shoot(target_position: Vector2) -> void:
 		var angle := randf_range(-spread, spread) * 0.5
 		if pellets > 1:
 			angle = -spread * 0.5 + spread * i / (pellets - 1) + randf_range(-spread, spread) / (pellets * 4.0)
-		_pool.spawn(muzzle.global_position, aim.rotated(angle), damage)
+		_pool.spawn(muzzle.global_position, aim.rotated(angle), _roll_damage())
 	magazine -= 1
 	muzzle_animation.stop()
 	muzzle_animation.play(&"flash")
@@ -109,6 +124,23 @@ func _shoot(target_position: Vector2) -> void:
 		start_reload()
 	else:
 		announce()
+
+
+## Shots per second right now (the Overclock Pistol's ramp included).
+func current_fire_rate() -> float:
+	if ramp_fire_rate <= fire_rate:
+		return fire_rate
+	return lerpf(fire_rate, ramp_fire_rate, clampf(_ramp_elapsed / ramp_time, 0.0, 1.0))
+
+
+## Hawk Optics Mk I: a longer auto-aim reach (the Range circle scales with it).
+func set_range_scale(factor: float) -> void:
+	range_area.scale = Vector2.ONE * factor
+
+
+func _roll_damage() -> int:
+	var amount := randi_range(damage, damage_max) if damage_max > damage else damage
+	return amount * 2 if crit_chance > 0.0 and randf() < crit_chance else amount
 
 
 func start_reload() -> void:

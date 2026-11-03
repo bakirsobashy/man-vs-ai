@@ -30,6 +30,14 @@ extends Area2D
 @export_range(0.0, 2.0, 0.05, "suffix:s") var stun_time := 0.0
 ## Firecracker: copied at the hit point whenever the bullet hits something.
 @export var blast_scene: PackedScene
+## Junk Cannon: hits of at least knockback_min_damage shove the robot this far.
+@export_range(0.0, 64.0, 1.0, "suffix:px") var knockback := 0.0
+@export_range(0, 999) var knockback_min_damage := 15
+## Arc Caster: after a hit, lightning jumps to this many more robots within chain_range.
+@export_range(0, 6) var chain_count := 0
+@export_range(0.0, 200.0, 1.0, "suffix:px") var chain_range := 72.0
+## The lightning effect copied between chained robots (it reads its two points from set_points).
+@export var arc_scene: PackedScene
 
 var pool: BulletPool
 var active := false
@@ -70,6 +78,8 @@ func try_hit(target: Object) -> bool:
 	_hit_ids.append(id)
 	_hits_left -= 1
 	_pop()
+	if chain_count > 0 and target is Node2D:
+		_chain(target as Node2D)
 	if _hits_left <= 0:
 		despawn()
 	return true
@@ -99,6 +109,10 @@ func _park() -> void:
 func _physics_process(delta: float) -> void:
 	if homing > 0.0:
 		_steer(delta)
+	if Player.highlight_aimed and pool != null and pool.hostile:
+		var to_hero := Player.hero_position - global_position
+		var aimed := to_hero.length() < 220.0 and direction.dot(to_hero.normalized()) > 0.97
+		self_modulate = Color(1, 0.35, 0.35) if aimed else Color.WHITE
 	global_position += direction * speed * delta
 	_age += delta
 	if _age >= lifetime:
@@ -141,6 +155,38 @@ func _steer(delta: float) -> void:
 			deg_to_rad(homing) * delta)
 		direction = Vector2.from_angle(angle)
 		rotation = angle
+
+
+## Arc Caster: damages up to chain_count more robots near `from`, one after another.
+func _chain(from: Node2D) -> void:
+	var hit: Array[Node] = [from]
+	var at := from
+	for _i: int in chain_count:
+		var next: Enemy = null
+		var best := chain_range
+		for node: Node in get_tree().get_nodes_in_group(&"enemies"):
+			var enemy := node as Enemy
+			if enemy == null or hit.has(enemy) or not enemy.is_targetable():
+				continue
+			var distance := enemy.global_position.distance_to(at.global_position)
+			if distance < best:
+				best = distance
+				next = enemy
+		if next == null:
+			return
+		hit.append(next)
+		_draw_arc(at.global_position, next.global_position)
+		next.take_damage(hit_damage)
+		at = next
+
+
+func _draw_arc(from: Vector2, to: Vector2) -> void:
+	var layer := get_tree().get_first_node_in_group(&"drop_layer") as Node2D
+	if arc_scene == null or layer == null:
+		return
+	var arc := arc_scene.instantiate() as ArcFx
+	layer.add_child.call_deferred(arc)
+	arc.set_points.call_deferred(layer.to_local(from), layer.to_local(to))
 
 
 func _pop() -> void:

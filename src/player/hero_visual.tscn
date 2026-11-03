@@ -7,7 +7,13 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/heart_mk3.svg" id="5_heart_mk3"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk1.svg" id="6_legs_mk1"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk2.svg" id="7_legs_mk2"]
-[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk3.svg" id="8_legs_mk3"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/eyes_mk1.svg" id="8_eyes_mk1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/eyes_mk2.svg" id="9_eyes_mk2"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/eyes_mk3.svg" id="10_eyes_mk3"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/brain_mk1.svg" id="11_brain_mk1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/brain_mk2.svg" id="12_brain_mk2"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/brain_mk3.svg" id="13_brain_mk3"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk3.svg" id="14_legs_mk3"]
 
 [node name="HeroVisual" type="Node2D"]
 script = ExtResource("1_visual")
@@ -38,6 +44,30 @@ texture = ExtResource("6_legs_mk1")
 visible = false
 texture = ExtResource("7_legs_mk2")
 
+[node name="EyesMk1" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("8_eyes_mk1")
+
+[node name="EyesMk2" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("9_eyes_mk2")
+
+[node name="EyesMk3" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("10_eyes_mk3")
+
+[node name="BrainMk1" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("11_brain_mk1")
+
+[node name="BrainMk2" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("12_brain_mk2")
+
+[node name="BrainMk3" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("13_brain_mk3")
+
 [node name="LegsMk3" type="Sprite2D" parent="Implants"]
 visible = false
-texture = ExtResource("8_legs_mk3")
+texture = ExtResource("14_legs_mk3")

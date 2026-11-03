@@ -2,13 +2,19 @@
 
 [ext_resource type="Script" path="res://src/player/implants/implant_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://src/player/implants/implant_data.gd" id="2_implant"]
-[ext_resource type="Resource" path="res://data/implants/heart_mk1.tres" id="3_heart1"]
-[ext_resource type="Resource" path="res://data/implants/heart_mk2.tres" id="4_heart2"]
-[ext_resource type="Resource" path="res://data/implants/heart_mk3.tres" id="5_heart3"]
-[ext_resource type="Resource" path="res://data/implants/legs_mk1.tres" id="6_legs1"]
-[ext_resource type="Resource" path="res://data/implants/legs_mk2.tres" id="7_legs2"]
-[ext_resource type="Resource" path="res://data/implants/legs_mk3.tres" id="8_legs3"]
+[ext_resource type="Resource" path="res://data/implants/eyes_mk1.tres" id="3_eyes1"]
+[ext_resource type="Resource" path="res://data/implants/eyes_mk2.tres" id="4_eyes2"]
+[ext_resource type="Resource" path="res://data/implants/eyes_mk3.tres" id="5_eyes3"]
+[ext_resource type="Resource" path="res://data/implants/brain_mk1.tres" id="6_brain1"]
+[ext_resource type="Resource" path="res://data/implants/brain_mk2.tres" id="7_brain2"]
+[ext_resource type="Resource" path="res://data/implants/brain_mk3.tres" id="8_brain3"]
+[ext_resource type="Resource" path="res://data/implants/heart_mk1.tres" id="9_heart1"]
+[ext_resource type="Resource" path="res://data/implants/heart_mk2.tres" id="10_heart2"]
+[ext_resource type="Resource" path="res://data/implants/heart_mk3.tres" id="11_heart3"]
+[ext_resource type="Resource" path="res://data/implants/legs_mk1.tres" id="12_legs1"]
+[ext_resource type="Resource" path="res://data/implants/legs_mk2.tres" id="13_legs2"]
+[ext_resource type="Resource" path="res://data/implants/legs_mk3.tres" id="14_legs3"]
 
 [resource]
 script = ExtResource("1_catalog")
-implants = Array[ExtResource("2_implant")]([ExtResource("3_heart1"), ExtResource("4_heart2"), ExtResource("5_heart3"), ExtResource("6_legs1"), ExtResource("7_legs2"), ExtResource("8_legs3")])
+implants = Array[ExtResource("2_implant")]([ExtResource("3_eyes1"), ExtResource("4_eyes2"), ExtResource("5_eyes3"), ExtResource("6_brain1"), ExtResource("7_brain2"), ExtResource("8_brain3"), ExtResource("9_heart1"), ExtResource("10_heart2"), ExtResource("11_heart3"), ExtResource("12_legs1"), ExtResource("13_legs2"), ExtResource("14_legs3")])

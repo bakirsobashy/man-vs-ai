@@ -97,6 +97,7 @@ extends CharacterBody2D
 @onready var emp_animation: AnimationPlayer = %EmpAnimation
 @onready var roll_shockwave: Area2D = %RollShockwave
 @onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
+@onready var target_hp: ProgressBar = %TargetHp
 @onready var hurt_sound: AudioStreamPlayer = %HurtSound
 @onready var roll_sound: AudioStreamPlayer = %RollSound
 @onready var emp_sound: AudioStreamPlayer = %EmpSound
@@ -121,9 +122,23 @@ var _prompt_text := ""
 var start_armor_bonus := 0
 var heal_every_rooms := 0
 var shockwave_damage := 0
+var aim_range_scale := 1.0
+var crit_chance := 0.0
+var show_target_hp := false
+var has_failsafe := false
+var failsafe_ready := false
 var _base_move_speed := 0.0
 var _base_roll_distance := 0.0
 var _base_max_hp := 0
+var _base_emp_per_level := 0
+var _base_emp_stun := 0.0
+var _base_emp_radius := 64.0
+
+## Hawk Optics Mk III (Threat Sight), read by enemy telegraphs and hostile bullets.
+static var telegraph_bonus := 0.0
+static var highlight_aimed := false
+## The hero's position this physics frame (for bullets checking whether they're aimed at it).
+static var hero_position := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -134,6 +149,10 @@ func _ready() -> void:
 	_base_move_speed = move_speed
 	_base_roll_distance = roll_distance
 	_base_max_hp = health.max_hp
+	_base_emp_per_level = emp_charges_per_level
+	_base_emp_stun = emp_stun_time
+	var emp_circle := (emp_range.get_child(0) as CollisionShape2D).shape as CircleShape2D
+	_base_emp_radius = emp_circle.radius if emp_circle != null else 64.0
 	EventBus.cover_destroyed.connect(_on_cover_destroyed)
 	EventBus.weapon_swap_requested.connect(swap_weapon)
 	EventBus.interact_requested.connect(interact)
@@ -157,6 +176,19 @@ func apply_implants() -> void:
 	heal_every_rooms = int(implant_catalog.total(StatModifier.Stat.HEAL_EVERY_ROOMS, installed))
 	shockwave_damage = int(implant_catalog.total(StatModifier.Stat.ROLL_SHOCKWAVE, installed))
 	health.max_armor = maxi(health.max_armor, start_armor_bonus)
+	aim_range_scale = 1.0 + implant_catalog.total(StatModifier.Stat.AIM_RANGE, installed)
+	show_target_hp = implant_catalog.total(StatModifier.Stat.TARGET_HP, installed) > 0.0
+	crit_chance = implant_catalog.total(StatModifier.Stat.CRIT_CHANCE, installed)
+	Player.telegraph_bonus = implant_catalog.total(StatModifier.Stat.THREAT_SIGHT, installed)
+	Player.highlight_aimed = Player.telegraph_bonus > 0.0
+	emp_charges_per_level = _base_emp_per_level + int(implant_catalog.total(StatModifier.Stat.EMP_CHARGES, installed))
+	emp_stun_time = _base_emp_stun + implant_catalog.total(StatModifier.Stat.EMP_STUN, installed)
+	emp_range.scale = Vector2.ONE * ((_base_emp_radius + implant_catalog.total(StatModifier.Stat.EMP_RADIUS, installed)) / _base_emp_radius)
+	has_failsafe = implant_catalog.total(StatModifier.Stat.FAILSAFE, installed) > 0.0
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.crit_chance = crit_chance
+			gun.set_range_scale(aim_range_scale)
 	if full:
 		health.hp = health.max_hp
 	health.hp = mini(health.hp, health.max_hp)
@@ -166,6 +198,7 @@ func apply_implants() -> void:
 ## A new level: refill EMP charges and add the Fusion Heart's starting armor.
 func begin_level() -> void:
 	emp_charges = emp_charges_per_level
+	failsafe_ready = has_failsafe
 	if start_armor_bonus > 0:
 		health.armor = maxi(health.armor, mini(start_armor_bonus, health.max_armor))
 	_announce()
@@ -218,6 +251,7 @@ func roll_finished() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	Player.hero_position = global_position
 	if state_machine.is_in(&"Dead"):
 		return
 	_check_contact_damage()
@@ -274,6 +308,11 @@ func update_aim(move_direction: Vector2) -> void:
 		gun_pivot.rotation = (target.global_position - gun_pivot.global_position).angle()
 		reticle.global_position = target.global_position
 		reticle.visible = true
+		var enemy := target as Enemy
+		target_hp.visible = show_target_hp and enemy != null
+		if target_hp.visible:
+			target_hp.max_value = enemy.health.max_hp
+			target_hp.value = enemy.health.hp
 		return
 	reticle.visible = false
 	if move_direction != Vector2.ZERO:
@@ -359,6 +398,19 @@ func apply_repair(item: RepairStation.Item) -> bool:
 func take_explosion_hit(amount: int) -> void:
 	if state_machine.is_in(&"Dead") or rolling_invulnerable:
 		return
+	_hurt(amount)
+
+
+## Every hit on the hero goes through here: Neural Coprocessor Mk III's Failsafe turns the first lethal hit of a level
+## into a free EMP.
+func _hurt(amount: int) -> void:
+	var lethal := health.armor == 0 and amount >= health.hp and not health.is_invulnerable()
+	if lethal and failsafe_ready:
+		failsafe_ready = false
+		emp_charges += 1
+		fire_emp()
+		EventBus.toast_requested.emit("FAILSAFE: lethal hit negated")
+		return
 	health.take_hit(amount)
 
 
@@ -404,6 +456,8 @@ func respawn() -> void:
 
 
 func _activate(gun: Weapon) -> void:
+	gun.crit_chance = crit_chance
+	gun.set_range_scale(aim_range_scale)
 	if weapon != null and weapon != gun:
 		weapon.set_active(false)
 	weapon = gun
@@ -464,7 +518,7 @@ func _check_contact_damage() -> void:
 	for area: Area2D in hurtbox.get_overlapping_areas():
 		var contact := area as ContactHitbox
 		if contact != null and contact.is_active():
-			health.take_hit(contact.damage)
+			_hurt(contact.damage)
 			return
 
 
@@ -557,7 +611,7 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 		return
 	if rolling_invulnerable or health.is_invulnerable():
 		return
-	health.take_hit(bullet.hit_damage)
+	_hurt(bullet.hit_damage)
 	bullet.despawn()
 
 

@@ -35,6 +35,8 @@
 [ext_resource type="Resource" path="res://data/levels/campaign.tres" id="33_campaign"]
 [ext_resource type="Script" path="res://src/ui/dialogue/conversation.gd" id="34_conversation"]
 [ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="35_line_set"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_eyes.tscn" id="36_comic_eyes"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_brain.tscn" id="37_comic_brain"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/purchase.wav" id="90_purchase"]
 [ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
@@ -178,6 +180,8 @@ weapon_catalog = ExtResource("11_weapons")
 armory_row_scene = ExtResource("12_armory_row")
 patch_lines = ExtResource("13_patch_lines")
 implant_comics = Dictionary[String, PackedScene]({
+"brain": ExtResource("37_comic_brain"),
+"eyes": ExtResource("36_comic_eyes"),
 "heart": ExtResource("26_comic_heart"),
 "legs": ExtResource("27_comic_legs")
 })

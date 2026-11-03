@@ -369,6 +369,8 @@ The number of **filled slots** sets the hero's humanity band; tiers don't count.
   lab visit locks it in.
 - There's no humanity meter in the HUD [LOCKED]; the sprite and the voice show the change.
 - The human path is **hard mode by design**: weapons and skill only. [LOCKED]
+- The Normal ending has two flavors, Patched (1–2 slots) and Hollow (3–5). After an ending, NG+ threat levels unlock
+  (decided in M5; [open-questions.md](open-questions.md)).
 
 ### 5.6 Economy pacing targets [PROPOSED; tune in M4/M5]
 | Target | Value |
