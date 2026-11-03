@@ -32,7 +32,7 @@ func can_interact(_player: Player) -> bool:
 
 
 func interact(player: Player) -> void:
-	if not RunState.spend_ram(cost()):
+	if not GameState.spend_ram(cost()):
 		EventBus.toast_requested.emit("Not enough RAM")
 		return
 	used = true
@@ -43,7 +43,7 @@ func interact(player: Player) -> void:
 			EventBus.reward_chest_requested.emit(drop_spot.global_position)
 			EventBus.toast_requested.emit("ACCESS GRANTED: rare chest")
 		Outcome.CRYPTO_JACKPOT:
-			RunState.add_crypto(jackpot_per_level * RunState.level_number)
+			GameState.add_crypto(jackpot_per_level * RunState.level_number)
 			EventBus.toast_requested.emit("Jackpot: +%d Crypto" % (jackpot_per_level * RunState.level_number))
 		Outcome.SUPPLIES:
 			player.apply_repair(RepairStation.Item.AMMO)

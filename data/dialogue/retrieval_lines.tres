@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LineSet" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+speaker = "Vorn"
+lines = Array[String](["My drone found you in a scrap heap. Lie still. You're home.", "Again? My drone is getting good at this.", "They come back from backups, Sergeant. You come back from me. Rest.", "You keep coming back. That's the part they never understand about you."])

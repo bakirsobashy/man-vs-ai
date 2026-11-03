@@ -1,0 +1,43 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/player/hero_visual.gd" id="1_visual"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/hero.svg" id="2_body"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/heart_mk1.svg" id="3_heart_mk1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/heart_mk2.svg" id="4_heart_mk2"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/heart_mk3.svg" id="5_heart_mk3"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk1.svg" id="6_legs_mk1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk2.svg" id="7_legs_mk2"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/implants/legs_mk3.svg" id="8_legs_mk3"]
+
+[node name="HeroVisual" type="Node2D"]
+script = ExtResource("1_visual")
+
+[node name="Body" type="Sprite2D" parent="."]
+texture = ExtResource("2_body")
+
+[node name="Implants" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="HeartMk1" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("3_heart_mk1")
+
+[node name="HeartMk2" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("4_heart_mk2")
+
+[node name="HeartMk3" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("5_heart_mk3")
+
+[node name="LegsMk1" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("6_legs_mk1")
+
+[node name="LegsMk2" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("7_legs_mk2")
+
+[node name="LegsMk3" type="Sprite2D" parent="Implants"]
+visible = false
+texture = ExtResource("8_legs_mk3")

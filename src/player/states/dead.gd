@@ -6,4 +6,5 @@ func enter(_msg: Dictionary) -> void:
 	player.velocity = Vector2.ZERO
 	player.reticle.visible = false
 	player.flash_animation.play(&"dead")
-	player.respawn_timer.start()
+	if player.auto_respawn:
+		player.respawn_timer.start()

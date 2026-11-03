@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/hub/station.gd" id="1_station"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/armory.svg" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_use"]
+radius = 16.0
+
+[node name="Armory" type="Area2D"]
+collision_layer = 128
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_station")
+prompt = "Armory (Patch)"
+action = &"armory"
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_use")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_sprite")

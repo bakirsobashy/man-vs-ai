@@ -3,8 +3,9 @@ class_name LevelDirector
 extends Node
 ## Runs a level (docs/technical.md §7): generates the layout, copies room scenes into RoomHolder as the hero
 ## walks through doors (behind a fade), locks combat rooms until their waves are cleared, rolls chests,
-## hands out rewards, and starts the next level from the boss room's elevator.
+## hands out rewards, and ends the run from the boss room's elevator or on death.
 ## Visited rooms are kept (out of the tree) so their pickups, cover damage and opened chests persist.
+## The run is saved (RunState + SaveManager) on every room entry and clear, and rebuilt from its seed on Continue.
 
 @export var config: LevelConfig
 ## 0 = a new random seed for every level.
@@ -21,6 +22,10 @@ extends Node
 ## Plays "fade_out" (its last key calls _on_fade_out_finished) and "fade_in" (its last key calls
 ## _on_fade_in_finished).
 @export var transition: AnimationPlayer
+## The boss elevator and death go back to the lab. Off in tests: the elevator starts another level in place.
+@export var return_to_lab := true
+## Started when the hero dies; its timeout (connected in the scene) shows the "Retrieved" summary.
+@export var death_timer: Timer
 
 var layout: LevelLayout
 var current: RoomNode
@@ -43,11 +48,46 @@ func _ready() -> void:
 	EventBus.ambush_requested.connect(_on_ambush_requested)
 	EventBus.reward_chest_requested.connect(_on_reward_chest_requested)
 	EventBus.level_exit_requested.connect(_on_level_exit_requested)
+	EventBus.player_died.connect(_on_player_died)
+	EventBus.summary_closed.connect(_on_summary_closed)
 	wave_spawner.settings = config.wave_settings
-	start_level.call_deferred(fixed_seed)
+	if not RunState.active:
+		RunState.start_new_run()  # started straight from the editor or a test
+	if RunState.resuming:
+		resume_run.call_deferred()
+	else:
+		start_level.call_deferred(fixed_seed if fixed_seed != 0 else RunState.level_seed)
 
 
+## A fresh level (new rooms). 0 = a random seed.
 func start_level(level_seed: int = 0) -> void:
+	_build_level(level_seed if level_seed != 0 else _rng.randi())
+	RunState.start_level(config.level_number, layout.level_seed)
+	player.begin_level()
+	enter_room(layout.start_id, Vector2i.ZERO)
+	EventBus.banner_requested.emit("%s · %d" % [config.district_name.to_upper(), levels_started])
+
+
+## Continue a saved run: rebuild its level from the seed, mark what was done, and put the hero at the entrance of
+## the room they were in (an uncleared room starts its fight again).
+func resume_run() -> void:
+	RunState.resuming = false
+	_build_level(RunState.level_seed)
+	for id: int in RunState.known_rooms:
+		layout.rooms[id].known = true
+	for id: int in RunState.visited_rooms:
+		layout.rooms[id].visited = true
+	for id: int in RunState.cleared_rooms:
+		layout.rooms[id].cleared = true
+	player.restore_run_state()
+	if RunState.room_id >= 0 and RunState.room_id < layout.rooms.size():
+		enter_room(RunState.room_id, RunState.entry_direction)
+	else:
+		enter_room(layout.start_id, Vector2i.ZERO)
+	EventBus.banner_requested.emit("RUN CONTINUED")
+
+
+func _build_level(level_seed: int) -> void:
 	for room: Room in _rooms.values():
 		if room.is_inside_tree():
 			room_holder.remove_child(room)
@@ -57,10 +97,8 @@ func start_level(level_seed: int = 0) -> void:
 	_fight_room = -1
 	levels_started += 1
 	RunState.level_number = config.level_number
-	layout = LevelGenerator.generate(config, level_seed if level_seed != 0 else _rng.randi())
+	layout = LevelGenerator.generate(config, level_seed)
 	EventBus.level_generated.emit(layout)
-	enter_room(layout.start_id, Vector2i.ZERO)
-	EventBus.banner_requested.emit("%s · %d" % [config.district_name.to_upper(), levels_started])
 
 
 ## Show room `id`. `travel` is the grid direction the hero moved (zero for the level start).
@@ -88,6 +126,9 @@ func enter_room(id: int, travel: Vector2i) -> void:
 	var fight := not current.cleared and (current.type == Room.RoomType.COMBAT or current.type == Room.RoomType.BOSS)
 	_set_doors(room, Door.Status.LOCKED if fight else Door.Status.OPEN)
 	EventBus.room_entered.emit(current.id)
+	RunState.room_id = current.id
+	RunState.entry_direction = travel
+	_autosave()
 	if fight:
 		_begin_fight(room)
 
@@ -107,6 +148,7 @@ func _room_for(node: RoomNode) -> Room:
 		var chest := room.feature("Chest") as Chest
 		if chest != null:
 			chest.rarity = config.roll_rarity(_rng.randf())
+			chest.opened = RunState.opened_chests.has(node.id)
 		_rooms[node.id] = room
 	return _rooms[node.id]
 
@@ -154,7 +196,44 @@ func _on_wave_spawner_room_cleared() -> void:
 		Room.RoomType.BOSS:
 			(room.feature("Elevator") as Elevator).reveal()
 			EventBus.banner_requested.emit("LEVEL CLEAR")
+			GameState.add_stat("boss_kills")
+			GameState.stats["best_level"] = maxi(GameState.stat("best_level"), config.level_number)
+			GameState.set_flag("l%d_cleared" % config.level_number)
+	RunState.rooms_cleared += 1
+	GameState.add_stat("rooms_cleared")
 	EventBus.room_cleared.emit(node.id)
+	_autosave()
+
+
+## Saves the run (rooms, hero, found gun) and the slot. Does nothing without a loaded save slot.
+func _autosave() -> void:
+	if not RunState.active or layout == null:
+		return
+	RunState.known_rooms.clear()
+	RunState.visited_rooms.clear()
+	RunState.cleared_rooms.clear()
+	for node: RoomNode in layout.rooms:
+		if node.known:
+			RunState.known_rooms.append(node.id)
+		if node.visited:
+			RunState.visited_rooms.append(node.id)
+		if node.cleared:
+			RunState.cleared_rooms.append(node.id)
+	RunState.opened_chests.clear()
+	for id: int in _rooms:
+		var chest := _rooms[id].feature("Chest") as Chest
+		if chest != null and chest.opened:
+			RunState.opened_chests.append(id)
+	player.capture_run_state()
+	SaveManager.save_all()
+
+
+## The run is over (death or the boss elevator): it's no longer resumable, and the slot keeps the currencies.
+func _end_run() -> void:
+	GameState.stats["best_level"] = maxi(GameState.stat("best_level"), config.level_number)
+	RunState.end_run()
+	SaveManager.clear_run()
+	SaveManager.save_slot()
 
 
 func _on_door_entered(travel: Vector2i) -> void:
@@ -209,6 +288,30 @@ func _on_reward_chest_requested(at: Vector2) -> void:
 func _on_level_exit_requested() -> void:
 	if _transitioning:
 		return
-	_pending_level = true
 	_transitioning = true
+	if return_to_lab:
+		_end_run()
+		SceneRouter.go_to(SceneRouter.lab_scene)
+		return
+	_pending_level = true
 	transition.play(&"fade_out")
+
+
+func _on_player_died() -> void:
+	if not player.auto_respawn and death_timer != null:
+		death_timer.start()
+
+
+## After the death beat: the run ends and the HUD shows Vorn's retrieval panel with the run summary.
+func _on_death_timer_timeout() -> void:
+	GameState.add_stat("deaths")
+	GameState.set_flag("just_died")
+	var summary := "Crypto +%d · RAM +%d MB\nRobots destroyed: %d · Rooms cleared: %d" % [
+		RunState.crypto_earned, RunState.ram_earned, RunState.kills, RunState.rooms_cleared]
+	_end_run()
+	EventBus.run_summary_requested.emit("RETRIEVED", summary)
+
+
+func _on_summary_closed() -> void:
+	if return_to_lab:
+		SceneRouter.go_to(SceneRouter.lab_scene)

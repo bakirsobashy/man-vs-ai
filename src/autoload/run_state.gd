@@ -1,40 +1,143 @@
 extends Node
-## The current run (autoload "RunState"). M2 holds the wallet; seeds, rooms and saving arrive in M3–M4.
+## The current run (autoload "RunState", docs/technical.md §8): everything that resets on death.
+## The level and its seed, which rooms are done, the hero's hearts, armor, EMP charges and found gun,
+## and the run summary. SaveManager writes it to user://run_N.json so a run can be continued.
 
-var crypto := 0
-var ram_mb := 0
+## True between starting a run (the lab elevator) and its end (death or the boss elevator).
+var active := false
+## Set when the level scene should rebuild a saved run instead of starting a fresh level.
+var resuming := false
 ## The level being played (prices and rewards scale with it).
 var level_number := 1
+var level_seed := 0
+## The room the hero is in, and the door they came through (zero = the start room's PlayerStart).
+var room_id := -1
+var entry_direction := Vector2i.ZERO
+var known_rooms: Array[int] = []
+var visited_rooms: Array[int] = []
+var cleared_rooms: Array[int] = []
+var opened_chests: Array[int] = []
+## Hero state as last saved (-1 = full / default).
+var hp := -1
+var armor := 0
+var emp_charges := -1
+## The found gun in slot 2 (a weapon catalog id; empty = none) and its ammo.
+var found_gun := ""
+var found_magazine := 0
+var found_reserve := 0
+## Run summary.
+var crypto_earned := 0
+var ram_earned := 0
+var kills := 0
+var rooms_cleared := 0
+## Rooms cleared since the last Fusion Heart Mk III heal.
+var rooms_since_heal := 0
 
 
-func add_crypto(amount: int) -> void:
-	crypto += amount
-	EventBus.currency_changed.emit(crypto, ram_mb)
+func _ready() -> void:
+	EventBus.enemy_killed.connect(_on_enemy_killed)
 
 
-func add_ram(amount: int) -> void:
-	ram_mb += amount
-	EventBus.currency_changed.emit(crypto, ram_mb)
+## A fresh run from level 1 (new maps, full health, no found gun).
+func start_new_run(first_seed: int = 0) -> void:
+	active = true
+	resuming = false
+	level_number = 1
+	level_seed = first_seed
+	_clear_level()
+	hp = -1
+	armor = 0
+	emp_charges = -1
+	found_gun = ""
+	found_magazine = 0
+	found_reserve = 0
+	crypto_earned = 0
+	ram_earned = 0
+	kills = 0
+	rooms_cleared = 0
+	rooms_since_heal = 0
 
 
-## False (and nothing spent) when the wallet is short.
-func spend_crypto(amount: int) -> bool:
-	if crypto < amount:
-		return false
-	crypto -= amount
-	EventBus.currency_changed.emit(crypto, ram_mb)
-	return true
+## The next level of the same run (the hero keeps hearts, armor and the found gun).
+func start_level(number: int, new_seed: int) -> void:
+	level_number = number
+	level_seed = new_seed
+	_clear_level()
 
 
-func spend_ram(amount: int) -> bool:
-	if ram_mb < amount:
-		return false
-	ram_mb -= amount
-	EventBus.currency_changed.emit(crypto, ram_mb)
-	return true
+func end_run() -> void:
+	active = false
+	resuming = false
 
 
-func reset() -> void:
-	crypto = 0
-	ram_mb = 0
-	EventBus.currency_changed.emit(crypto, ram_mb)
+func to_dict() -> Dictionary:
+	return {
+		"level_number": level_number,
+		"level_seed": level_seed,
+		"room_id": room_id,
+		"entry_direction": [entry_direction.x, entry_direction.y],
+		"known_rooms": known_rooms.duplicate(),
+		"visited_rooms": visited_rooms.duplicate(),
+		"cleared_rooms": cleared_rooms.duplicate(),
+		"opened_chests": opened_chests.duplicate(),
+		"hp": hp,
+		"armor": armor,
+		"emp_charges": emp_charges,
+		"found_gun": found_gun,
+		"found_magazine": found_magazine,
+		"found_reserve": found_reserve,
+		"crypto_earned": crypto_earned,
+		"ram_earned": ram_earned,
+		"kills": kills,
+		"rooms_cleared": rooms_cleared,
+		"rooms_since_heal": rooms_since_heal,
+	}
+
+
+## Reads a snapshot written by to_dict() and marks the run as resuming.
+func from_dict(data: Dictionary) -> void:
+	start_new_run()
+	level_number = clampi(int(data.get("level_number", 1)), 1, 5)
+	level_seed = int(data.get("level_seed", 0))
+	room_id = int(data.get("room_id", -1))
+	var direction: Variant = data.get("entry_direction", [0, 0])
+	if direction is Array and (direction as Array).size() == 2:
+		entry_direction = Vector2i(int((direction as Array)[0]), int((direction as Array)[1]))
+	known_rooms = _ints(data.get("known_rooms", []))
+	visited_rooms = _ints(data.get("visited_rooms", []))
+	cleared_rooms = _ints(data.get("cleared_rooms", []))
+	opened_chests = _ints(data.get("opened_chests", []))
+	hp = int(data.get("hp", -1))
+	armor = int(data.get("armor", 0))
+	emp_charges = int(data.get("emp_charges", -1))
+	found_gun = str(data.get("found_gun", ""))
+	found_magazine = int(data.get("found_magazine", 0))
+	found_reserve = int(data.get("found_reserve", 0))
+	crypto_earned = int(data.get("crypto_earned", 0))
+	ram_earned = int(data.get("ram_earned", 0))
+	kills = int(data.get("kills", 0))
+	rooms_cleared = int(data.get("rooms_cleared", 0))
+	rooms_since_heal = int(data.get("rooms_since_heal", 0))
+	resuming = true
+
+
+func _clear_level() -> void:
+	room_id = -1
+	entry_direction = Vector2i.ZERO
+	known_rooms.clear()
+	visited_rooms.clear()
+	cleared_rooms.clear()
+	opened_chests.clear()
+
+
+func _ints(value: Variant) -> Array[int]:
+	var result: Array[int] = []
+	if value is Array:
+		for item: Variant in value:
+			result.append(int(item))
+	return result
+
+
+func _on_enemy_killed(_enemy: Node2D) -> void:
+	if active:
+		kills += 1

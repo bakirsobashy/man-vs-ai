@@ -127,6 +127,7 @@ _data = {
 
 [node name="Player" parent="." node_paths=PackedStringArray("touch") instance=ExtResource("3_player")]
 position = Vector2(176, 300)
+auto_respawn = false
 touch = NodePath("../TouchController")
 
 [node name="BulletPools" type="Node2D" parent="."]
@@ -194,7 +195,7 @@ crypto_max = 30
 crypto_scene = ExtResource("16_crypto")
 scatter = 16.0
 
-[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition")]
+[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer")]
 script = ExtResource("1_director")
 config = ExtResource("2_config")
 room_holder = NodePath("../RoomHolder")
@@ -205,6 +206,11 @@ room_reward = NodePath("../RoomRewardDrops")
 arena_reward = NodePath("../ArenaRewardDrops")
 chest_scene = ExtResource("22_chest")
 transition = NodePath("../Transition/TransitionAnimation")
+death_timer = NodePath("DeathTimer")
+
+[node name="DeathTimer" type="Timer" parent="LevelDirector"]
+wait_time = 1.2
+one_shot = true
 
 [node name="Transition" type="CanvasLayer" parent="."]
 layer = 10
@@ -227,3 +233,4 @@ libraries/ = SubResource("AnimationLibrary_transition")
 [connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]
 [connection signal="timeout" from="WaveSpawner/NextWaveTimer" to="WaveSpawner" method="_on_next_wave_timer_timeout"]
 [connection signal="room_cleared" from="WaveSpawner" to="LevelDirector" method="_on_wave_spawner_room_cleared"]
+[connection signal="timeout" from="LevelDirector/DeathTimer" to="LevelDirector" method="_on_death_timer_timeout"]

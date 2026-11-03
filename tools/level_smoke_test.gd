@@ -31,6 +31,7 @@ func _run() -> void:
 	_level = (load(LEVEL_PATH) as PackedScene).instantiate()
 	_director = _level.get_node(^"LevelDirector") as LevelDirector
 	_director.fixed_seed = _find_seed(Room.RoomType.REPAIR)
+	_director.return_to_lab = false  # the elevator starts another level in place (tested in the flow test too)
 	get_tree().root.add_child(_level)
 	_player = _level.get_node(^"Player") as Player
 	_spawner = _level.get_node(^"WaveSpawner") as WaveSpawner
@@ -162,19 +163,19 @@ func _test_memory_room() -> void:
 func _test_repair_room() -> void:
 	var room := await _go_to_type(Room.RoomType.REPAIR)
 	var station := room.feature("Station") as RepairStation
-	RunState.add_crypto(100)
+	GameState.add_crypto(100)
 	_player.health.hp = _player.health.max_hp - 1
 	await _stand_next_to(station)
 	_check(_prompt.begins_with("Repair station"), "the repair station shows its prompt")
 	_player.interact()
 	_check(_hud.shop_panel.visible and get_tree().paused, "the station opens the shop panel")
-	var crypto := RunState.crypto
+	var crypto := GameState.crypto
 	var price := station.price(RepairStation.Item.HALF_HEART)
 	_hud._on_buy_heart_pressed()
-	_check(_player.health.hp == _player.health.max_hp and RunState.crypto == crypto - price,
+	_check(_player.health.hp == _player.health.max_hp and GameState.crypto == crypto - price,
 		"buying 1/2 heart heals and costs %d Crypto" % price)
 	_hud._on_buy_heart_pressed()
-	_check(RunState.crypto == crypto - price and station.purchases_left == station.purchases - 1, "a heal at full health isn't sold")
+	_check(GameState.crypto == crypto - price and station.purchases_left == station.purchases - 1, "a heal at full health isn't sold")
 	_hud._on_shop_close_pressed()
 	_check(not get_tree().paused, "leaving the shop resumes the game")
 
@@ -183,12 +184,12 @@ func _test_terminal_ambush() -> void:
 	var room := await _go_to_type(Room.RoomType.TERMINAL)
 	var terminal := room.feature("Terminal") as HackedTerminal
 	terminal.forced_outcome = HackedTerminal.Outcome.AMBUSH
-	RunState.add_ram(terminal.cost())
-	var ram := RunState.ram_mb
+	GameState.add_ram(terminal.cost())
+	var ram := GameState.ram_mb
 	await _stand_next_to(terminal)
 	_check(_prompt.begins_with("Hack terminal"), "the hacked terminal shows its prompt")
 	_player.interact()
-	_check(RunState.ram_mb == ram - terminal.cost(), "hacking costs %d MB of RAM" % terminal.cost())
+	_check(GameState.ram_mb == ram - terminal.cost(), "hacking costs %d MB of RAM" % terminal.cost())
 	_check(_director.is_fighting() and _doors_are(room, Door.Status.LOCKED) and _spawner.alive.size() > 0,
 		"an ambush locks the doors and spawns robots (%d)" % _spawner.alive.size())
 	await _clear_fight()
@@ -197,7 +198,7 @@ func _test_terminal_ambush() -> void:
 	_check(_prompt == "", "a used terminal has no prompt")
 	terminal.used = false
 	terminal.forced_outcome = HackedTerminal.Outcome.RARE_CHEST
-	RunState.add_ram(terminal.cost())
+	GameState.add_ram(terminal.cost())
 	await _stand_next_to(terminal)
 	_player.interact()
 	await _physics_frames(3)

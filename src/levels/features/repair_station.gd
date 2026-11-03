@@ -38,10 +38,10 @@ func buy(item: Item, player: Player) -> String:
 	if purchases_left <= 0:
 		return "Sold out"
 	var cost := price(item)
-	if RunState.crypto < cost:
+	if GameState.crypto < cost:
 		return "Not enough Crypto"
 	if not player.apply_repair(item):
 		return "You don't need that"
-	RunState.spend_crypto(cost)
+	GameState.spend_crypto(cost)
 	purchases_left -= 1
 	return "Bought for %d Crypto" % cost

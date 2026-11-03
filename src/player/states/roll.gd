@@ -3,11 +3,13 @@ extends PlayerState
 
 var _direction := Vector2.RIGHT
 var _elapsed := 0.0
+var _finished := false
 
 
 func enter(msg: Dictionary) -> void:
 	_direction = msg.get("direction", Vector2.RIGHT)
 	_elapsed = 0.0
+	_finished = false
 	player.rolling_invulnerable = true
 	player.body_animation.play(&"roll")
 	player.haptic(player.haptic_roll_ms)
@@ -24,6 +26,9 @@ func physics_update(delta: float) -> void:
 		player.move_and_slide()
 		player.rolling_invulnerable = _elapsed < player.roll_time * player.iframe_ratio
 	elif _elapsed < player.roll_time + player.recovery_time:
+		if not _finished:
+			_finished = true
+			player.roll_finished()
 		player.velocity = Vector2.ZERO
 		player.rolling_invulnerable = false
 	elif player.touch.touching:

@@ -11,6 +11,8 @@ extends CanvasLayer
 ## Off-screen enemy arrows stay this far inside the screen edges (top: below the top band).
 @export_range(0.0, 64.0, 1.0, "suffix:px") var arrow_margin := 10.0
 @export_range(0.0, 160.0, 1.0, "suffix:px") var arrow_margin_top := 60.0
+## Levels show the minimap; the lab and tutorial hide it.
+@export var show_minimap := true
 
 @onready var joystick_zone: Control = %JoystickZone
 @onready var joystick: Control = %Joystick
@@ -36,6 +38,14 @@ extends CanvasLayer
 @onready var toast_label: Label = %ToastLabel
 @onready var toast_animation: AnimationPlayer = %ToastAnimation
 @onready var boss_bar: ProgressBar = %BossBar
+@onready var minimap_button: Button = %MinimapButton
+@onready var pause_panel: Control = %PausePanel
+@onready var music_slider: Range = %MusicSlider
+@onready var sfx_slider: Range = %SfxSlider
+@onready var haptics_check: CheckButton = %HapticsCheck
+@onready var summary_panel: Control = %SummaryPanel
+@onready var summary_title: Label = %SummaryTitle
+@onready var summary_stats: Label = %SummaryStats
 
 var _weapon_text := "Pistol"
 var _ammo_text := ""
@@ -55,9 +65,14 @@ func _ready() -> void:
 	EventBus.boss_health_changed.connect(_on_boss_health_changed)
 	EventBus.shop_opened.connect(_on_shop_opened)
 	EventBus.memory_opened.connect(_on_memory_opened)
+	EventBus.run_summary_requested.connect(_on_run_summary_requested)
+	minimap_button.visible = show_minimap
 	set_joystick_zone_top(tuning.joystick_zone_top)
 	hide_stick()
-	_on_currency_changed(RunState.crypto, RunState.ram_mb)
+	_on_currency_changed(GameState.crypto, GameState.ram_mb)
+	music_slider.set_value_no_signal(SaveManager.music_volume)
+	sfx_slider.set_value_no_signal(SaveManager.sfx_volume)
+	haptics_check.set_pressed_no_signal(SaveManager.haptics)
 
 
 func _process(_delta: float) -> void:
@@ -178,7 +193,7 @@ func _on_interact_prompt_changed(text: String) -> void:
 ## Panels pause the game while they're open (the HUD itself keeps running).
 func _set_panel(panel: Control, open: bool) -> void:
 	panel.visible = open
-	get_tree().paused = full_map.visible or shop_panel.visible or memory_panel.visible
+	get_tree().paused = full_map.visible or shop_panel.visible or memory_panel.visible or pause_panel.visible
 
 
 func _refresh_shop() -> void:
@@ -188,7 +203,7 @@ func _refresh_shop() -> void:
 	for i: int in shop_buttons.size():
 		shop_buttons[i].text = "%s — %d Crypto" % [labels[i], _station.price(i as RepairStation.Item)]
 		shop_buttons[i].disabled = _station.purchases_left <= 0
-	shop_info.text = "%d purchases left · you have %d Crypto" % [_station.purchases_left, RunState.crypto]
+	shop_info.text = "%d purchases left · you have %d Crypto" % [_station.purchases_left, GameState.crypto]
 
 
 func _buy(item: RepairStation.Item) -> void:
@@ -215,6 +230,12 @@ func _on_boss_health_changed(hp: int, max_hp: int) -> void:
 	boss_bar.max_value = max_hp
 	boss_bar.value = hp
 	boss_bar.visible = hp > 0
+
+
+func _on_run_summary_requested(title: String, summary: String) -> void:
+	summary_title.text = title
+	summary_stats.text = summary
+	summary_panel.visible = true
 
 
 func _on_shop_opened(station: Node) -> void:
@@ -262,6 +283,42 @@ func _on_buy_emp_pressed() -> void:
 
 func _on_buy_ammo_pressed() -> void:
 	_buy(RepairStation.Item.AMMO)
+
+
+func _on_pause_button_pressed() -> void:
+	_set_panel(pause_panel, true)
+
+
+func _on_resume_pressed() -> void:
+	_set_panel(pause_panel, false)
+
+
+func _on_music_slider_value_changed(value: float) -> void:
+	SaveManager.music_volume = value
+	SaveManager.apply_settings()
+	SaveManager.save_settings()
+
+
+func _on_sfx_slider_value_changed(value: float) -> void:
+	SaveManager.sfx_volume = value
+	SaveManager.apply_settings()
+	SaveManager.save_settings()
+
+
+func _on_haptics_check_toggled(on: bool) -> void:
+	SaveManager.haptics = on
+	SaveManager.save_settings()
+
+
+## Saves and goes back to the title. A run in progress can be continued from its slot.
+func _on_quit_pressed() -> void:
+	SaveManager.save_all()
+	SceneRouter.go_to(SceneRouter.title_scene)
+
+
+func _on_summary_button_pressed() -> void:
+	summary_panel.visible = false
+	EventBus.summary_closed.emit()
 
 
 func _on_weapon_card_pressed() -> void:
