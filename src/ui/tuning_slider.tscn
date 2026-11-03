@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/tuning_slider.gd" id="1_slider"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="2_tuning"]
+
+[node name="TuningSlider" type="HBoxContainer" groups=["tuning_sliders"]]
+mouse_filter = 2
+script = ExtResource("1_slider")
+tuning = ExtResource("2_tuning")
+
+[node name="Caption" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+text = "Caption"
+
+[node name="Slider" type="HSlider" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+focus_mode = 0
+
+[node name="Value" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[connection signal="value_changed" from="Slider" to="." method="_on_slider_value_changed"]

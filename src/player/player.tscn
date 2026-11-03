@@ -1,0 +1,435 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="2_tuning"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/hero.svg" id="3_hero"]
+[ext_resource type="PackedScene" path="res://src/weapons/service_pistol/service_pistol.tscn" id="4_pistol"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/reticle.svg" id="5_reticle"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="6_state_machine"]
+[ext_resource type="Script" path="res://src/player/states/run.gd" id="7_run"]
+[ext_resource type="Script" path="res://src/player/states/roll.gd" id="8_roll"]
+[ext_resource type="Script" path="res://src/player/states/slide_to_cover.gd" id="9_slide"]
+[ext_resource type="Script" path="res://src/player/states/in_cover.gd" id="10_in_cover"]
+[ext_resource type="Script" path="res://src/player/states/stand.gd" id="11_stand"]
+[ext_resource type="Script" path="res://src/player/states/dead.gd" id="12_dead"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="13_health"]
+[ext_resource type="Script" path="res://src/components/target_selector.gd" id="14_target_selector"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/emp_ring.svg" id="15_emp_ring"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 6.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(6, 6)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_cover_sensor"]
+radius = 32.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_emp_range"]
+radius = 64.0
+
+[sub_resource type="Animation" id="Animation_body_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hurtbox/Shape:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_roll"]
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.32, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.3, 0.7), Vector2(1.3, 0.7), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hurtbox/Shape:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_crouch"]
+length = 0.08
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.15, 0.75)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hurtbox/Shape:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1, 0.667)]
+}
+
+[sub_resource type="Animation" id="Animation_uncrouch"]
+length = 0.08
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1.15, 0.75), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hurtbox/Shape:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 0.667), Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_body"]
+_data = {
+&"RESET": SubResource("Animation_body_reset"),
+&"crouch": SubResource("Animation_crouch"),
+&"roll": SubResource("Animation_roll"),
+&"uncrouch": SubResource("Animation_uncrouch")
+}
+
+[sub_resource type="Animation" id="Animation_flash_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_hurt_blink"]
+length = 1.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [Color(1, 0.4, 0.4, 0.35), Color(1, 1, 1, 1), Color(1, 1, 1, 0.35), Color(1, 1, 1, 1), Color(1, 1, 1, 0.35), Color(1, 1, 1, 1), Color(1, 1, 1, 0.35), Color(1, 1, 1, 1), Color(1, 1, 1, 0.35), Color(1, 1, 1, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_exposed"]
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 0.3, 0.3, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_dead"]
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0.35, 0.35, 0.35, 0.5)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_flash"]
+_data = {
+&"RESET": SubResource("Animation_flash_reset"),
+&"dead": SubResource("Animation_dead"),
+&"exposed": SubResource("Animation_exposed"),
+&"hurt_blink": SubResource("Animation_hurt_blink")
+}
+
+[sub_resource type="Animation" id="Animation_emp_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("EmpWave:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("EmpWave:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0.1, 0.1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("EmpWave:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_emp"]
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("EmpWave:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("EmpWave:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.1, 0.1), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("EmpWave:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_emp"]
+_data = {
+&"RESET": SubResource("Animation_emp_reset"),
+&"emp": SubResource("Animation_emp")
+}
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+collision_layer = 4
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_player")
+tuning = ExtResource("2_tuning")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("CircleShape2D_body")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Body" type="Sprite2D" parent="Visual"]
+texture = ExtResource("3_hero")
+
+[node name="GunPivot" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="WeaponSlot" type="Node2D" parent="GunPivot"]
+unique_name_in_owner = true
+
+[node name="ServicePistol" parent="GunPivot/WeaponSlot" instance=ExtResource("4_pistol")]
+
+[node name="Reticle" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+visible = false
+top_level = true
+z_index = 10
+texture = ExtResource("5_reticle")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 32
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_hurtbox")
+
+[node name="CoverSensor" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 2
+
+[node name="Shape" type="CollisionShape2D" parent="CoverSensor"]
+shape = SubResource("CircleShape2D_cover_sensor")
+
+[node name="EmpRange" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 8
+
+[node name="Shape" type="CollisionShape2D" parent="EmpRange"]
+shape = SubResource("CircleShape2D_emp_range")
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 3
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("6_state_machine")
+initial_state = NodePath("Stand")
+
+[node name="Run" type="Node" parent="StateMachine"]
+script = ExtResource("7_run")
+
+[node name="Roll" type="Node" parent="StateMachine"]
+script = ExtResource("8_roll")
+
+[node name="SlideToCover" type="Node" parent="StateMachine"]
+script = ExtResource("9_slide")
+
+[node name="InCover" type="Node" parent="StateMachine"]
+script = ExtResource("10_in_cover")
+
+[node name="Stand" type="Node" parent="StateMachine"]
+script = ExtResource("11_stand")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("12_dead")
+
+[node name="Health" type="Node" parent="." node_paths=PackedStringArray("invuln_timer")]
+unique_name_in_owner = true
+script = ExtResource("13_health")
+max_hp = 6
+max_armor = 4
+invuln_timer = NodePath("../InvulnTimer")
+
+[node name="TargetSelector" type="Node" parent="." node_paths=PackedStringArray("line_of_sight")]
+unique_name_in_owner = true
+script = ExtResource("14_target_selector")
+line_of_sight = NodePath("../LineOfSight")
+
+[node name="RetargetTimer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
+
+[node name="InvulnTimer" type="Timer" parent="."]
+wait_time = 1.0
+one_shot = true
+
+[node name="PartialReloadTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.3
+one_shot = true
+
+[node name="RespawnTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 1.5
+one_shot = true
+
+[node name="EmpWave" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("15_emp_ring")
+
+[node name="BodyAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_body")
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_flash")
+
+[node name="EmpAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_emp")
+
+[connection signal="ammo_changed" from="GunPivot/WeaponSlot/ServicePistol" to="." method="_on_weapon_ammo_changed"]
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="state_changed" from="StateMachine" to="." method="_on_state_machine_state_changed"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]
+[connection signal="timeout" from="RetargetTimer" to="TargetSelector" method="_on_retarget_timer_timeout"]
+[connection signal="timeout" from="PartialReloadTimer" to="." method="_on_partial_reload_timer_timeout"]
+[connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ControlsTuning" format=3]
+
+[ext_resource type="Script" path="res://src/input/controls_tuning.gd" id="1_tuning"]
+
+[resource]
+script = ExtResource("1_tuning")
+stick_radius = 48.0
+dead_zone = 8.0
+full_speed_at = 0.7
+swipe_max_time = 0.25
+swipe_min_dist = 24.0
+swipe_min_speed = 500.0
+speed_window = 0.1
+tap_max_time = 0.2
+tap_max_move = 12.0
+double_tap_window = 0.3
+double_tap_max_dist = 40.0
+cover_mode = 0
+smart_side_bias = 48.0
+hero_anchor = 0.45
+joystick_zone_top = 0.4
+show_joystick = true
