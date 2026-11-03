@@ -13,6 +13,7 @@ extends Area2D
 @onready var sprite: Sprite2D = %Sprite
 @onready var drop_spot: Marker2D = %DropSpot
 @onready var bonus: Drops = %Bonus
+@onready var open_sound: AudioStreamPlayer2D = %OpenSound
 
 var opened := false
 
@@ -32,6 +33,7 @@ func open() -> void:
 		return
 	opened = true
 	_refresh()
+	open_sound.play()
 	var layer := get_tree().get_first_node_in_group(&"drop_layer") as Node2D
 	var tier := rarity + 1
 	var scene := catalog.pick(rarity) if catalog != null else null

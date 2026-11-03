@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/hub/armory_row.gd" id="1_row"]
+
+[node name="ArmoryRow" type="HBoxContainer"]
+script = ExtResource("1_row")
+
+[node name="NameLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Gun"
+
+[node name="RarityLabel" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+text = "Common"
+
+[node name="BuyButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 32)
+layout_mode = 2
+text = "60 Crypto"
+
+[connection signal="pressed" from="BuyButton" to="." method="_on_buy_button_pressed"]

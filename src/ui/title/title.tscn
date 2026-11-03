@@ -1,0 +1,157 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/title/title.gd" id="1_title"]
+[ext_resource type="PackedScene" path="res://src/ui/title/slot_card.tscn" id="2_card"]
+[ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
+
+[sub_resource type="Theme" id="Theme_ui"]
+default_font_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.08, 0.09, 0.12, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.55, 0.7, 1)
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+
+[node name="Title" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_ui")
+script = ExtResource("1_title")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.05, 0.06, 0.09, 1)
+
+[node name="Logo" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -150.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Name" type="Label" parent="Logo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.3, 1)
+theme_override_font_sizes/font_size = 40
+text = "MAN vs AI"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="Logo"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+text = "Every part you replace is a part of the man."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PlayButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -200.0
+offset_right = 90.0
+offset_bottom = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 18
+text = "PLAY"
+
+[node name="Version" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -24.0
+offset_right = -8.0
+offset_bottom = -6.0
+theme_override_font_sizes/font_size = 10
+text = "M4 vertical slice"
+horizontal_alignment = 2
+
+[node name="SlotPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 16.0
+offset_top = 80.0
+offset_right = -16.0
+offset_bottom = -80.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="SlotPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Heading" type="Label" parent="SlotPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "CHOOSE A LIFE"
+horizontal_alignment = 1
+
+[node name="Slot1" parent="SlotPanel/VBox" instance=ExtResource("2_card")]
+unique_name_in_owner = true
+layout_mode = 2
+slot = 1
+
+[node name="Slot2" parent="SlotPanel/VBox" instance=ExtResource("2_card")]
+unique_name_in_owner = true
+layout_mode = 2
+slot = 2
+
+[node name="Slot3" parent="SlotPanel/VBox" instance=ExtResource("2_card")]
+unique_name_in_owner = true
+layout_mode = 2
+slot = 3
+
+[node name="Back" type="Button" parent="SlotPanel/VBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Back"
+
+[node name="MusicCue" type="Node" parent="."]
+script = ExtResource("91_music_cue")
+stream = ExtResource("92_lab_theme")
+
+[connection signal="pressed" from="PlayButton" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="SlotPanel/VBox/Back" to="." method="_on_back_pressed"]
+[connection signal="chosen" from="SlotPanel/VBox/Slot1" to="." method="_on_slot_chosen"]
+[connection signal="delete_requested" from="SlotPanel/VBox/Slot1" to="." method="_on_slot_delete_requested"]
+[connection signal="chosen" from="SlotPanel/VBox/Slot2" to="." method="_on_slot_chosen"]
+[connection signal="delete_requested" from="SlotPanel/VBox/Slot2" to="." method="_on_slot_delete_requested"]
+[connection signal="chosen" from="SlotPanel/VBox/Slot3" to="." method="_on_slot_chosen"]
+[connection signal="delete_requested" from="SlotPanel/VBox/Slot3" to="." method="_on_slot_delete_requested"]

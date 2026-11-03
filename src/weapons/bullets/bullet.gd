@@ -19,6 +19,17 @@ extends Area2D
 @export var explosive := false
 ## Fired from above (drones): ignores cover protection.
 @export var aerial := false
+## Ricochet Carbine: bounces off walls this many times (the WallProbe ray finds the wall's normal).
+@export_range(0, 5) var bounces := 0
+## Optional: the ray that finds a wall's normal for bounces.
+@export var wall_probe: RayCast2D
+## Magnet Coil: turn rate toward the nearest robot within homing_range (0 = flies straight).
+@export_range(0.0, 720.0, 1.0, "suffix:°/s") var homing := 0.0
+@export_range(0.0, 400.0, 1.0, "suffix:px") var homing_range := 160.0
+## Volt Shotgun: robots hit are stunned this long.
+@export_range(0.0, 2.0, 0.05, "suffix:s") var stun_time := 0.0
+## Firecracker: copied at the hit point whenever the bullet hits something.
+@export var blast_scene: PackedScene
 
 var pool: BulletPool
 var active := false
@@ -27,6 +38,9 @@ var hit_damage := 0
 var _age := 0.0
 var _hits_left := 1
 var _hit_ids: Array[int] = []
+var _bounces_left := 0
+var _homing_target: Node2D
+var _retarget := 0.0
 
 
 func launch(at: Vector2, travel_direction: Vector2, damage_override := -1) -> void:
@@ -37,6 +51,9 @@ func launch(at: Vector2, travel_direction: Vector2, damage_override := -1) -> vo
 	_age = 0.0
 	_hits_left = pierce + 1
 	_hit_ids.clear()
+	_bounces_left = bounces
+	_homing_target = null
+	_retarget = 0.0
 	active = true
 	visible = true
 	set_physics_process(true)
@@ -52,6 +69,7 @@ func try_hit(target: Object) -> bool:
 		return false
 	_hit_ids.append(id)
 	_hits_left -= 1
+	_pop()
 	if _hits_left <= 0:
 		despawn()
 	return true
@@ -79,6 +97,8 @@ func _park() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if homing > 0.0:
+		_steer(delta)
 	global_position += direction * speed * delta
 	_age += delta
 	if _age >= lifetime:
@@ -91,7 +111,47 @@ func _on_body_entered(body: Node2D) -> void:
 	var cover := body as Cover
 	if cover != null:
 		cover.take_damage(cover_damage)
+	elif _bounces_left > 0 and wall_probe != null:
+		wall_probe.force_raycast_update()
+		if wall_probe.is_colliding():
+			_bounces_left -= 1
+			direction = direction.bounce(wall_probe.get_collision_normal()).normalized()
+			rotation = direction.angle()
+			return
+	_pop()
 	despawn()
+
+
+## Turns toward the nearest robot in range (re-picked a few times a second).
+func _steer(delta: float) -> void:
+	_retarget -= delta
+	if _retarget <= 0.0 or not is_instance_valid(_homing_target):
+		_retarget = 0.15
+		_homing_target = null
+		var best := homing_range
+		for node: Node in get_tree().get_nodes_in_group(&"enemies"):
+			var enemy := node as Node2D
+			if enemy != null and enemy.is_visible_in_tree():
+				var distance := enemy.global_position.distance_to(global_position)
+				if distance < best:
+					best = distance
+					_homing_target = enemy
+	if _homing_target != null:
+		var angle := rotate_toward(direction.angle(), (_homing_target.global_position - global_position).angle(),
+			deg_to_rad(homing) * delta)
+		direction = Vector2.from_angle(angle)
+		rotation = angle
+
+
+func _pop() -> void:
+	if blast_scene == null:
+		return
+	var layer := get_tree().get_first_node_in_group(&"drop_layer") as Node2D
+	if layer == null:
+		return
+	var blast := blast_scene.instantiate() as Node2D
+	blast.position = layer.to_local(global_position)
+	layer.add_child.call_deferred(blast)
 
 
 func _on_screen_notifier_screen_exited() -> void:

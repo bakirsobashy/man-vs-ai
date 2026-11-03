@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/weapons/explosion/explosion.gd" id="1_explosion"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/explosion.svg" id="2_sprite"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/pop.wav" id="90_pop"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_blast"]
+radius = 12.0
+
+[sub_resource type="Animation" id="Animation_explode"]
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.08, 0.08), Vector2(0.35, 0.35)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 0.9, 0.5, 1), Color(1, 0.9, 0.5, 1), Color(1, 0.9, 0.5, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_explosion"]
+_data = {
+&"explode": SubResource("Animation_explode")
+}
+
+[node name="MiniBlast" type="Area2D"]
+collision_layer = 0
+collision_mask = 10
+script = ExtResource("1_explosion")
+damage_hero = 0
+damage_enemies = 4
+damage_cover = 4
+shake = 0.0
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_blast")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+modulate = Color(1, 0.9, 0.5, 1)
+scale = Vector2(0.08, 0.08)
+texture = ExtResource("2_sprite")
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_explosion")
+autoplay = &"explode"
+
+[node name="PopSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("90_pop")
+volume_db = -10.0
+autoplay = true
+bus = &"SFX"
+
+[connection signal="animation_finished" from="Animation" to="." method="_on_animation_finished"]

@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="12_ammo"]
 [ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
 [ext_resource type="Script" path="res://src/components/contact_hitbox.gd" id="19_contact"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="90_hit"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 4.0
@@ -110,6 +111,12 @@ next_state = &"Approach"
 [node name="FlashAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = ExtResource("8_flash")
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("90_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
 
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="changed" from="Health" to="." method="_on_health_changed"]

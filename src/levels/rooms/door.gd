@@ -16,6 +16,8 @@ const VECTORS: Array[Vector2i] = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Ve
 @onready var sprite: Sprite2D = %Sprite
 ## Where the hero appears when arriving through this door.
 @onready var entry: Marker2D = %Entry
+@onready var lock_sound: AudioStreamPlayer2D = %LockSound
+@onready var open_sound: AudioStreamPlayer2D = %OpenSound
 
 var status := Status.SEALED
 
@@ -25,6 +27,10 @@ func direction_vector() -> Vector2i:
 
 
 func set_status(new_status: Status) -> void:
+	if new_status == Status.LOCKED and status != Status.LOCKED:
+		lock_sound.play()
+	elif new_status == Status.OPEN and status == Status.LOCKED:
+		open_sound.play()
 	status = new_status
 	blocker_shape.set_deferred(&"disabled", new_status == Status.OPEN)
 	sprite.frame = new_status

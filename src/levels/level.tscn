@@ -22,6 +22,15 @@
 [ext_resource type="PackedScene" path="res://src/pickups/armor_pickup.tscn" id="20_armor"]
 [ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="21_ram"]
 [ext_resource type="PackedScene" path="res://src/levels/features/chest.tscn" id="22_chest"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_ricochet.tscn" id="23_ricochet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_homing.tscn" id="24_homing"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_volt_pellet.tscn" id="25_volt"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_longshot.tscn" id="26_longshot"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_firecracker.tscn" id="27_firecracker"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_scrap.tscn" id="28_scrap"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
 
 [sub_resource type="Resource" id="Resource_reward_heart"]
 script = ExtResource("17_drop_chance")
@@ -127,6 +136,7 @@ _data = {
 
 [node name="Player" parent="." node_paths=PackedStringArray("touch") instance=ExtResource("3_player")]
 position = Vector2(176, 300)
+auto_respawn = false
 touch = NodePath("../TouchController")
 
 [node name="BulletPools" type="Node2D" parent="."]
@@ -147,10 +157,41 @@ script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("7_player_rivet")
 size = 64
 
+[node name="PlayerRicochets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("23_ricochet")
+size = 80
+
+[node name="PlayerHoming" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("24_homing")
+size = 64
+
+[node name="PlayerVoltPellets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("25_volt")
+size = 60
+
+[node name="PlayerLongshots" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("26_longshot")
+size = 16
+
+[node name="PlayerFirecrackers" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("27_firecracker")
+size = 64
+
 [node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("8_enemy_bullet")
 size = 300
+hostile = true
+
+[node name="EnemyScrap" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("28_scrap")
+size = 120
 hostile = true
 
 [node name="Camera" type="Camera2D" parent="." node_paths=PackedStringArray("target")]
@@ -194,7 +235,7 @@ crypto_max = 30
 crypto_scene = ExtResource("16_crypto")
 scatter = 16.0
 
-[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition")]
+[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer", "clear_sound")]
 script = ExtResource("1_director")
 config = ExtResource("2_config")
 room_holder = NodePath("../RoomHolder")
@@ -205,6 +246,19 @@ room_reward = NodePath("../RoomRewardDrops")
 arena_reward = NodePath("../ArenaRewardDrops")
 chest_scene = ExtResource("22_chest")
 transition = NodePath("../Transition/TransitionAnimation")
+death_timer = NodePath("DeathTimer")
+level_music = ExtResource("29_music")
+boss_music = ExtResource("30_boss_music")
+clear_sound = NodePath("ClearSound")
+
+[node name="DeathTimer" type="Timer" parent="LevelDirector"]
+wait_time = 1.2
+one_shot = true
+
+[node name="ClearSound" type="AudioStreamPlayer" parent="LevelDirector"]
+stream = ExtResource("31_clear")
+volume_db = -4.0
+bus = &"SFX"
 
 [node name="Transition" type="CanvasLayer" parent="."]
 layer = 10
@@ -227,3 +281,4 @@ libraries/ = SubResource("AnimationLibrary_transition")
 [connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]
 [connection signal="timeout" from="WaveSpawner/NextWaveTimer" to="WaveSpawner" method="_on_next_wave_timer_timeout"]
 [connection signal="room_cleared" from="WaveSpawner" to="LevelDirector" method="_on_wave_spawner_room_cleared"]
+[connection signal="timeout" from="LevelDirector/DeathTimer" to="LevelDirector" method="_on_death_timer_timeout"]

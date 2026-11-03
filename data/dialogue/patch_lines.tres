@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LineSet" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+speaker = "Patch"
+lines = Array[String](["That gun? Found it in a toaster. Well. It was a toaster.", "Stashed in the Rustline. Check the chests, and don't tell Vorn where I hide things.", "Pleasure. Meat's honest, and so is my merchandise. Mostly.", "Another one? You're my favorite customer. You're also my only customer."])

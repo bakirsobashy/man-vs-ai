@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://src/weapons/explosion/explosion.gd" id="1_explosion"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/explosion.svg" id="2_sprite"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/explosion.wav" id="90_boom"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_blast"]
 radius = 32.0
@@ -53,5 +54,10 @@ texture = ExtResource("2_sprite")
 [node name="Animation" type="AnimationPlayer" parent="."]
 libraries/ = SubResource("AnimationLibrary_explosion")
 autoplay = &"explode"
+
+[node name="BoomSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("90_boom")
+autoplay = true
+bus = &"SFX"
 
 [connection signal="animation_finished" from="Animation" to="." method="_on_animation_finished"]

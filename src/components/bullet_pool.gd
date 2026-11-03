@@ -46,6 +46,14 @@ func clear_active() -> void:
 			bullet.despawn()
 
 
+## Despawns active bullets within `radius` of `center` (the Hydraulic Legs shockwave).
+func clear_within(center: Vector2, radius: float) -> void:
+	for child: Node in get_children():
+		var bullet := child as Bullet
+		if bullet != null and bullet.active and bullet.global_position.distance_to(center) <= radius:
+			bullet.despawn()
+
+
 static func find_for(tree: SceneTree, scene: PackedScene) -> BulletPool:
 	for node: Node in tree.get_nodes_in_group(&"bullet_pools"):
 		var pool := node as BulletPool

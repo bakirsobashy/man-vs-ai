@@ -81,14 +81,14 @@ func _test_wave_clear_drops_and_magnet() -> void:
 	_check(crypto.size() >= 1, "clearing the wave drops the Crypto reward")
 	_check(not _next_wave_timer.is_stopped(), "the next wave is queued after a clear")
 	_next_wave_timer.stop()
-	var ram_before := RunState.ram_mb
-	var crypto_before := RunState.crypto
+	var ram_before := GameState.ram_mb
+	var crypto_before := GameState.crypto
 	for pickup: Pickup in ram + crypto:
 		if is_instance_valid(pickup):
 			await _place_player(pickup.global_position)
 	await _physics_frames(5)
-	_check(RunState.ram_mb > ram_before, "the magnet collects RAM (%d -> %d MB)" % [ram_before, RunState.ram_mb])
-	_check(RunState.crypto > crypto_before, "the magnet collects Crypto (%d -> %d)" % [crypto_before, RunState.crypto])
+	_check(GameState.ram_mb > ram_before, "the magnet collects RAM (%d -> %d MB)" % [ram_before, GameState.ram_mb])
+	_check(GameState.crypto > crypto_before, "the magnet collects Crypto (%d -> %d)" % [crypto_before, GameState.crypto])
 
 
 func _test_weapon_pickup_and_swap() -> void:
@@ -157,7 +157,10 @@ func _test_contact_damage() -> void:
 	var hp_before := _player.health.hp
 	await _wait(0.5)
 	_check(_player.health.hp == hp_before, "a swarmer is harmless while spawning in")
-	await _wait(0.8)
+	for _i: int in 20:  # up to 2 s after the spawn-in
+		if _player.health.hp < hp_before:
+			break
+		await _wait(0.1)
 	_check(_player.health.hp < hp_before, "touching a swarmer hurts")
 	swarmer.take_damage(999)
 	await _physics_frames(2)

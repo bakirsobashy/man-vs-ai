@@ -90,9 +90,9 @@ needs the owner's OK in review.
 **Player** (`src/player/player.tscn`, built in M1)
 ```
 Player (CharacterBody2D)              player.gd — exports: move_speed, roll_*, cover slide, reload multipliers, EMP,
-│                                     haptics (group: player · motion_mode: floating)
+│                                     haptics, implant_catalog, auto_respawn, weapon_catalog (group: player · floating)
 ├─ %BodyShape (CollisionShape2D)      CircleShape2D r = 6 px — body vs. walls, cover and enemies
-├─ Visual (Node2D)                    Body (Sprite2D); becomes the hero_visual.tscn paper doll at M4
+├─ Visual (hero_visual.tscn instance) the paper doll: Body plus one overlay node per implant slot and tier
 ├─ %GunPivot (Node2D)                 rotated toward the current target
 │  └─ %WeaponSlot (Node2D)            the equipped weapon's scene: ServicePistol (instance)
 ├─ %Reticle (Sprite2D, top_level)     drawn on the current target
@@ -106,11 +106,14 @@ Player (CharacterBody2D)              player.gd — exports: move_speed, roll_*,
 ├─ RetargetTimer (Timer)              0.1 s
 ├─ InvulnTimer (Timer)                1.0 s
 ├─ %PartialReloadTimer (Timer)        0.3 s
-├─ %RespawnTimer (Timer)              1.5 s (greybox only)
+├─ %RespawnTimer (Timer)              1.5 s (test levels only; real levels show the Retrieved panel)
 ├─ EmpWave (Sprite2D, hidden)         the EMP ring
 ├─ %BodyAnimation (AnimationPlayer)   roll, crouch, uncrouch
 ├─ %FlashAnimation (AnimationPlayer)  hurt_blink, exposed, dead
-└─ %EmpAnimation (AnimationPlayer)    emp
+├─ %EmpAnimation (AnimationPlayer)    emp
+├─ %RollShockwave (Area2D)            CircleShape2D r = 24 px (mask: enemies) — the Hydraulic Legs Mk III shockwave
+├─ ShockwaveRing (Sprite2D, hidden) · %ShockwaveAnimation (AnimationPlayer)
+└─ %HurtSound · %RollSound · %EmpSound · %CoverSound · %PickupSound · %DeathSound (AudioStreamPlayer, bus SFX)
 ```
 
 **Weapon** (`src/weapons/service_pistol/service_pistol.tscn`, built in M1)
@@ -248,21 +251,48 @@ HUD (CanvasLayer)                     hud.gd — exports: tuning
    ├─ %FullMap (PanelContainer)       a big MapView (cell_step 28×24, cell_scale 2) and Close
    ├─ %ShopPanel (PanelContainer)     %ShopInfo · %BuyHeart · %BuyArmor · %BuyEmp · %BuyAmmo · Leave
    ├─ %MemoryPanel (PanelContainer)   %MemoryTitle · %MemoryBody · Close
+   ├─ %PausePanel (PanelContainer)    %MusicSlider · %SfxSlider · %HapticsCheck · Resume · Save and quit (TopBand's "II" opens it)
+   ├─ %SummaryPanel (PanelContainer)  %SummaryTitle "RETRIEVED" · %SummaryStats · Back to the lab
    └─ %DebugPanel (DebugPanel)        gesture readout, A/B switches, TuningSlider instances, 300-bullet storm
 ```
 The HUD runs while the game is paused (`process_mode` Always); the three panels pause the game while they're open.
 The map cell is `map_cell.tscn` (Background, Icon and four link stubs); `MapView` copies one for each known room.
-Later HUD nodes: the pause menu (M4).
+`show_minimap` hides the minimap in the lab and the tutorial.
 
-**Hero paper doll** (`src/player/hero_visual.tscn`)
+**Hero paper doll** (`src/player/hero_visual.tscn`, built in M4 with placeholder art)
 ```
-HeroVisual (Node2D)                   hero_visual.gd — shows the layers that match GameState.implants
-├─ Body (AnimatedSprite2D)
-├─ Outfit (AnimatedSprite2D)          cosmetic
-├─ Implants (Node2D)                  EyesMk1 · EyesMk2 · EyesMk3 · BrainMk1–3 · ArmsMk1–3 · HeartMk1–3 ·
-│                                     LungsMk1–3 · LegsMk1–3 (18 AnimatedSprite2D nodes, hidden)
-└─ AnimationPlayer                    drives every layer with the same animation
+HeroVisual (Node2D)                   hero_visual.gd — exports: follow_game_state (off for the surgery preview)
+├─ Body (Sprite2D)                    becomes an AnimatedSprite2D with the final art
+└─ %Implants (Node2D)                 HeartMk1 · HeartMk2 · HeartMk3 · LegsMk1 · LegsMk2 · LegsMk3 (Sprite2D, hidden);
+                                      the other slots' nodes arrive with their implants in M5
 ```
+Only the overlay named `<Slot>Mk<tier>` that matches the installed tier is shown. The final version adds `Outfit`
+and an `AnimationPlayer` that drives every layer with the same animation (§9).
+
+**Lab hub** (`src/hub/lab.tscn`, built in M4)
+```
+Lab (Node2D)
+├─ Floor · Walls (TileMapLayer)       one screen (22×40 tiles)
+├─ Signs (Labels) · Props             Vorn, Patch and the cot (sprites)
+├─ Stations (Node2D)                  SurgeryChair · Armory · LabElevator — station.tscn-style Interactables
+│                                     (exports: prompt, action); their prompt sends EventBus.station_used
+├─ DropLayer · PlayerStart · Player · CameraBounds · Camera · TouchController
+├─ HUD (hud.tscn instance)            show_minimap = false
+├─ LabUI (CanvasLayer, LabUI)         exports: implant_catalog, weapon_catalog, armory_row_scene, patch_lines,
+│  │                                  implant_comics (slot → comic scene); runs while paused
+│  ├─ QuickStart (Button)
+│  ├─ %SurgeryPanel                   Preview/%Doll (HeroVisual) · %SlotRows (6 SurgeryRow buttons, one per body slot) ·
+│  │                                  %ImplantName · %ImplantInfo · %InstallButton (HoldButton) · Close
+│  ├─ %ArmoryPanel                    %ArmoryInfo · Scroll/%ArmoryList (armory_row.tscn copies, one per catalog gun) · Close
+│  ├─ %Dialogue (dialogue_box.tscn)   tap to advance
+│  ├─ %ComicLayer (Control)           first-implant comics are copied in here
+│  └─ %PurchaseSound (AudioStreamPlayer)
+├─ MusicCue (MusicCue)                the lab theme
+└─ LabDirector (LabDirector)          exports: intro_talk, first_clear_talk, retrieval_lines (data/dialogue/)
+```
+`src/hub/tutorial.tscn` (the rehab room) is built the same way, with a `Steps` node of `TutorialStep` children
+(each holding its own dummies) run by a `TutorialDirector`. Comics (`src/ui/comic/`) are a `ComicPlayer` Control whose
+`%Panels` children are the panels, each with its `Art`, `Caption` and `Bubble` nodes.
 
 ---
 
@@ -296,6 +326,12 @@ Settings that depend on the art style get decided at M4: texture filter (nearest
 - **(M3) Don't name an inner enum after a global class.** `enum State` inside `door.gd` clashed with the `State` node
   class; the door's enum is `Status`.
 - **(M3) A Control's `resized` signal fires before `_ready`.** Handlers that use `@onready` nodes check `is_node_ready()`.
+- **(M4) Nodes kept outside the tree are not freed with their old parent.** The LevelDirector frees its stored rooms
+  in `NOTIFICATION_PREDELETE`; anything else that parks nodes outside the tree must do the same.
+- **(M4) Headless runs report one leaked `AudioStreamPlayback` at exit** when a sound played (the dummy audio driver
+  never finishes playbacks). It's harmless; the tests still exit cleanly.
+- **(M4) A signal with arguments can't drive `AudioStreamPlayer.play` directly:** the first argument becomes
+  `from_position`. Connect only argument-less signals (like `Weapon.shot_fired`) to `play`, or call it from a script.
 
 ### 1.1 Physics layers
 Layers and masks are set on each node in the Inspector, never in code.
@@ -317,15 +353,16 @@ Layers and masks are set on each node in the Inspector, never in code.
 ## 2. Folder structure
 ```
 res://
-├─ assets/              raw art, audio and fonts (placeholders until M4)
+├─ assets/              raw art, audio and fonts (placeholders until the art direction is chosen)
 │  ├─ art/
-│  ├─ audio/
+│  ├─ audio/            sfx/ and music/ (generated placeholder WAVs; music loops via a WAV loop chunk)
 │  └─ fonts/
 ├─ data/                non-world data as .tres resources, edited in the Inspector (§0.4)
 │  ├─ controls/         controls_tuning.tres
-│  ├─ implants/         one ImplantData per slot and tier
+│  ├─ implants/         one ImplantData per slot and tier, and implant_catalog.tres
 │  ├─ levels/           one LevelConfig per level (level_1.tres) and its WaveSettings
 │  ├─ memories/         one MemoryData per memory room
+│  ├─ dialogue/         Conversations and LineSets (lab talks, retrieval lines, Patch)
 │  └─ weapons/          weapon_catalog.tres (combat stats live on the weapon scenes)
 ├─ localization/        CSV translation tables
 ├─ src/                 scenes (.tscn) and their scripts (.gd), grouped by feature
@@ -334,7 +371,7 @@ res://
 │  ├─ input/            TouchController
 │  ├─ player/           player.tscn, hero_visual.tscn, state scripts
 │  ├─ enemies/          one folder per enemy (scene, script, art)
-│  ├─ bosses/           one folder per boss
+│  ├─ bosses/           one folder per boss (scrapjaw/)
 │  ├─ weapons/          one folder per weapon; bullets/ for bullet scenes
 │  ├─ cover/            cover scenes by material
 │  ├─ levels/           level.tscn (the main scene), CameraFollow
@@ -343,8 +380,8 @@ res://
 │  │  ├─ features/      chest, repair station, hacked terminal, memory shrine, challenge console, elevator
 │  │  ├─ waves/         WaveSpawner, WaveSettings
 │  │  └─ test/          the M1 controls and M2 combat test levels
-│  ├─ hub/              the lab
-│  └─ ui/               HUD, map/ (minimap and full map), menus, comic-panel player
+│  ├─ hub/              the lab, its stations and panels, and the rehab tutorial
+│  └─ ui/               HUD, map/, title/ (title and slot cards), comic/ (comic player and comics), dialogue/
 ├─ tools/               check scripts (§0.7)
 └─ docs/                design documents (contains .gdignore, so Godot skips it)
 ```
@@ -358,13 +395,15 @@ one feature per folder.
 ### 3.1 Autoloads
 | Autoload | Kind | Responsibility |
 |---|---|---|
-| `EventBus` | Script | Global signals: `enemy_killed`, `door_entered`, `room_entered`, `room_cleared`, `currency_changed`, `implant_installed`, `player_died`, … |
-| `GameState` | Script | The loaded save slot: implants, unlocks, Crypto, RAM, memories, endings, stats. Derives `filled_slots` and `humanity_band` |
-| `RunState` | Script | The current run: seed, level index, room states, hearts, armor, weapons and ammo, EMP charges, `revive_used` |
-| `SaveManager` | Script | Slot files, atomic writes, versioning and migrations, run snapshots |
-| `SceneRouter` | **Scene** | Transitions between title, lab, level and ending. Its fade `ColorRect` and `AnimationPlayer` are nodes in `scene_router.tscn` |
-| `AudioManager` | **Scene** | Buses, music stems, adaptive layers by band and combat intensity. One `AudioStreamPlayer` node per stem in `audio_manager.tscn` |
-| `Monetization` | Script | Rewarded ads and IAP behind one interface, with a stub on desktop (§12) |
+| `EventBus` | Script | Global signals: `enemy_killed`, `door_entered`, `room_entered`, `room_cleared`, `currency_changed`, `implants_changed`, `station_used`, `player_died`, `run_summary_requested`, … |
+| `RunState` | Script | The current run: level and seed, room states, hearts, armor, the found gun and its ammo, EMP charges, the run summary (`revive_used` in M6) |
+| `GameState` | Script | The loaded save slot: implants, unlocks, Crypto, RAM, memories, endings, stats, story flags. Derives `filled_slots` and `humanity_band` |
+| `SaveManager` | Script | Slot and run files, atomic writes, versioning, `settings.cfg` (§8) |
+| `AudioManager` | **Scene** | The Music player with its crossfade `AnimationPlayer` and the UI tick, in `audio_manager.tscn`. Buses are in `default_bus_layout.tres` (Master, Music, SFX). Adaptive layers by band arrive with the real music |
+| `SceneRouter` | **Scene** | Fades between the title, prologue, tutorial, lab and level. Its `Fade` ColorRect and `FadeAnimation` are nodes in `scene_router.tscn`; the scene paths are exports |
+| `Monetization` | Script | Rewarded ads and IAP behind one interface, with a stub on desktop (§12; M6) |
+
+Autoload order matters: EventBus, RunState, GameState, SaveManager, AudioManager, SceneRouter.
 
 Keep autoloads thin, holding data and signals; gameplay logic lives in scenes.
 
@@ -375,11 +414,14 @@ files live in `data/`.
 
 | Resource | File(s) | Key fields |
 |---|---|---|
-| `ImplantData` | `data/implants/*.tres` | slot, tier, cost_mb, modifiers (`Array[StatModifier]`), dialogue tag. Its overlay is the HeroVisual node named `<Slot>Mk<tier>` |
-| `StatModifier` | Inside `ImplantData` | stat (enum), op (add / mul), value |
+| `ImplantData` | `data/implants/heart_mk1.tres` … `legs_mk3.tres` | slot, tier, display name, description, cost_mb, modifiers (`Array[StatModifier]`), Vorn's line. Its overlay is the HeroVisual node named `<Slot>Mk<tier>` |
+| `StatModifier` | Inside `ImplantData` | stat (max HP, start armor, move speed, roll distance, heal every N rooms, roll shockwave), value; tiers add up |
+| `ImplantCatalog` | `data/implants/implant_catalog.tres` | every installable tier (M4: Heart and Legs, Mk I–III) |
+| `Conversation` / `DialogueLine` | `data/dialogue/lab_intro.tres`, `l1_first_clear.tres` | lines (speaker, text) for the DialogueBox |
+| `LineSet` | `data/dialogue/retrieval_lines.tres`, `patch_lines.tres` | alternative lines for one moment, cycled |
 | `LevelConfig` | `data/levels/level_1.tres` … | level number, district, room-count ranges, extra-special weights, room pool (`RoomEntry`: scene, type, weight), boss scene, wave settings, waves per room, room / arena / ambush threat, chest odds (elite chance from M5) |
 | `MemoryData` | `data/memories/l1_the_wedding.tres` … | title, text, half-hearts healed (band variants in M5) |
-| `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries (`WeaponCatalogEntry`): id, scene, rarity, unlock cost (icon in M4) |
+| `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries (`WeaponCatalogEntry`): id, scene, rarity, unlock cost (icon later). 9 guns in M4 |
 | `ControlsTuning` | `data/controls/controls_tuning.tres` | every threshold from GDD §3.4, plus the M1 A/B switches (cover mode, hero anchor, joystick zone top, show stick) |
 | `SwipePreset` | `data/controls/swipe_low/normal/high.tres` | swipe max time, min distance, min speed |
 | `WaveSettings` | `data/levels/level_1_waves.tres`, `m2_arena_waves.tres` | enemy pool (`EnemySpawnEntry`: scene, threat cost, kind, group size, first wave, weight), threat per wave, cap, endless, min spawn distance. A level's is set on its `LevelConfig` |
@@ -479,6 +521,13 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   its speed multiplier to the equipped weapon: running 0.5, standing 1.0, cover 1.4, all exported on `player.tscn`.
 - **Auto-fire:** while `touching` is true and `TargetSelector` has a target, the player tells the weapon in
   `%WeaponSlot` to fire.
+- **Implants (M4):** `apply_implants()` recomputes move speed, roll distance, max hearts, starting armor, the
+  room-clear heal and the roll shockwave from the Inspector's base values plus `implant_catalog.total()` for
+  `GameState.implants`. It runs when the hero loads and on `EventBus.implants_changed` (surgery). `begin_level()` refills
+  EMP charges and adds the starting armor; the Roll state calls `roll_finished()` for the shockwave.
+- **Runs (M4):** `capture_run_state()` and `restore_run_state()` move hearts, armor, EMP charges and the found gun
+  (by catalog id) to and from `RunState`. `auto_respawn` is on in the test levels; real levels turn it off and the
+  LevelDirector shows the Retrieved summary instead.
 
 ---
 
@@ -493,8 +542,9 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - Decoys are deliberately in the `enemies` group (boss GLITCH).
 
 ### 6.2 Projectiles and pooling
-- **Bullets are authored scenes** (§0.8): `player_bullet.tscn`, `enemy_bullet_small.tscn`, `enemy_bullet_medium.tscn`,
-  `enemy_bullet_large.tscn`, `grenade.tscn`.
+- **Bullets are authored scenes** (§0.8) in `src/weapons/bullets/`. Their exports cover every gun's trait: `pierce`,
+  `bounces` (with a `WallProbe` RayCast2D node that finds the wall's normal), `homing` and `homing_range`, `stun_time`,
+  and `blast_scene` (a copy placed where the bullet hits, the Firecracker's `mini_blast.tscn`).
 - **Pooling:** each `BulletPool` node in `level.tscn` pre-copies its `bullet_scene` `size` times when the level loads,
   then hands bullets out and takes them back. Nothing is instanced in the middle of a fight.
 - **Who detects what:** hurtboxes monitor the bullet layers; bullets only watch for walls and cover (`body_entered`).
@@ -564,27 +614,44 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - **Piercing:** `Bullet.pierce` lets a bullet (the Rivet Driver's) hit more enemies; `try_hit()` never hits the same target twice.
 - **Pickups:** `Pickup` scenes (RAM, Crypto, half heart, armor, ammo).
   - The hero's `PickupMagnet` (40 px) pulls in only what the hero can use; a full hero leaves hearts on the floor.
-  - Currencies go to the `RunState` autoload, which holds the run's wallet until saving arrives in M4.
+  - Currencies go to `GameState` (the save slot), so they survive death; `RunState` counts what this run earned.
 - **Drops:** each enemy's `Drops` node drops its RAM (plus a 3% ammo chance) into the level's `drop_layer` node (a
   Node2D at the origin). The spawner's `RewardDrops` drops the wave-clear reward: 3–6 Crypto, 10% ½ heart, 25% ammo, 5% armor.
+- **Armory guns (M4):** Bolt Revolver, Ricochet Carbine, Magnet Coil, Volt Shotgun, Longshot and Firecracker, each a
+  weapon scene in its own folder. `Weapon.burst` and `burst_interval` give the Firecracker 3-round bursts. Chests only
+  pick guns that `GameState.unlocked_weapons` lists (`WeaponCatalog.pick`).
+- **Sounds:** every weapon scene has a `ShotSound` (AudioStreamPlayer2D), connected to the weapon's `shot_fired` signal.
 - **Barrels:** a cover scene with `provides_cover = false` and `break_scene = explosion.tscn`. The `Explosion` damages
   the hero (ignoring cover), enemies and cover in 32 px, so barrels chain.
 
 ### 6.5 Bosses
+**SCRAPJAW** (`src/bosses/scrapjaw/scrapjaw.tscn`, built in M4) is an enemy scene with a phase component:
 ```
-Scrapjaw (CharacterBody2D)            boss.gd — exports: max_hp
-├─ BodyShape · Sprite · %Hurtbox      as in an enemy scene
-├─ Phases (Node)
-│  ├─ Phase1 (BossPhase)              exports: until_hp = 0.60 — children: Charge (ChargeAttack) · BoltSpray (BulletEmitter)
-│  ├─ Phase2 (BossPhase)              exports: until_hp = 0.25 — children: MagnetPull · ScrapDrop
-│  └─ Phase3 (BossPhase)              exports: until_hp = 0.00 — children: Grind (BulletEmitter, spiral) · Charge
-├─ AttackTimer (Timer)
-└─ AnimationPlayer
+Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 on %Health)
+├─ BodyShape · %Sprite · TelegraphGlow · AimPivot/AimLine · Hurtbox · ContactHitbox · NavAgent · LineOfSight
+├─ %Health · %Drops                   64 MB RAM, 50 Crypto and an ammo pickup
+├─ SprayEmitter · SpiralEmitter       BulletEmitter nodes: 8-way rotating bolts; the Grind spiral
+├─ HitSound · RoarSound               AudioStreamPlayer2D
+├─ Phases (BossPhases)                exports: thresholds [0.6, 0.25], phase_states, phase_names, roar
+├─ %StateMachine                      SpawnIn · Resume · Stunned ·
+│                                     WreckApproach → WreckChargeTell → WreckCharge → WreckSprayTell → WreckSpray ·
+│                                     MagnetTell → MagnetPull → MagnetSpray → MagnetApproach → MagnetChargeTell → MagnetCharge ·
+│                                     GrindSpin → GrindChargeTell → GrindCharge → GrindChargeTell2 → GrindCharge2
+├─ %FlashAnimation                    the shared enemy animations
+└─ AttackAnimation                    charge_tell, spray_tell, magnet_tell, grind_tell, grind_tell_fast
 ```
-- The boss moves to the next `PhaseN` node when its HP crosses that phase's threshold.
-- Attacks are child nodes with exported weights and cooldowns.
-- The arena is a room template scene.
-- The boss HP bar is updated through `EventBus`.
+- **Phases:** `Health.changed` is connected to `Phases` in the scene. When HP falls below the next threshold, the boss
+  jumps to that phase's first state, the HUD shows the phase banner, and `RoarSound` plays. Each phase's states form
+  a loop; `Stunned` and `SpawnIn` go to `Resume` (`phase_resume.gd`), which returns to the current phase's loop.
+- **Wreck:** `Charge` with `plow_through_cover` smashes cover in its path; any static body (walls, a locked door)
+  stuns it for 1 s.
+- **Magnet** (`magnet_pull.gd`): scrap streams fly from a few of the arena's hand-placed `ScrapSpots` markers toward
+  the boss, the hero is pulled in lightly (walls and cover stop the pull), and scrap piles (`scrap_pile.tscn`, light cover)
+  are copied onto free spots. They're added under the room's `Cover` node, so the navigation re-bakes around them.
+- **Grind** (`spin_chase.gd`): spins the sprite and walks at the hero while `SpiralEmitter` fires; then double charges.
+- **Arena:** `rooms/rustline/boss.tscn`, a scrapyard of light cover, with `%BossSpot` and `Cover/ScrapSpots` (group `scrap_spots`).
+- The HUD boss bar listens to `EventBus.boss_health_changed`. The old stand-in (`src/enemies/boss_standin/`) stays
+  as a placeholder for the L2–L5 bosses.
 
 ---
 
@@ -626,7 +693,11 @@ seed into a `LevelLayout`: a list of `RoomNode`s, each with a type, a grid cell,
   prize comes through the director too (`EventBus.reward_chest_requested`), so both roll from the level's odds.
 - A door's `Exit` emits `door_entered`. The director plays `fade_out`, swaps rooms at its last key, then plays
   `fade_in`; door signals are ignored until the fade-in ends (§1.0).
-- The elevator starts the next level (M3: a fresh random level; M4 will chain L1 → L2 and return to the lab).
+- **Runs (M4):** the level starts the run's level from `RunState` (or rebuilds a saved run, §8). Every room entry and
+  clear saves the run. The boss room's elevator ends the run and returns to the lab (M4 loops back to Level 1; M5 will
+  chain L1 → lab → L2). On death, the `DeathTimer` (1.2 s) shows the HUD's Retrieved summary, the run ends, and its
+  button returns to the lab. Tests turn off `return_to_lab` to keep the M3 in-place level loop.
+- When the level is freed, the director frees the visited rooms it kept outside the tree.
 - `EventBus.level_generated`, `room_entered` and `room_cleared` drive the minimap (`MapView`), which shows rooms once the
   hero has been next to them.
 
@@ -673,6 +744,19 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
   - on `NOTIFICATION_APPLICATION_PAUSED` and `NOTIFICATION_WM_CLOSE_REQUEST`.
 - **Resume:** rebuild the level from its seed, mark cleared rooms, and place the hero at the entrance of the saved room.
 
+**Built in M4:**
+- `GameState` (autoload) holds the loaded slot: currencies, implants, unlocks, memories, endings, stats
+  (`runs`, `deaths`, `best_level`, `boss_kills`, `rooms_cleared`) and story `flags` (`prologue_seen`, `tutorial_done`,
+  `lab_intro_done`, `l1_cleared`, first-implant comics…). `slot` 0 means no slot (the test levels), and nothing is written.
+- `RunState` (autoload) holds the run: level and seed, the room and the door the hero came through, known, visited and
+  cleared rooms, opened chests, hearts, armor, EMP charges, the found gun (catalog id and ammo) and the run summary.
+- `SaveManager` (autoload) writes both as JSON through a `.tmp` file. A corrupt file loads as a new story; unknown
+  fields are ignored and values are clamped. Saves happen on room entry and clear, lab purchases, story beats, the
+  pause menu's Save and quit, and `NOTIFICATION_APPLICATION_PAUSED` / `NOTIFICATION_WM_CLOSE_REQUEST`. The run file is
+  deleted when a run ends (death or the boss elevator).
+- `settings.cfg` keeps the Music and SFX volumes and vibration (pause menu); `SaveManager.apply_settings()` sets the bus volumes.
+- An uncleared room restarts its fight on Continue; floor pickups in visited rooms aren't saved yet.
+
 Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ```json
 {
@@ -691,11 +775,14 @@ Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ---
 
 ## 9. Hero visuals (paper doll)
-- `hero_visual.tscn` (tree in §0.8) already contains every layer: the base body, the outfit and all 18 implant overlays (6 slots × 3 tiers).
-- `hero_visual.gd` only shows the overlay that matches `GameState.implants[slot]` and hides the others. It also swaps the
-  outfit's `SpriteFrames` for cosmetics.
+- `hero_visual.tscn` (tree in §0.8) holds the body and one overlay node per implant slot and tier. M4 has the six
+  Heart and Legs overlays (placeholders); the final version holds all 18 plus the outfit.
+- `hero_visual.gd` only shows the overlay that matches `GameState.implants[slot]` and hides the others, and refreshes
+  on `EventBus.implants_changed`. The surgery panel's preview turns `follow_game_state` off to show the next tier.
+  Outfit cosmetics will swap the outfit's `SpriteFrames`.
 - For pixel art, every layer is an `AnimatedSprite2D` sharing the same animation names. For HD art, it becomes a
-  `Skeleton2D` cutout rig with one pre-placed `Sprite2D` per bone and slot. This gets decided at M4 along with the art style.
+  `Skeleton2D` cutout rig with one pre-placed `Sprite2D` per bone and slot. This is decided with the art style
+  (open question Q2; the M4 art test was postponed and the slice uses placeholders).
 - Art budget: 18 implant overlay sets per outfit-compatible body.
 
 ---
@@ -812,7 +899,17 @@ func restore_purchases() -> void
   - the challenge arena's 3 waves and Rare-or-better chest;
   - the boss, its HUD bar, the elevator and the next level;
   - the minimap.
-- **Unit tests** for the remaining pure logic: the gesture classifier, economy math, and save migrations. Pick GUT or
+- **M4 smoke test:** run `godot --headless --path . --script res://tools/smoke_test_m4.gd`. It checks 42 results:
+  - Heart and Legs implants at every tier (hearts, armor, the room-clear heal, speed, roll distance, the shockwave) and
+    the paper doll;
+  - every armory gun's trait (damage, bounce, homing, stun, pierce, bursts and blasts) and unlock-filtered chests;
+  - SCRAPJAW: plowing charges, wall stuns, the Magnet phase (streams, pull, scrap piles), Grind, and the elevator;
+  - the lab's surgery (hold to confirm, costs, tiers, comics) and armory.
+- **Flow smoke test:** run `godot --headless --path . --script res://tools/smoke_test_flow.gd`. It checks 28 results:
+  slot and run files (including a corrupt and a future-version file), settings, and the real scene flow from the title
+  through the prologue, the tutorial, the lab, a run, Save and quit, Continue run, death, and the boss elevator. It
+  saves to `user://test_saves/`, never to real slots.
+- **Unit tests** for the remaining pure logic: the gesture classifier and economy math. Pick GUT or
   gdUnit4 when they grow past the smoke tests.
 - **Playtest builds** include the debug overlay. Optional local telemetry (deaths per room, gesture misclassifications)
   only runs with the tester's consent.

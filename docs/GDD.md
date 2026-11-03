@@ -340,6 +340,9 @@ A small walkable scene visited before every level.
 
 A **Quick Start** button skips the walk for players in a hurry.
 
+**Built in M4:** the surgery chair, the armory and the elevator, plus Quick Start; Kade's cot is a prop for now. The
+firing range and the trophy wall come later.
+
 ### 5.3 Weapon unlocks [LOCKED]
 - Paying Crypto once adds the gun to this save's chest pool permanently.
 - A new save starts with the Service Pistol and 3 free Commons. [PROPOSED]
@@ -465,9 +468,12 @@ The premise, cast and endings are in [narrative.md](narrative.md). The story is 
   Ending → Credits → Lab (post-game).
 - **Death:** slow-motion → "Retrieved" panel → Second Chance (ad, once per run) → Run summary (+25% Crypto
   ad) → Lab.
+- **Built in M4:** title → three save slots → (new slot: prologue comic → rehab tutorial) → lab → Level 1 → lab. Death
+  shows one "Retrieved" panel with the run summary (no ads until M6); Vorn's retrieval line plays back in the lab. A run
+  in progress shows **Continue run** on its slot card. The ending and credits arrive in M5.
 
-### 8.3 Onboarding [PROPOSED]
-A rehab session in the lab's training room teaches one skill per step:
+### 8.3 Onboarding [PROPOSED; built in M4]
+A rehab session in the lab's training room teaches one skill per step (each step can be skipped):
 1. Drag to walk. The hero auto-fires at target dummies ("your hands remember").
 2. Lift next to a crate. The hero slides into cover while a turret fires.
 3. Swipe to roll through a line of bullets.
@@ -507,6 +513,8 @@ language · audio sliders · 30/60 fps (battery).
   and in the Machine band the motif is bit-crushed.
 - **Kade's voice** gets subtle processing per band, ending in a vocoder at Machine.
 - **Robot barks** use dark humor ([narrative.md](narrative.md) §10).
+- **M4 placeholders:** script-generated sound effects and three loops (lab music box, Rustline synth, boss), on Music
+  and SFX buses with volume settings. Adaptive band layers and voice processing come with the real audio.
 
 ---
 

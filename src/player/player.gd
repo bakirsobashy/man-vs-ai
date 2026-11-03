@@ -57,7 +57,20 @@ extends CharacterBody2D
 ## Camera shake when the hero is hit (0..1).
 @export_range(0.0, 1.0, 0.05) var hit_shake := 0.5
 
+@export_group("Implants")
+## Heart and Legs tiers (docs/content.md §5). Effects are applied from GameState when the hero loads and after surgery.
+@export var implant_catalog: ImplantCatalog
+## Radius of the Hydraulic Legs Mk III roll shockwave (the RollShockwave area's circle matches it).
+@export_range(0.0, 96.0, 1.0, "suffix:px") var shockwave_radius := 24.0
+
+@export_group("Death")
+## Test levels: come back at respawn_point when the RespawnTimer ends. Off in real levels, where the
+## LevelDirector shows the "Retrieved" panel and returns to the lab.
+@export var auto_respawn := true
+
 @export_group("Links")
+## Maps found guns to catalog ids for run saves.
+@export var weapon_catalog: WeaponCatalog
 ## The level's TouchController.
 @export var touch: TouchController
 ## Shared controls tuning (the A/B switches live here).
@@ -82,6 +95,14 @@ extends CharacterBody2D
 @onready var body_animation: AnimationPlayer = %BodyAnimation
 @onready var flash_animation: AnimationPlayer = %FlashAnimation
 @onready var emp_animation: AnimationPlayer = %EmpAnimation
+@onready var roll_shockwave: Area2D = %RollShockwave
+@onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
+@onready var hurt_sound: AudioStreamPlayer = %HurtSound
+@onready var roll_sound: AudioStreamPlayer = %RollSound
+@onready var emp_sound: AudioStreamPlayer = %EmpSound
+@onready var cover_sound: AudioStreamPlayer = %CoverSound
+@onready var pickup_sound: AudioStreamPlayer = %PickupSound
+@onready var death_sound: AudioStreamPlayer = %DeathSound
 
 ## The starter pistol (pre-placed in WeaponSlot). Always carried, infinite ammo.
 var primary: Weapon
@@ -96,6 +117,13 @@ var cover_normal := Vector2.ZERO
 var _reload_multiplier := 1.0
 var _prompt_target: Interactable
 var _prompt_text := ""
+## Implant results (see apply_implants).
+var start_armor_bonus := 0
+var heal_every_rooms := 0
+var shockwave_damage := 0
+var _base_move_speed := 0.0
+var _base_roll_distance := 0.0
+var _base_max_hp := 0
 
 
 func _ready() -> void:
@@ -103,10 +131,90 @@ func _ready() -> void:
 	weapon = primary
 	target_selector.range_area = weapon.range_area
 	emp_charges = emp_charges_per_level
+	_base_move_speed = move_speed
+	_base_roll_distance = roll_distance
+	_base_max_hp = health.max_hp
 	EventBus.cover_destroyed.connect(_on_cover_destroyed)
 	EventBus.weapon_swap_requested.connect(swap_weapon)
 	EventBus.interact_requested.connect(interact)
+	EventBus.implants_changed.connect(apply_implants)
+	EventBus.room_cleared.connect(_on_room_cleared)
+	apply_implants()
+	health.reset()
 	_announce.call_deferred()
+
+
+## Recomputes the implant-driven stats from the base values in the Inspector and GameState's implants.
+func apply_implants() -> void:
+	if implant_catalog == null:
+		return
+	var installed := GameState.implants
+	var full := health.hp >= health.max_hp
+	move_speed = _base_move_speed * (1.0 + implant_catalog.total(StatModifier.Stat.MOVE_SPEED, installed))
+	roll_distance = _base_roll_distance * (1.0 + implant_catalog.total(StatModifier.Stat.ROLL_DISTANCE, installed))
+	health.max_hp = _base_max_hp + int(implant_catalog.total(StatModifier.Stat.MAX_HP, installed))
+	start_armor_bonus = int(implant_catalog.total(StatModifier.Stat.START_ARMOR, installed))
+	heal_every_rooms = int(implant_catalog.total(StatModifier.Stat.HEAL_EVERY_ROOMS, installed))
+	shockwave_damage = int(implant_catalog.total(StatModifier.Stat.ROLL_SHOCKWAVE, installed))
+	health.max_armor = maxi(health.max_armor, start_armor_bonus)
+	if full:
+		health.hp = health.max_hp
+	health.hp = mini(health.hp, health.max_hp)
+	EventBus.player_health_changed.emit(health.hp, health.max_hp, health.armor)
+
+
+## A new level: refill EMP charges and add the Fusion Heart's starting armor.
+func begin_level() -> void:
+	emp_charges = emp_charges_per_level
+	if start_armor_bonus > 0:
+		health.armor = maxi(health.armor, mini(start_armor_bonus, health.max_armor))
+	_announce()
+
+
+## Hearts, armor, EMP charges and the found gun, into RunState (saved with the run).
+func capture_run_state() -> void:
+	RunState.hp = health.hp
+	RunState.armor = health.armor
+	RunState.emp_charges = emp_charges
+	RunState.found_gun = ""
+	if secondary != null and weapon_catalog != null:
+		RunState.found_gun = String(weapon_catalog.id_for_scene(secondary.scene_file_path))
+		RunState.found_magazine = secondary.magazine
+		RunState.found_reserve = secondary.reserve
+
+
+## The reverse of capture_run_state (continuing a saved run).
+func restore_run_state() -> void:
+	if RunState.hp > 0:
+		health.hp = mini(RunState.hp, health.max_hp)
+	health.armor = mini(RunState.armor, maxi(health.max_armor, RunState.armor))
+	if RunState.emp_charges >= 0:
+		emp_charges = RunState.emp_charges
+	var scene := weapon_catalog.scene_for(StringName(RunState.found_gun)) if weapon_catalog != null else null
+	if scene != null:
+		var gun := scene.instantiate() as Weapon
+		weapon_slot.add_child(gun)
+		gun.magazine = mini(RunState.found_magazine, gun.magazine_size)
+		gun.reserve = RunState.found_reserve
+		_equip_found(gun)
+	health.changed.emit(health.hp, health.max_hp, health.armor, false)
+	_announce()
+
+
+## End of a roll: Hydraulic Legs Mk III knock robots back with a shockwave and clear nearby bullets.
+func roll_finished() -> void:
+	if shockwave_damage <= 0:
+		return
+	for body: Node2D in roll_shockwave.get_overlapping_bodies():
+		var enemy := body as Enemy
+		if enemy != null:
+			enemy.take_damage(shockwave_damage)
+	for node: Node in get_tree().get_nodes_in_group(&"bullet_pools"):
+		var pool := node as BulletPool
+		if pool != null and pool.hostile:
+			pool.clear_within(global_position, shockwave_radius)
+	shockwave_animation.stop()
+	shockwave_animation.play(&"shockwave")
 
 
 func _physics_process(delta: float) -> void:
@@ -152,6 +260,7 @@ func take_cover(spot: CoverSpot) -> void:
 	cover_normal = spot.normal
 	body_animation.play(&"crouch")
 	haptic(haptic_cover_ms)
+	cover_sound.play()
 
 
 func leave_cover() -> void:
@@ -215,6 +324,10 @@ func take_weapon(pickup: WeaponPickup) -> void:
 	if secondary != null:
 		_drop_weapon(secondary, pickup.global_position)
 	gun.reparent(weapon_slot, false)
+	_equip_found(gun)
+
+
+func _equip_found(gun: Weapon) -> void:
 	gun.position = Vector2.ZERO
 	gun.rotation = 0.0
 	gun.ammo_changed.connect(_on_weapon_ammo_changed)
@@ -267,13 +380,14 @@ func fire_emp() -> void:
 			body.call(&"stun", emp_stun_time)
 	emp_animation.stop()
 	emp_animation.play(&"emp")
+	emp_sound.play()
 	haptic(haptic_emp_ms)
 	EventBus.screen_shake_requested.emit(0.4)
 	EventBus.player_emp_changed.emit(emp_charges)
 
 
 func haptic(duration_ms: int) -> void:
-	if haptics_enabled and duration_ms > 0:
+	if haptics_enabled and SaveManager.haptics and duration_ms > 0:
 		Input.vibrate_handheld(duration_ms)
 
 
@@ -376,11 +490,13 @@ func _can_use(pickup: Pickup) -> bool:
 
 
 func _apply_pickup(pickup: Pickup) -> void:
+	pickup_sound.pitch_scale = randf_range(0.92, 1.12)
+	pickup_sound.play()
 	match pickup.kind:
 		Pickup.Kind.RAM:
-			RunState.add_ram(pickup.amount)
+			GameState.add_ram(pickup.amount)
 		Pickup.Kind.CRYPTO:
-			RunState.add_crypto(pickup.amount)
+			GameState.add_crypto(pickup.amount)
 		Pickup.Kind.HALF_HEART:
 			health.heal(pickup.amount)
 		Pickup.Kind.ARMOR:
@@ -448,6 +564,7 @@ func _on_health_changed(hp: int, max_hp: int, armor: int, damaged: bool) -> void
 	if damaged and is_node_ready():
 		flash_animation.stop()
 		flash_animation.play(&"hurt_blink")
+		hurt_sound.play()
 		haptic(haptic_hit_ms)
 		EventBus.screen_shake_requested.emit(hit_shake)
 	EventBus.player_health_changed.emit(hp, max_hp, armor)
@@ -455,6 +572,7 @@ func _on_health_changed(hp: int, max_hp: int, armor: int, damaged: bool) -> void
 
 func _on_health_died() -> void:
 	state_machine.transition_to(&"Dead")
+	death_sound.play()
 	EventBus.player_died.emit()
 
 
@@ -476,6 +594,16 @@ func _on_state_machine_state_changed(state_name: StringName) -> void:
 
 
 # --- EventBus ---
+
+## Fusion Heart Mk III: heal ½ heart every few cleared rooms (the count is kept in RunState).
+func _on_room_cleared(_room_id: int) -> void:
+	if heal_every_rooms <= 0 or state_machine.is_in(&"Dead"):
+		return
+	RunState.rooms_since_heal += 1
+	if RunState.rooms_since_heal >= heal_every_rooms:
+		RunState.rooms_since_heal = 0
+		health.heal(1)
+
 
 func _on_cover_destroyed(destroyed: Node2D) -> void:
 	if destroyed == cover and state_machine.is_in(&"InCover"):

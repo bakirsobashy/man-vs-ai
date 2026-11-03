@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ImplantData" format=3]
+
+[ext_resource type="Script" path="res://src/player/implants/implant_data.gd" id="1_implant"]
+[ext_resource type="Script" path="res://src/player/implants/stat_modifier.gd" id="2_modifier"]
+
+[sub_resource type="Resource" id="Resource_mod0"]
+script = ExtResource("2_modifier")
+stat = 3
+value = 0.3
+
+[resource]
+script = ExtResource("1_implant")
+slot = "legs"
+tier = 2
+display_name = "Hydraulic Legs Mk II"
+description = "Roll distance +30%."
+cost_mb = 512
+modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_mod0")])
+vorn_line = "Jump, Sergeant. See how far away the ground is now."

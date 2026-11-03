@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/hold_button.gd" id="1_hold"]
+
+[node name="HoldButton" type="Button"]
+custom_minimum_size = Vector2(0, 38)
+text = "Hold"
+script = ExtResource("1_hold")
+
+[node name="Fill" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 0.6, 0.3, 0.45)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.001
+show_percentage = false
+
+[node name="HoldTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 1.5
+one_shot = true
+
+[connection signal="button_down" from="." to="." method="_on_button_down"]
+[connection signal="button_up" from="." to="." method="_on_button_up"]
+[connection signal="pressed" from="." to="." method="_on_pressed"]
+[connection signal="timeout" from="HoldTimer" to="." method="_on_hold_timer_timeout"]

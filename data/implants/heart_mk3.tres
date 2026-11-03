@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ImplantData" format=3]
+
+[ext_resource type="Script" path="res://src/player/implants/implant_data.gd" id="1_implant"]
+[ext_resource type="Script" path="res://src/player/implants/stat_modifier.gd" id="2_modifier"]
+
+[sub_resource type="Resource" id="Resource_mod0"]
+script = ExtResource("2_modifier")
+stat = 0
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_mod1"]
+script = ExtResource("2_modifier")
+stat = 4
+value = 3.0
+
+[resource]
+script = ExtResource("1_implant")
+slot = "heart"
+tier = 3
+display_name = "Fusion Heart Mk III"
+description = "+1 more max heart. Heal 1/2 heart every 3 cleared rooms."
+cost_mb = 1024
+modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_mod0"), SubResource("Resource_mod1")])
+vorn_line = "Every part I give you is a part you chose."

@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://src/enemies/states/charge.gd" id="15_charge"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
 [ext_resource type="Script" path="res://src/components/contact_hitbox.gd" id="19_contact"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="90_hit"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 7.0
@@ -230,6 +231,12 @@ libraries/ = ExtResource("8_flash")
 
 [node name="AttackAnimation" type="AnimationPlayer" parent="."]
 libraries/ = SubResource("AnimationLibrary_attack")
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("90_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
 
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="changed" from="Health" to="." method="_on_health_changed"]

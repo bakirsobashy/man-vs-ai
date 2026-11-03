@@ -25,6 +25,9 @@ signal cover_restored(cover: Node2D)
 signal gesture_classified(kind: StringName, details: String)
 @warning_ignore("unused_signal")
 signal currency_changed(crypto: int, ram_mb: int)
+## An implant was installed or upgraded (GameState.implants changed).
+@warning_ignore("unused_signal")
+signal implants_changed
 @warning_ignore("unused_signal")
 signal wave_started(wave: int, threat: float)
 @warning_ignore("unused_signal")
@@ -58,6 +61,15 @@ signal ambush_requested
 signal reward_chest_requested(at: Vector2)
 @warning_ignore("unused_signal")
 signal level_exit_requested
+## The run ended in death: the HUD shows its summary panel (title, stats).
+@warning_ignore("unused_signal")
+signal run_summary_requested(title: String, summary: String)
+## The summary's "Back to the lab" button.
+@warning_ignore("unused_signal")
+signal summary_closed
+## A lab station's prompt was tapped (surgery, armory, elevator).
+@warning_ignore("unused_signal")
+signal station_used(action: StringName)
 @warning_ignore("unused_signal")
 signal boss_health_changed(hp: int, max_hp: int)
 @warning_ignore("unused_signal")

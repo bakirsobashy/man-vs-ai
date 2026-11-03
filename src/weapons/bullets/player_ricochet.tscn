@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/weapons/bullets/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/player_ricochet.svg" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bullet"]
+radius = 2.0
+
+[node name="PlayerRicochet" type="Area2D" node_paths=PackedStringArray("wall_probe")]
+collision_layer = 16
+collision_mask = 3
+script = ExtResource("1_bullet")
+speed = 320.0
+damage = 5
+cover_damage = 2
+lifetime = 1.2
+bounces = 2
+wall_probe = NodePath("WallProbe")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bullet")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_sprite")
+
+[node name="ScreenNotifier" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-4, -4, 8, 8)
+
+[node name="WallProbe" type="RayCast2D" parent="."]
+position = Vector2(-8, 0)
+enabled = false
+target_position = Vector2(16, 0)
+collision_mask = 1
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="screen_exited" from="ScreenNotifier" to="." method="_on_screen_notifier_screen_exited"]

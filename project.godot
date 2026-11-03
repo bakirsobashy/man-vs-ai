@@ -13,13 +13,17 @@ config_version=5
 config/name="Man vs AI"
 config/description="One-finger top-down roguelite shooter for Android (portrait)."
 config/features=PackedStringArray("4.7", "GL Compatibility")
-run/main_scene="res://src/levels/level.tscn"
+run/main_scene="res://src/ui/title/title.tscn"
 config/icon="res://icon.svg"
 
 [autoload]
 
 EventBus="*res://src/autoload/event_bus.gd"
 RunState="*res://src/autoload/run_state.gd"
+GameState="*res://src/autoload/game_state.gd"
+SaveManager="*res://src/autoload/save_manager.gd"
+AudioManager="*res://src/autoload/audio_manager.tscn"
+SceneRouter="*res://src/autoload/scene_router.tscn"
 
 [debug]
 

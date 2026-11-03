@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://src/levels/rooms/door.gd" id="1_door"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/door.svg" id="2_sprite"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/door_lock.wav" id="90_lock"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/door_open.wav" id="91_open"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker"]
 size = Vector2(32, 16)
@@ -46,5 +48,17 @@ shape = SubResource("RectangleShape2D_exit")
 [node name="Entry" type="Marker2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(0, 28)
+
+[node name="LockSound" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("90_lock")
+volume_db = -4.0
+bus = &"SFX"
+
+[node name="OpenSound" type="AudioStreamPlayer2D" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("91_open")
+volume_db = -4.0
+bus = &"SFX"
 
 [connection signal="body_entered" from="Exit" to="." method="_on_exit_body_entered"]
