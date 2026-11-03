@@ -5,33 +5,41 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 > A grieving war veteran hunts the robot gang that murdered his family. Every implant that makes him strong enough
 > to win replaces another piece of the man. There are three endings: stay human, become something in between, or become the machine.
 
-**Status:** M2, the combat core, is built: endless waves of four robot types, four guns, explosive barrels and
-pickups. It passes its automated smoke tests. Playtests on real Android phones are still to do for M1 and M2.
+**Status:** M3, levels, is built. Each level is generated from 8–9 greybox rooms: start, combat, chest, memory, challenge
+arena, repair, terminal and a stand-in boss. Doors lock during fights, and an elevator after the boss leads to the next
+level. It passes its automated tests. Playtests on real Android phones are still to do for M1–M3.
 
 ## Running the prototype
-1. Open `project.godot` in Godot 4.7 and press **Play** (F5). The main scene is the M2 arena,
-   `src/levels/test/combat_test.tscn`. To open the M1 controls room, open `src/levels/test/controls_test.tscn` and press **F6**.
+1. Open `project.godot` in Godot 4.7 and press **Play** (F5). The main scene is a generated level, `src/levels/level.tscn`.
+   The older test rooms are still there: open `src/levels/test/combat_test.tscn` (the M2 endless arena) or
+   `src/levels/test/controls_test.tscn` (the M1 controls room) and press **F6**.
 2. On desktop, the mouse is the finger: hold the left button and drag in the lower 60% of the window.
 3. Controls:
    - **Hold and drag:** run while auto-firing.
    - **Quick flick and release:** roll.
    - **Release near cover:** slide into cover.
    - **Double-tap:** EMP.
-   - **Walk onto a gun on the floor and tap the prompt:** take it.
+   - **Walk onto a gun on the floor and tap the prompt:** take it. The same prompt uses stations, shrines, consoles and the elevator.
    - **Tap the weapon card (top right):** swap between the pistol and the found gun.
+   - **Walk into an open door:** go to the next room.
+   - **Tap the minimap:** open the full map.
 4. Tap **DBG** (top right) for the tuning panel: live gesture readout, A/B switches, threshold sliders and a
    300-bullet storm for performance checks.
 
-![M2 combat core](docs/images/m2_combat_core.png)
+![M3 levels](docs/images/m3_levels.png)
 
-**The arena:**
-- Waves start after 2.5 s, get harder each wave, and never end.
-- Three guns lie near the start.
-- Barrels explode when shot.
-- Robots drop RAM, and each cleared wave drops Crypto and sometimes a heart, ammo or armor.
-- The hero respawns 1.5 s after dying.
+**A level** (Rustline Slums, from `data/levels/level_1.tres`):
+- **Combat rooms** lock their doors for 1–2 waves. Clearing one drops Crypto and sometimes a heart, ammo or armor.
+- **Chest rooms:** touching the chest opens it and drops a gun.
+- **The memory room:** Kade's first memory heals ½ heart.
+- **Repair stations** sell hearts, armor, EMP charges and ammo for Crypto.
+- **Hacked terminals** take RAM for a gamble.
+- **The challenge arena** runs 3 waves for a Rare-or-better chest.
+- **The boss room** holds a stand-in boss. Beating it reveals an elevator to a new level.
+- Robots drop RAM. The hero respawns at the room's door 1.5 s after dying (until the lab arrives in M4).
 
-**The M1 controls room** (`controls_test.tscn`) has target and shooter dummies for the control A/B tests.
+**The M2 arena** (`combat_test.tscn`) runs endless, harder waves with three guns near the start. **The M1 controls
+room** (`controls_test.tscn`) has target and shooter dummies for the control A/B tests.
 
 All art is placeholder.
 
@@ -64,6 +72,12 @@ godot --headless --path . --script res://tools/smoke_test_controls.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_combat.gd
 ```
+```bash
+godot --headless --path . --script res://tools/test_level_generator.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_level.gd
+```
 
 ## Getting started
 1. Install **Godot 4.7** (the standard build; the project uses GDScript only).
@@ -75,9 +89,9 @@ godot --headless --path . --script res://tools/smoke_test_combat.gd
 ## Project layout
 ```
 assets/        art, audio, fonts (placeholders until the art direction is chosen)
-data/          non-world .tres data: implants, level configs, weapon catalog, control thresholds
+data/          non-world .tres data: implants, level configs and waves, memories, weapon catalog, control thresholds
 localization/  translation tables
 src/           scenes and their scripts by feature (components, input, player, enemies, weapons, cover, levels, hub, ui…)
-tools/         scene-first and scene-load checks
+tools/         scene-first and scene-load checks, smoke tests, the level generator test
 docs/          design documents (Godot skips this folder via .gdignore)
 ```

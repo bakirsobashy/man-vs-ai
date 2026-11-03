@@ -157,9 +157,13 @@ Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero a
 | Threat budget per wave | 6 | 8 | 10 | 12 | 14 |
 | Elite chance per spawn | 0% | 10% | 15% | 20% | 25% |
 
-The `WaveSpawner` spends each wave's threat budget at the room's hand-placed SpawnPoints. The M2 arena's pool and budget
-live in `data/levels/m2_arena_waves.tres`: Grunt 1, Charger 1.5 and Turret 2 (both from wave 2), and Swarmer 0.5 in groups of 4–6. Room scenes contain no enemies,
-only the points where enemies can appear.
+The `WaveSpawner` spends each wave's threat budget at the room's hand-placed SpawnPoints. Room scenes contain no
+enemies, only the points where enemies can appear.
+- **Level 1** (`data/levels/level_1.tres`, M3): the room counts, special-room odds, waves, budgets and chest odds in
+  these tables. Its enemy pool (`level_1_waves.tres`) is Grunt 1, Charger 1.5, Turret 2 and Swarmer 0.5 in groups
+  of 4–6, all from a room's first wave. Spawn points closer than 4 tiles to the hero are skipped.
+- **The M2 arena** (`m2_arena_waves.tres`) uses the same robots, with Charger and Turret from wave 2, and an endless
+  budget of 6 + 1.5 per wave (cap 14).
 
 **Odds for the second special room** (the first one is always the Memory room): Repair station 40% (50% in L1),
 Challenge arena 30%, Hacked terminal 30%.
@@ -184,7 +188,7 @@ Medium cover outright and deals 150 to Heavy. Player bullets deal 50% of their d
 | Rare-or-better chest | 30% |
 | Crypto jackpot (40×L ◈) | 20% |
 | Full ammo + 1 armor | 15% |
-| Elite ambush (one elite, 3× RAM) | 15% |
+| Elite ambush (one elite, 3× RAM; until elites arrive in M5, one wave of 3 threat) | 15% |
 | Virus: −1 EMP charge this level | 10% |
 | "ERROR 404": nothing happens | 10% |
 

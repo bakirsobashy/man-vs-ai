@@ -20,6 +20,8 @@ signal enemy_killed(enemy: Node2D)
 @warning_ignore("unused_signal")
 signal cover_destroyed(cover: Node2D)
 @warning_ignore("unused_signal")
+signal cover_restored(cover: Node2D)
+@warning_ignore("unused_signal")
 signal gesture_classified(kind: StringName, details: String)
 @warning_ignore("unused_signal")
 signal currency_changed(crypto: int, ram_mb: int)
@@ -37,3 +39,33 @@ signal weapon_swap_requested
 ## strength 0..1, added to the camera's shake.
 @warning_ignore("unused_signal")
 signal screen_shake_requested(strength: float)
+## A new level layout (LevelLayout) was generated.
+@warning_ignore("unused_signal")
+signal level_generated(layout: RefCounted)
+@warning_ignore("unused_signal")
+signal room_entered(room_id: int)
+@warning_ignore("unused_signal")
+signal room_cleared(room_id: int)
+## The hero walked into an open door (grid direction of the next room).
+@warning_ignore("unused_signal")
+signal door_entered(direction: Vector2i)
+@warning_ignore("unused_signal")
+signal challenge_requested
+@warning_ignore("unused_signal")
+signal ambush_requested
+## A Rare-or-better chest at `at` (a hacked terminal's prize); the LevelDirector rolls it and places it.
+@warning_ignore("unused_signal")
+signal reward_chest_requested(at: Vector2)
+@warning_ignore("unused_signal")
+signal level_exit_requested
+@warning_ignore("unused_signal")
+signal boss_health_changed(hp: int, max_hp: int)
+@warning_ignore("unused_signal")
+signal memory_opened(title: String, text: String)
+## A repair station's prompt was tapped (the HUD opens its shop panel).
+@warning_ignore("unused_signal")
+signal shop_opened(station: Node)
+@warning_ignore("unused_signal")
+signal toast_requested(text: String)
+@warning_ignore("unused_signal")
+signal banner_requested(text: String)

@@ -1,8 +1,8 @@
 @icon("res://assets/art/placeholder/icon_drops.svg")
 class_name Drops
 extends Node
-## What its owner leaves behind: copies of authored pickup scenes, placed in the level's "drop_layer" node
-## (a Node2D at the origin). Enemies call drop() when they die; the WaveSpawner uses one for wave rewards.
+## What its owner leaves behind: copies of authored pickup scenes, placed in the "drop_layer" node of the
+## current room (or of a test level). Enemies call drop() when they die; the WaveSpawner uses one for wave rewards.
 
 ## RAM dropped every time (MB). Robots always drop RAM.
 @export_range(0, 999) var ram_mb := 0
@@ -34,5 +34,6 @@ func drop(at: Vector2) -> void:
 func _spawn(layer: Node, scene: PackedScene, at: Vector2, amount: int) -> void:
 	var pickup := scene.instantiate() as Pickup
 	pickup.amount = amount
-	pickup.position = at + Vector2(randf_range(-scatter, scatter), randf_range(-scatter, scatter))
+	var offset := Vector2(randf_range(-scatter, scatter), randf_range(-scatter, scatter))
+	pickup.position = (layer as Node2D).to_local(at + offset) if layer is Node2D else at + offset
 	layer.add_child.call_deferred(pickup)

@@ -33,6 +33,12 @@ func _physics_process(delta: float) -> void:
 	offset = Vector2(randf_range(-amount, amount), randf_range(-amount, amount))
 
 
+## Jump straight to the target (after a room change).
+func snap() -> void:
+	_place()
+	reset_smoothing()
+
+
 func _on_screen_shake_requested(strength: float) -> void:
 	_trauma = clampf(_trauma + strength, 0.0, 1.0)
 

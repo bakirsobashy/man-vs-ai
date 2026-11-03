@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/features/elevator.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/elevator.svg" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_use"]
+radius = 16.0
+
+[node name="Elevator" type="Area2D"]
+visible = false
+collision_layer = 128
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_script")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_use")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("2_sprite")

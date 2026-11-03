@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3]
+
+[ext_resource type="Script" path="res://src/levels/features/memory_data.gd" id="1_memory"]
+
+[resource]
+script = ExtResource("1_memory")
+title = "The Wedding"
+text = "A photo, curled at the corners. Kade and Lena in the rain outside the registry office, soaked to the skin and laughing. She painted the umbrella herself. It leaked."
+heal = 1

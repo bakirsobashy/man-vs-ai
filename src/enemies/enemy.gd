@@ -15,6 +15,10 @@ enum SpawnKind { GROUND = 1, FLYER = 2, STATIONARY = 4 }
 @export var death_fx_scene: PackedScene
 ## Optional: plays the attack tells (telegraph animations).
 @export var attack_animation: AnimationPlayer
+## Optional: paths around walls and cover (moving enemies). Without one, enemies steer straight.
+@export var nav_agent: NavigationAgent2D
+## Bosses report their health to the HUD's boss bar.
+@export var is_boss := false
 
 @onready var sprite: Sprite2D = %Sprite
 @onready var health: Health = %Health
@@ -54,6 +58,18 @@ func can_see_player() -> bool:
 	return not line_of_sight.is_colliding()
 
 
+## Direction to move toward `target`: along the navigation path when there is one, else straight.
+func direction_toward(target: Vector2) -> Vector2:
+	if nav_agent != null:
+		if nav_agent.target_position.distance_to(target) > 8.0:
+			nav_agent.target_position = target
+		var step := nav_agent.get_next_path_position() - global_position
+		if step.length() > 0.5:
+			return step.normalized()
+	var straight := target - global_position
+	return straight.normalized() if straight != Vector2.ZERO else Vector2.ZERO
+
+
 func take_damage(amount: int) -> void:
 	if not is_targetable():
 		return
@@ -75,12 +91,17 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	take_damage(bullet.hit_damage)
 
 
+func _on_health_changed(hp: int, max_hp: int, _armor: int, _damaged: bool) -> void:
+	if is_boss:
+		EventBus.boss_health_changed.emit(hp, max_hp)
+
+
 func _on_health_died() -> void:
 	drops.drop(global_position)
 	var layer := get_tree().get_first_node_in_group(&"drop_layer")
 	if death_fx_scene != null and layer != null:
 		var effect := death_fx_scene.instantiate() as Node2D
-		effect.position = global_position
+		effect.position = (layer as Node2D).to_local(global_position) if layer is Node2D else global_position
 		layer.add_child.call_deferred(effect)
 	EventBus.enemy_killed.emit(self)
 	queue_free()

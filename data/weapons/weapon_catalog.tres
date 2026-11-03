@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="WeaponCatalog" format=3]
+
+[ext_resource type="Script" path="res://src/weapons/weapon_catalog.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://src/weapons/weapon_catalog_entry.gd" id="2_entry"]
+[ext_resource type="PackedScene" path="res://src/weapons/scattergun/scattergun.tscn" id="3_scattergun"]
+[ext_resource type="PackedScene" path="res://src/weapons/buzz_smg/buzz_smg.tscn" id="4_buzz_smg"]
+[ext_resource type="PackedScene" path="res://src/weapons/rivet_driver/rivet_driver.tscn" id="5_rivet_driver"]
+
+[sub_resource type="Resource" id="Resource_scattergun"]
+script = ExtResource("2_entry")
+id = &"scattergun"
+scene = ExtResource("3_scattergun")
+rarity = 0
+unlock_cost = 0
+
+[sub_resource type="Resource" id="Resource_buzz_smg"]
+script = ExtResource("2_entry")
+id = &"buzz_smg"
+scene = ExtResource("4_buzz_smg")
+rarity = 0
+unlock_cost = 0
+
+[sub_resource type="Resource" id="Resource_rivet_driver"]
+script = ExtResource("2_entry")
+id = &"rivet_driver"
+scene = ExtResource("5_rivet_driver")
+rarity = 0
+unlock_cost = 0
+
+[resource]
+script = ExtResource("1_catalog")
+entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver")])

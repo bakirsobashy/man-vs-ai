@@ -78,7 +78,7 @@ func _break() -> void:
 	if break_scene != null:
 		var effect := break_scene.instantiate() as Node2D
 		var layer := get_tree().get_first_node_in_group(&"drop_layer")
-		effect.position = global_position
+		effect.position = (layer as Node2D).to_local(global_position) if layer is Node2D else global_position
 		(layer if layer != null else get_parent()).add_child.call_deferred(effect)
 	if regenerates:
 		regen_timer.start()
@@ -94,6 +94,7 @@ func _update_frame() -> void:
 
 
 func _on_regen_timer_timeout() -> void:
+	EventBus.cover_restored.emit(self)
 	hp = max_hp
 	shape_node.set_deferred(&"disabled", false)
 	animation.play(&"RESET")

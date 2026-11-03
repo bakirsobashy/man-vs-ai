@@ -46,6 +46,8 @@
 | Room content | Cover is hand-placed in each room scene; enemies spawn at hand-placed SpawnPoints, with types picked from the threat budget |
 | Tuning | `@export` properties on each scene, edited in the Inspector; non-world data in `.tres` files |
 | Signals | Connected in the editor; code connects only to `EventBus` and to runtime copies |
+| M3 boss room | A stand-in boss until SCRAPJAW (M4); beating it reveals an elevator that starts a fresh random level |
+| M3 rooms | 16 greybox Rustline rooms built for M3 (start, 8 combat, 2 chest, memory, arena, repair, terminal, boss) |
 
 ## Design risks
 | ID | Risk | Mitigation |
@@ -64,4 +66,4 @@
 | R12 | Implants can't be undone on a save | Hold-to-confirm, a clear warning, and 3 save slots |
 | R13 | Scene-first drift: code (written by people or AI) starts building nodes again | `CLAUDE.md` rules, `tools/check_scene_first.sh`, the review checklist in [technical.md](technical.md) §14 |
 | R14 | Editor signal connections break silently when nodes or methods are renamed | `tools/check_scenes.gd` checks every connection; Godot also reports broken connections when a scene loads |
-| R15 | M2 enemies steer straight and can get stuck behind cover | Strafe flips on collision for now; M3 adds `NavigationAgent2D` with navigation baked around each room's cover |
+| R15 | M2 enemies steer straight and can get stuck behind cover | **Addressed in M3:** walking robots follow a `NavigationAgent2D` path baked around each room's walls and cover (re-baked when cover breaks), in the level rooms and the M2 arena |

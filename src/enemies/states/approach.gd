@@ -32,7 +32,7 @@ func physics_update(delta: float) -> void:
 	if distance > 0.001:
 		var toward := offset / distance
 		if distance > max_range:
-			direction = toward
+			direction = enemy.direction_toward(enemy.player.global_position)
 		elif distance < min_range:
 			direction = -toward
 		else:
