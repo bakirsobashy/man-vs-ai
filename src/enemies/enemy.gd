@@ -48,6 +48,10 @@ var elite := Elite.NONE
 var attack_rate := 1.0
 ## Hits a shield absorbs before damage gets through (Shielded elites, a Hacker's shield).
 var shield_hits := 0
+## Cryo build-up; at 1 the robot freezes.
+var chill := 0.0
+## Damage taken is multiplied by this (FORGEMOTHER's exposed core: 2).
+var damage_taken_scale := 1.0
 
 
 func _ready() -> void:
@@ -127,7 +131,7 @@ func take_damage(amount: int) -> void:
 		flash_animation.stop()
 		flash_animation.play(&"hurt")
 		return
-	health.take_hit(amount)
+	health.take_hit(roundi(amount * damage_taken_scale))
 	if hit_sound != null:
 		hit_sound.play()
 	if health.is_alive():
@@ -147,6 +151,11 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	take_damage(bullet.hit_damage)
 	if bullet.stun_time > 0.0 and health.is_alive() and not is_boss:
 		stun(bullet.stun_time)
+	if bullet.chill > 0.0 and health.is_alive() and not is_boss:
+		chill += bullet.chill
+		if chill >= 1.0:
+			chill = 0.0
+			stun(bullet.freeze_time)
 	if bullet.knockback > 0.0 and bullet.hit_damage >= bullet.knockback_min_damage and health.is_alive() and not is_boss:
 		_shove.call_deferred(bullet.direction * bullet.knockback)
 

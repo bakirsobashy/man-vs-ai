@@ -37,6 +37,9 @@
 [ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="35_line_set"]
 [ext_resource type="PackedScene" path="res://src/ui/comic/implant_eyes.tscn" id="36_comic_eyes"]
 [ext_resource type="PackedScene" path="res://src/ui/comic/implant_brain.tscn" id="37_comic_brain"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_arms.tscn" id="38_comic_arms"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_lungs.tscn" id="39_comic_lungs"]
+[ext_resource type="Resource" path="res://data/dialogue/l3_first_clear.tres" id="40_l3_clear"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/purchase.wav" id="90_purchase"]
 [ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
@@ -180,10 +183,12 @@ weapon_catalog = ExtResource("11_weapons")
 armory_row_scene = ExtResource("12_armory_row")
 patch_lines = ExtResource("13_patch_lines")
 implant_comics = Dictionary[String, PackedScene]({
+"arms": ExtResource("38_comic_arms"),
 "brain": ExtResource("37_comic_brain"),
 "eyes": ExtResource("36_comic_eyes"),
 "heart": ExtResource("26_comic_heart"),
-"legs": ExtResource("27_comic_legs")
+"legs": ExtResource("27_comic_legs"),
+"lungs": ExtResource("39_comic_lungs")
 })
 
 [node name="QuickStart" type="Button" parent="LabUI"]
@@ -375,7 +380,7 @@ lab_ui = NodePath("../LabUI")
 elevator = NodePath("../Stations/LabElevator")
 campaign = ExtResource("33_campaign")
 intro_talk = ExtResource("23_intro")
-first_clear_talks = Array[ExtResource("34_conversation")]([ExtResource("24_first_clear"), ExtResource("28_l2_clear")])
+first_clear_talks = Array[ExtResource("34_conversation")]([ExtResource("24_first_clear"), ExtResource("28_l2_clear"), ExtResource("40_l3_clear")])
 idle_lines = Array[ExtResource("35_line_set")]([ExtResource("29_idle_human"), ExtResource("30_idle_patched"), ExtResource("31_idle_hollow"), ExtResource("32_idle_machine")])
 retrieval_lines = ExtResource("25_retrieval")
 

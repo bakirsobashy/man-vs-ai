@@ -34,6 +34,9 @@
 [ext_resource type="PackedScene" path="res://src/enemies/swarmer/swarmer.tscn" id="35_swarmer"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_scrap.tscn" id="36_scrap_shot"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_arc.tscn" id="37_arc"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_cryo.tscn" id="38_cryo"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_rail.tscn" id="39_rail"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_rivet.tscn" id="40_rivet"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
@@ -197,6 +200,22 @@ size = 24
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("37_arc")
 size = 40
+
+[node name="PlayerCryo" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("38_cryo")
+size = 80
+
+[node name="PlayerRails" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("39_rail")
+size = 8
+
+[node name="EnemyRivets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("40_rivet")
+size = 120
+hostile = true
 
 [node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")

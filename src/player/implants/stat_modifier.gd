@@ -17,6 +17,14 @@ enum Stat {
 	EMP_RADIUS,         ## Pixels added to the EMP stun radius.
 	EMP_STUN,           ## Seconds added to the EMP stun.
 	FAILSAFE,           ## 1 = once per level, a lethal hit fires a free EMP and is negated.
+	RELOAD_SPEED,       ## Share added to reload speed (0.25 = 25% faster).
+	SPREAD,             ## Share added to weapon spread (-0.4 = 40% tighter).
+	FIRE_RATE,          ## Share added to fire rate (0.15).
+	DUAL_WIELD,         ## 1 = both carried guns fire at once.
+	ROLL_RECOVERY,      ## Share added to roll recovery time (-0.3 = 30% shorter).
+	IFRAME_RATIO,       ## Added to the share of the roll that is invulnerable (0.15: 60% to 75%).
+	HAZARD_IMMUNE,      ## 1 = gas, fire and molten floors don't hurt.
+	SECOND_WIND,        ## 1 = rolling through an enemy bullet slows time and boosts damage.
 }
 
 @export var stat := Stat.MAX_HP

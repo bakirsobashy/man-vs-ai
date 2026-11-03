@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Conversation" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/conversation.gd" id="1_conversation"]
+[ext_resource type="Script" path="res://src/ui/dialogue/dialogue_line.gd" id="2_line"]
+
+[sub_resource type="Resource" id="Resource_line0"]
+script = ExtResource("2_line")
+speaker = "Vorn"
+text = "Forgemother called her robots her children. I knew a woman like that, once. A long time ago."
+
+[sub_resource type="Resource" id="Resource_line1"]
+script = ExtResource("2_line")
+speaker = "Kade"
+text = "She built the ones who came for my family."
+
+[sub_resource type="Resource" id="Resource_line2"]
+script = ExtResource("2_line")
+speaker = "Vorn"
+text = "And now she builds nothing. The Spires are next: the Warden watched everything that night."
+
+[sub_resource type="Resource" id="Resource_line3"]
+script = ExtResource("2_line")
+speaker = "Vorn"
+text = "You came back with fewer scars than I expected. Some of that is you. Some of it is me."
+
+[resource]
+script = ExtResource("1_conversation")
+lines = Array[ExtResource("2_line")]([SubResource("Resource_line0"), SubResource("Resource_line1"), SubResource("Resource_line2"), SubResource("Resource_line3")])

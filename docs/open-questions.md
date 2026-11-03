@@ -47,7 +47,7 @@
 | M3 rooms | 16 greybox Rustline rooms built for M3 (start, 8 combat, 2 chest, memory, arena, repair, terminal, boss) |
 | M4 art test | Postponed: the vertical slice keeps placeholder art (Q2 stays open); every new visual is a scene node ready for real art |
 | M4 audio | Script-generated placeholder SFX and music behind a real audio system, to be replaced by real files |
-| M4 implants | Heart and Legs are playable (Mk I–III); the other four slots arrive in M5 |
+| M4 implants | Heart and Legs are playable (Mk I–III); the other four slots arrived in M5 (Eyes and Brain with Level 2, Arms and Lungs with Level 3) |
 | M4 after Level 1 | The lab's elevator starts a fresh Level 1 run (replaced in M5 by the campaign: L1 → lab → L2 → …) |
 | Q1 Vorn's role (M5) | **Morally grey:** he saved Kade and means it, but he also wanted a test subject. Each ending shows a different side |
 | Q5 After an ending (M5) | **NG+ threat levels:** harder threat levels unlock after an ending (more threat, more elites), with small rewards |

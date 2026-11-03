@@ -37,6 +37,12 @@ signal shot_fired
 @export_range(0.1, 10.0, 0.1, "suffix:s") var ramp_time := 2.0
 ## A pause longer than this resets the ramp.
 @export_range(0.05, 2.0, 0.05, "suffix:s") var ramp_reset := 0.5
+## Rail Spike: the trigger must be held this long before each shot, which then fires by itself (0 = none).
+@export_range(0.0, 5.0, 0.05, "suffix:s") var charge_time := 0.0
+## Scrap Minigun: the trigger must be held this long before the first shot; it then fires freely (0 = none).
+@export_range(0.0, 3.0, 0.05, "suffix:s") var spin_up := 0.0
+## Scrap Minigun: the hero's move speed multiplier while this gun is firing.
+@export_range(0.1, 1.0, 0.05) var firing_move_scale := 1.0
 
 @onready var muzzle: Marker2D = %Muzzle
 @onready var range_area: Area2D = %Range
@@ -55,8 +61,15 @@ var _burst_timer := 0.0
 var _burst_target := Vector2.ZERO
 var _ramp_elapsed := 0.0
 var _since_shot := 99.0
+## Seconds the trigger has been held (try_fire called within the last 0.15 s).
+var _held := 0.0
+var _since_try := 99.0
 ## Hawk Optics Mk II: chance that a bullet deals double damage (set by the hero).
 var crit_chance := 0.0
+## Servo Arms and Second Wind multipliers (set by the hero).
+var spread_scale := 1.0
+var fire_rate_scale := 1.0
+var damage_scale := 1.0
 
 
 func _ready() -> void:
@@ -67,6 +80,8 @@ func _physics_process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	_since_shot += delta
 	_ramp_elapsed = _ramp_elapsed + delta if _since_shot < ramp_reset else 0.0
+	_since_try += delta
+	_held = _held + delta if _since_try <= 0.15 else 0.0
 	if _burst_left > 0:
 		_burst_timer -= delta
 		if _burst_timer <= 0.0:
@@ -86,7 +101,10 @@ func set_active(on: bool) -> void:
 
 
 func try_fire(target_position: Vector2) -> bool:
+	_since_try = 0.0
 	if reloading or _cooldown > 0.0:
+		return false
+	if (spin_up > 0.0 and _held < spin_up) or (charge_time > 0.0 and _held < charge_time):
 		return false
 	if magazine <= 0:
 		start_reload()
@@ -97,6 +115,8 @@ func try_fire(target_position: Vector2) -> bool:
 		return false
 	_cooldown = 1.0 / current_fire_rate()
 	_since_shot = 0.0
+	if charge_time > 0.0:
+		_held = 0.0
 	_burst_left = burst - 1
 	_burst_timer = burst_interval
 	_burst_target = target_position
@@ -109,7 +129,7 @@ func _shoot(target_position: Vector2) -> void:
 		_burst_left = 0
 		return
 	var aim := (target_position - muzzle.global_position).normalized()
-	var spread := deg_to_rad(spread_deg)
+	var spread := deg_to_rad(spread_deg * spread_scale)
 	for i: int in pellets:
 		var angle := randf_range(-spread, spread) * 0.5
 		if pellets > 1:
@@ -129,8 +149,19 @@ func _shoot(target_position: Vector2) -> void:
 ## Shots per second right now (the Overclock Pistol's ramp included).
 func current_fire_rate() -> float:
 	if ramp_fire_rate <= fire_rate:
-		return fire_rate
-	return lerpf(fire_rate, ramp_fire_rate, clampf(_ramp_elapsed / ramp_time, 0.0, 1.0))
+		return fire_rate * fire_rate_scale
+	return lerpf(fire_rate, ramp_fire_rate, clampf(_ramp_elapsed / ramp_time, 0.0, 1.0)) * fire_rate_scale
+
+
+## 0–1 progress of the Rail Spike's charge or the minigun's spin-up (for the HUD and effects).
+func charge_progress() -> float:
+	var need := maxf(charge_time, spin_up)
+	return clampf(_held / need, 0.0, 1.0) if need > 0.0 else 1.0
+
+
+## The hero's move speed multiplier from this gun (the Scrap Minigun slows the hero while firing).
+func move_speed_scale() -> float:
+	return firing_move_scale if _since_shot < 0.25 else 1.0
 
 
 ## Hawk Optics Mk I: a longer auto-aim reach (the Range circle scales with it).
@@ -139,7 +170,7 @@ func set_range_scale(factor: float) -> void:
 
 
 func _roll_damage() -> int:
-	var amount := randi_range(damage, damage_max) if damage_max > damage else damage
+	var amount := roundi((randi_range(damage, damage_max) if damage_max > damage else damage) * damage_scale)
 	return amount * 2 if crit_chance > 0.0 and randf() < crit_chance else amount
 
 

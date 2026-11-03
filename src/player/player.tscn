@@ -569,6 +569,17 @@ texture = ExtResource("15_emp_ring")
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_shockwave")
 
+[node name="SlowMoTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.4
+one_shot = true
+ignore_time_scale = true
+
+[node name="DamageBoostTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 3.0
+one_shot = true
+
 [node name="BodyAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_body")
@@ -623,3 +634,5 @@ bus = &"SFX"
 [connection signal="timeout" from="RetargetTimer" to="TargetSelector" method="_on_retarget_timer_timeout"]
 [connection signal="timeout" from="PartialReloadTimer" to="." method="_on_partial_reload_timer_timeout"]
 [connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]
+[connection signal="timeout" from="SlowMoTimer" to="." method="_on_slow_mo_timer_timeout"]
+[connection signal="timeout" from="DamageBoostTimer" to="." method="_on_damage_boost_timer_timeout"]

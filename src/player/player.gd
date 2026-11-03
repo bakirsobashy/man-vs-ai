@@ -98,6 +98,8 @@ extends CharacterBody2D
 @onready var roll_shockwave: Area2D = %RollShockwave
 @onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
 @onready var target_hp: ProgressBar = %TargetHp
+@onready var slow_mo_timer: Timer = %SlowMoTimer
+@onready var damage_boost_timer: Timer = %DamageBoostTimer
 @onready var hurt_sound: AudioStreamPlayer = %HurtSound
 @onready var roll_sound: AudioStreamPlayer = %RollSound
 @onready var emp_sound: AudioStreamPlayer = %EmpSound
@@ -133,6 +135,16 @@ var _base_max_hp := 0
 var _base_emp_per_level := 0
 var _base_emp_stun := 0.0
 var _base_emp_radius := 64.0
+var _base_recovery := 0.0
+var _base_iframe_ratio := 0.0
+## Servo Arms / Filter Lungs results.
+var reload_bonus := 1.0
+var spread_scale := 1.0
+var fire_rate_scale := 1.0
+var dual_wield := false
+var hazard_immune := false
+var second_wind := false
+var _second_wind_used := false
 
 ## Hawk Optics Mk III (Threat Sight), read by enemy telegraphs and hostile bullets.
 static var telegraph_bonus := 0.0
@@ -149,6 +161,8 @@ func _ready() -> void:
 	_base_move_speed = move_speed
 	_base_roll_distance = roll_distance
 	_base_max_hp = health.max_hp
+	_base_recovery = recovery_time
+	_base_iframe_ratio = iframe_ratio
 	_base_emp_per_level = emp_charges_per_level
 	_base_emp_stun = emp_stun_time
 	var emp_circle := (emp_range.get_child(0) as CollisionShape2D).shape as CircleShape2D
@@ -185,10 +199,19 @@ func apply_implants() -> void:
 	emp_stun_time = _base_emp_stun + implant_catalog.total(StatModifier.Stat.EMP_STUN, installed)
 	emp_range.scale = Vector2.ONE * ((_base_emp_radius + implant_catalog.total(StatModifier.Stat.EMP_RADIUS, installed)) / _base_emp_radius)
 	has_failsafe = implant_catalog.total(StatModifier.Stat.FAILSAFE, installed) > 0.0
+	reload_bonus = 1.0 + implant_catalog.total(StatModifier.Stat.RELOAD_SPEED, installed)
+	spread_scale = maxf(1.0 + implant_catalog.total(StatModifier.Stat.SPREAD, installed), 0.0)
+	fire_rate_scale = 1.0 + implant_catalog.total(StatModifier.Stat.FIRE_RATE, installed)
+	dual_wield = implant_catalog.total(StatModifier.Stat.DUAL_WIELD, installed) > 0.0
+	recovery_time = _base_recovery * maxf(1.0 + implant_catalog.total(StatModifier.Stat.ROLL_RECOVERY, installed), 0.0)
+	iframe_ratio = minf(_base_iframe_ratio + implant_catalog.total(StatModifier.Stat.IFRAME_RATIO, installed), 1.0)
+	hazard_immune = implant_catalog.total(StatModifier.Stat.HAZARD_IMMUNE, installed) > 0.0
+	second_wind = implant_catalog.total(StatModifier.Stat.SECOND_WIND, installed) > 0.0
 	for gun: Weapon in [primary, secondary]:
 		if gun != null:
-			gun.crit_chance = crit_chance
-			gun.set_range_scale(aim_range_scale)
+			_tune(gun)
+	if weapon != null:
+		_activate(weapon)
 	if full:
 		health.hp = health.max_hp
 	health.hp = mini(health.hp, health.max_hp)
@@ -325,11 +348,34 @@ func try_fire() -> void:
 	var target := target_selector.current_target
 	if target != null:
 		weapon.try_fire(target.global_position)
+		var off_hand := _off_hand()
+		if off_hand != null:
+			off_hand.try_fire(target.global_position)
+
+
+## Servo Arms Mk III: the holstered gun fires too (when it has ammo).
+func _off_hand() -> Weapon:
+	if not dual_wield or secondary == null:
+		return null
+	var other := primary if weapon == secondary else secondary
+	return other if not other.is_empty() else null
+
+
+## Implant multipliers on one gun.
+func _tune(gun: Weapon) -> void:
+	gun.crit_chance = crit_chance
+	gun.set_range_scale(aim_range_scale)
+	gun.spread_scale = spread_scale
+	gun.fire_rate_scale = fire_rate_scale
+	gun.reload_speed = _reload_multiplier * reload_bonus
 
 
 func set_reload_speed(multiplier: float) -> void:
 	_reload_multiplier = multiplier
-	weapon.reload_speed = multiplier
+	weapon.reload_speed = multiplier * reload_bonus
+	var off_hand := _off_hand()
+	if off_hand != null:
+		off_hand.reload_speed = multiplier * reload_bonus
 
 
 ## Switch between the starter pistol and the found gun (the HUD weapon card).
@@ -401,6 +447,41 @@ func take_explosion_hit(amount: int) -> void:
 	_hurt(amount)
 
 
+## Molten floors and other hazards: rolling crosses them, and Filter Lungs Mk II make the hero immune.
+func take_hazard_hit(amount: int) -> void:
+	if state_machine.is_in(&"Dead") or rolling_invulnerable or hazard_immune or health.is_invulnerable():
+		return
+	_hurt(amount)
+
+
+## Filter Lungs Mk III: a bullet passing through a roll's i-frames slows time briefly and boosts damage.
+func _trigger_second_wind() -> void:
+	if not second_wind or _second_wind_used:
+		return
+	_second_wind_used = true
+	Engine.time_scale = 0.4
+	slow_mo_timer.start()
+	damage_boost_timer.start()
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.damage_scale = 1.2
+	EventBus.toast_requested.emit("SECOND WIND")
+
+
+func _on_slow_mo_timer_timeout() -> void:
+	Engine.time_scale = 1.0
+
+
+func _on_damage_boost_timer_timeout() -> void:
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.damage_scale = 1.0
+
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0
+
+
 ## Every hit on the hero goes through here: Neural Coprocessor Mk III's Failsafe turns the first lethal hit of a level
 ## into a free EMP.
 func _hurt(amount: int) -> void:
@@ -456,13 +537,22 @@ func respawn() -> void:
 
 
 func _activate(gun: Weapon) -> void:
-	gun.crit_chance = crit_chance
-	gun.set_range_scale(aim_range_scale)
+	_tune(gun)
 	if weapon != null and weapon != gun:
 		weapon.set_active(false)
+		weapon.position = Vector2.ZERO
 	weapon = gun
 	weapon.set_active(true)
-	weapon.reload_speed = _reload_multiplier
+	weapon.position = Vector2.ZERO
+	var off_hand := _off_hand()
+	var holstered := primary if gun == secondary else secondary
+	if off_hand != null:
+		_tune(off_hand)
+		off_hand.set_active(true)
+		off_hand.position = Vector2(-2, 5)
+	elif holstered != null and holstered != gun:
+		holstered.set_active(false)
+		holstered.position = Vector2.ZERO
 	target_selector.range_area = weapon.range_area
 	target_selector.current_target = null
 	EventBus.player_weapon_changed.emit(weapon.display_name, 1 if weapon == primary else 2, 1 if secondary == null else 2)
@@ -609,7 +699,10 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 		cover.take_damage(bullet.cover_damage)
 		bullet.despawn()
 		return
-	if rolling_invulnerable or health.is_invulnerable():
+	if rolling_invulnerable:
+		_trigger_second_wind()
+		return
+	if health.is_invulnerable():
 		return
 	_hurt(bullet.hit_damage)
 	bullet.despawn()

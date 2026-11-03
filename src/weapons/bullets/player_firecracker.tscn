@@ -9,7 +9,7 @@ radius = 2.0
 
 [node name="PlayerFirecracker" type="Area2D"]
 collision_layer = 16
-collision_mask = 3
+collision_mask = 1027
 script = ExtResource("1_bullet")
 speed = 280.0
 damage = 4

@@ -5,12 +5,12 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 > A grieving war veteran hunts the robot gang that murdered his family. Every implant that makes him strong enough
 > to win replaces another piece of the man. There are three endings: stay human, become something in between, or become the machine.
 
-**Status:** M5 (content) is in progress, district by district: **Level 2, the Neon Bazaar, is playable.** A run now goes
-Rustline Slums → lab → Neon Bazaar. Level 2 adds:
-- holo-signs;
-- Shotgunners, Drones, Hackers and elite robots;
-- GLITCH;
-- three more guns and two more implants (Hawk Optics, Neural Coprocessor).
+**Status:** M5 (content) is in progress, district by district: **Levels 2 and 3 are playable.** A run now goes
+Rustline Slums → lab → Neon Bazaar → lab → The Foundry.
+- **Level 2, the Neon Bazaar:** holo-signs, Shotgunners, Drones, Hackers, elite robots and GLITCH.
+- **Level 3, The Foundry:** conveyor belts, molten lanes, Grenadiers, Shield-bots and FORGEMOTHER.
+- Six more guns and four more implants (Hawk Optics, Neural Coprocessor, Servo Arms, Filter Lungs): every body slot
+  now has implants.
 
 On top of the M4 vertical slice, on placeholder art:
 - the full loop: three save slots, the prologue comic, a rehab tutorial, Dr. Vorn's lab, and Level 1 ending with SCRAPJAW;
@@ -43,8 +43,11 @@ It passes its automated tests. Playtests on real Android phones, the art-directi
 
 ![Level 2: Neon Bazaar](docs/images/m5_l2_neon_bazaar.png)
 
+![Level 3: The Foundry](docs/images/m5_l3_foundry.png)
+
 **The lab** (between runs):
-- **Surgery (Dr. Vorn):** spend RAM on Fusion Heart and Hydraulic Legs, Mk I to Mk III. The first install in a body
+- **Surgery (Dr. Vorn):** spend RAM on implants for all six body slots (Heart, Legs, Eyes, Brain, Arms, Lungs),
+  Mk I to Mk III. The first install in a body
   slot needs a 1.5 s hold, because implants can never be removed.
 - **Armory (Patch):** spend Crypto to unlock guns; unlocked guns start turning up in chests.
 - **Elevator or Quick Start:** start a run. Dying or beating SCRAPJAW brings you back here, keeping Crypto, RAM and
@@ -109,6 +112,9 @@ godot --headless --path . --script res://tools/smoke_test_flow.gd
 ```
 ```bash
 godot --headless --path . --script res://tools/smoke_test_l2.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_l3.gd
 ```
 
 ## Getting started

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ImplantData" format=3]
+
+[ext_resource type="Script" path="res://src/player/implants/implant_data.gd" id="1_implant"]
+[ext_resource type="Script" path="res://src/player/implants/stat_modifier.gd" id="2_modifier"]
+
+[sub_resource type="Resource" id="Resource_mod0"]
+script = ExtResource("2_modifier")
+stat = 18
+value = -0.3
+
+[resource]
+script = ExtResource("1_implant")
+slot = "lungs"
+tier = 1
+display_name = "Filter Lungs Mk I"
+description = "Roll recovery 30% shorter."
+cost_mb = 256
+modifiers = Array[ExtResource("2_modifier")]([SubResource("Resource_mod0")])
+vorn_line = "Breathe. Or don't. It matters less every day."

@@ -10,6 +10,7 @@ func enter(msg: Dictionary) -> void:
 	_direction = msg.get("direction", Vector2.RIGHT)
 	_elapsed = 0.0
 	_finished = false
+	player._second_wind_used = false
 	player.rolling_invulnerable = true
 	player.body_animation.play(&"roll")
 	player.roll_sound.play()

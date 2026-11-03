@@ -348,6 +348,7 @@ Layers and masks are set on each node in the Inspector, never in code.
 | 8 | interactables | Chests, stations, NPCs, doors, weapon pickups (detected by the hero's InteractSensor) |
 | 9 | enemy_contact | `ContactHitbox` areas of enemies that hurt by touch (detected by the hero's Hurtbox) |
 | 10 | sight_blockers | Holo-signs (M5): only line-of-sight rays (hero and enemy `LineOfSight`, mask 515) hit them; bullets and bodies pass |
+| 11 | enemy_shields | Shield-bot shields (M5): only player bullets (mask 1027 = world, cover, enemy_shields) hit them |
 
 ---
 
@@ -527,6 +528,17 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   room-clear heal and the roll shockwave from the Inspector's base values plus `implant_catalog.total()` for
   `GameState.implants`. It runs when the hero loads and on `EventBus.implants_changed` (surgery). `begin_level()` refills
   EMP charges and adds the starting armor; the Roll state calls `roll_finished()` for the shockwave.
+- **Implants (M5):** the same recompute covers the other four slots (stat indices in `stat_modifier.gd`):
+  - Eyes: `aim_range_scale` scales the gun's `Range` area, `TargetHp` shows the target's HP, `crit_chance` goes to
+    the guns, and Threat Sight sets the static `Player.telegraph_bonus` (+0.2 s on every tell) and `highlight_aimed`.
+  - Brain: EMP charges, the `EmpRange` scale and stun time, and Failsafe (`_hurt()` turns the first lethal hit of a
+    level into a free EMP).
+  - Arms: `reload_bonus`, `spread_scale` and `fire_rate_scale` are applied to each gun by `_tune()`. Dual Wield makes
+    `_off_hand()` return the holstered gun (when it has ammo); it is shown at an offset and fires with the main gun.
+  - Lungs: `recovery_time` and `iframe_ratio` for the Roll state, `hazard_immune` for `take_hazard_hit()`, and Second
+    Wind: an enemy bullet reaching the hurtbox during roll i-frames sets `Engine.time_scale` to 0.4 until
+    `SlowMoTimer` (0.4 s, ignores time scale) and gives both guns `damage_scale` 1.2 until `DamageBoostTimer` (3 s).
+    Once per roll.
 - **Runs (M4):** `capture_run_state()` and `restore_run_state()` move hearts, armor, EMP charges and the found gun
   (by catalog id) to and from `RunState`. `auto_respawn` is on in the test levels; real levels turn it off and the
   LevelDirector shows the Retrieved summary instead.
@@ -586,7 +598,7 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - **Telegraphs:** nodes animated by the `AnimationPlayer`:
   - the `TelegraphGlow` sprite;
   - the Sniper's `LaserSight` Line2D, whose end point the script updates;
-  - the Grenadier's landing circle, a copy of `landing_marker.tscn` placed at the target.
+  - the Grenadier's landing circle, the `LandingCircle` node (top level) of each `grenade.tscn` copy.
   The telegraph animation's length enforces the 0.4 s minimum.
 - **Movement:** walking robots (Grunt, Charger, Swarmer, the stand-in boss) have a `NavAgent` (`NavigationAgent2D`)
   node. Moving in, they follow its path around walls and cover (`Enemy.direction_toward()`). Every level room and the
@@ -618,6 +630,13 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 
   An elite costs 2× threat, drops 3× RAM and shows its `EliteFX` ring in the modifier's color. With elites, a hacked
   terminal's ambush is one elite (`spawn_elite_ambush`).
+- **Level 3 robots (M5):**
+  - **Grenadier** (`lob.gd`): copies `grenade.tscn` into the room's `drop_layer`. `Grenade.launch()` flies it to the
+    hero's spot over its `FlightTimer` (1 s) in an arc, while the top-level `LandingCircle` marks the spot; then it
+    copies `explosion.tscn` there (ignores cover).
+  - **Shield-bot** (`guard.gd`): `ShieldPivot/Shield` is a StaticBody2D on layer 11 (enemy_shields) in front of the
+    body. Guard turns the pivot toward the hero at 60°/s while it advances, then disables the shield's shape and dims
+    it for the Telegraph and the 6-bullet wave (the attack window). Rail Spike spikes pass through shields.
 
 ### 6.4.1 Weapons, pickups and drops (M2)
 - **Two slots:**
@@ -638,6 +657,15 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   weapon scene in its own folder. `Weapon.burst` and `burst_interval` give the Firecracker 3-round bursts. Chests only
   pick guns that `GameState.unlocked_weapons` lists (`WeaponCatalog.pick`).
 - **Sounds:** every weapon scene has a `ShotSound` (AudioStreamPlayer2D), connected to the weapon's `shot_fired` signal.
+- **M5 gun traits** (all exports on the weapon or bullet scene):
+  - Junk Cannon: `damage_max` rolls 8–20 per shot; its bullet's `knockback` shoves robots for big chunks.
+  - Arc Caster: `chain_count` 2 copies `arc_fx.tscn` to the next robots in reach.
+  - Overclock Pistol: `ramp_fire_rate` climbs from 3 to 9 shots/s over `ramp_time` and resets after 0.5 s without a shot.
+  - Cryo Sprayer: each bullet adds `chill` (0.08) to the robot; at 1 the robot is stunned for `freeze_time` (1.5 s).
+  - Rail Spike: `charge_time` 1.2 s of held fire before each shot; its bullet has `pierce_cover`, so it damages
+    cover and keeps flying (walls still stop it).
+  - Scrap Minigun: `spin_up` 0.6 s of held fire, then 20 shots/s; `firing_move_scale` 0.8 slows the hero (Run state)
+    while it has fired in the last 0.25 s. `charge_progress()` reports charge or spin-up for effects.
 - **Barrels:** a cover scene with `provides_cover = false` and `break_scene = explosion.tscn`. The `Explosion` damages
   the hero (ignoring cover), enemies and cover in 32 px, so barrels chain.
 
@@ -680,6 +708,31 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
   `glitch`, or the gentle `glitch_soft` with the reduced-flashing setting.
 - `clears_group_on_death` removes the decoys when GLITCH falls. The arena (`rooms/neon/boss.tscn`) holds
   `TeleportSpots` (group `teleport_spots`).
+
+**FORGEMOTHER** (`src/bosses/forgemother/forgemother.tscn`, M5): HP 850, thresholds [0.6, 0.3]. She ignores conveyors.
+- **Assembly** (`build.gd`): copies 2 Swarmers onto random markers of the arena's `FactorySpots` (group
+  `factory_spots`), at most 6 alive; then a rivet fan (`RivetEmitter`). The loop takes about 6 s.
+- **Overtime** (`overtime.gd`): `set_speed_scale(-2)` on every node in the `conveyors` group, and crate copies onto
+  free `Cover/CrateSpots` markers (group `crate_spots`; a marker with a child is taken). Then 3-grenade volleys
+  (`lob.gd`, `scatter` 40 px) between rivet fans.
+- **Meltdown** (`flood.gd`): sets `damage_taken_scale` to 2 and shows `CoreGlow`, then copies `molten_flood.tscn`
+  onto random `FloodSpots` (group `flood_spots`): 3 at once, then 2 per cycle.
+- Her Swarmers are in the `forge_minions` group, which `clears_group_on_death` removes when she falls. The arena is
+  `rooms/foundry/boss.tscn`.
+
+### 6.6 Hazards (M5)
+All hazards are scenes in `src/levels/hazards/`, placed by hand in room scenes under a `Hazards` node.
+- **Conveyor** (`conveyor.tscn`, group `conveyors`): an Area2D that moves every overlapping CharacterBody2D along
+  its local +X with `move_and_collide` (`push_speed` 40 px/s × `speed_scale`). Rotate and scale it in the editor to
+  aim and size it. Flyers and bosses aren't pushed. `set_speed_scale()` also drives the belt's scroll animation.
+- **Molten lane** (`molten_lane.tscn`): an Area2D (mask: player) that calls `Player.take_hazard_hit()` on entry and
+  on each `TickTimer` tick (1 s). Rolling i-frames, Filter Lungs Mk II and the hurt invulnerability all block it.
+  Robots ignore it.
+- **Molten flood** (`molten_flood.tscn`): the same script with `starts_warming`: it blinks harmlessly until its
+  `WarmupTimer` (1 s) fires, then burns until its `LifeTimer` (4 s from the copy) removes it.
+- **Holo-sign** (`holo_sign.tscn`, Level 2): a StaticBody2D on layer 10 only (§1.1).
+- **Layout rule:** belts and lanes stay out of the 44 px clearance around every door `Entry` (§7.3), so a hero
+  walking in is never carried or burned at the door.
 
 ---
 
@@ -756,6 +809,12 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
 - **M3 set (Rustline, `src/levels/rooms/rustline/`):** start, 8 combat rooms (Alley, Market, Scrapyard, Underpass,
   Checkpoint, Courtyard, Long Street (2 waves), Garage; 40–64 tiles tall), 2 chest rooms, and one each of memory,
   challenge arena, repair, terminal and boss. All are greybox.
+- **M5 sets:** the same 16 room types per district, each with its own tileset (`neon_tiles.tres`, `foundry_tiles.tres`):
+  - Neon Bazaar (`rooms/neon/`): Night Market, Noodle Row, Arcade, Data Stalls, Lantern Alley, Holo Plaza, Ad
+    Canyon and Back Lot, with holo-signs; the boss room is Glitch's Stage (`TeleportSpots`).
+  - The Foundry (`rooms/foundry/`): Assembly Line, Smelter, Press Floor, Casting Bay, Crane Yard, Slag Pit, Long
+    Line and Loading Dock, with conveyors and molten lanes; the boss room is Forgemother's Floor (`FactorySpots`,
+    `FloodSpots`, `Cover/CrateSpots`).
 - **Launch target:** about 12 combat templates per district, plus 2 for each other room type.
 
 ---
@@ -947,6 +1006,14 @@ func restore_purchases() -> void
   - the Junk Cannon, Arc Caster and Overclock Pistol;
   - Hawk Optics and Neural Coprocessor at every tier;
   - memory band variants and the Level 2 lab talks.
+
+- **Level 3 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l3.gd`. It checks 49
+  results:
+  - conveyors (the hero, walking robots, reversed belts) and molten lanes (contact, ticks, rolling, robots);
+  - the Grenadier's lob and the Shield-bot's front shield and attack window;
+  - the Cryo Sprayer's freeze, the Rail Spike's charge and cover pierce, and the Scrap Minigun's spin-up and slow;
+  - Servo Arms and Filter Lungs at every tier, including Dual Wield and Second Wind;
+  - FORGEMOTHER's three phases, Lena's Message and the Level 3 lab talk.
 
   The generator test now validates 10,000 layouts for every campaign level, and the flow test covers L1 → lab → L2.
 - **Unit tests** for the remaining pure logic: the gesture classifier and economy math. Pick GUT or

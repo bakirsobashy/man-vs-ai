@@ -161,23 +161,32 @@ If the gate fails, iterate on M1 before moving on.
 - An external playtest with 10+ people, including a "would you play again?" question.
 
 ## M5: Content production
-**Status: in progress, built district by district (the owner's choice). Level 2 is playable.**
-- **Built so far (Level 2, Neon Bazaar):**
-  - **The campaign:** runs go L1 → lab → L2. Hearts, armor and the found gun carry between levels, and death
-    restarts at Level 1.
-  - **Neon Bazaar:** 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
+**Status: in progress, built district by district (the owner's choice). Levels 2 and 3 are playable.**
+- **The campaign:** runs go L1 → lab → L2 → lab → L3. Hearts, armor and the found gun carry between levels, and
+  death restarts at Level 1. Beating the last built level ends the run until Level 4 exists.
+- **Level 2, Neon Bazaar:**
+  - 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
   - **Elite modifiers** (Overclocked, Armored, Splitter, Shielded), from Level 2 at 10%.
   - **GLITCH**, with decoys, holo-wall cages and the Static Storm.
-  - **Guns:** the Junk Cannon, Arc Caster and Overclock Pistol (12 of 21 guns).
-  - **Implants:** Hawk Optics and Neural Coprocessor (4 of 6 implants).
+  - **Guns:** the Junk Cannon, Arc Caster and Overclock Pistol.
+  - **Implants:** Hawk Optics and Neural Coprocessor.
   - **Story:** memory band variants, Mira's Drawing, the Level 2 lab talk, and Vorn's band-aware idle lines.
+- **Level 3, The Foundry:**
+  - 16 rooms with conveyor belts (they carry the hero and walking robots) and molten lanes (rolling crosses them).
+  - The **Grenadier** (lobbed grenades with a landing circle) and the **Shield-bot** (a turning front shield that
+    drops when it attacks). Elites at 15%.
+  - **FORGEMOTHER**: Assembly (builds Swarmers, rivet fans), Overtime (belts reverse at double speed, crates ride
+    in, grenade volleys) and Meltdown (core takes double damage, molten floods with a 1 s warning).
+  - **Guns:** the Cryo Sprayer, Rail Spike and Scrap Minigun (15 of 21 guns).
+  - **Implants:** Servo Arms and Filter Lungs (all 6 body slots now have implants).
+  - **Story:** Lena's Message and the Level 3 lab talk.
 - **Owner decisions:** Vorn is morally grey (Q1), the Normal ending has Patched and Hollow flavors (Q8), and
   post-game is NG+ threat levels (Q5).
 - **Tests:**
   - every earlier suite still passes;
-  - the Level 2 smoke test passes 44/44;
+  - the Level 2 smoke test passes 44/44 and the Level 3 smoke test 49/49;
   - the generator validates 10,000 layouts for each campaign level.
-- **Next:** Level 3 (The Foundry), then L4, L5, the endings and NG+, then balance.
+- **Next:** Level 4 (Skyline Spires), then L5, the endings and NG+, then balance.
 
 **Scope**
 - Districts 2–5: templates, hazards and tilesets.

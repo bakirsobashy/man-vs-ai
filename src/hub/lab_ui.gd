@@ -106,7 +106,7 @@ func _select_slot(slot_name: String) -> void:
 	install_button.require_hold = tier == 0
 	if not implant_catalog.has_slot(slot_name):
 		implant_name.text = slot_name.capitalize()
-		implant_info.text = "Vorn is still building this one. (Arrives in M5.)"
+		implant_info.text = "Vorn is still building this one."
 		install_button.text = "Unavailable"
 		install_button.disabled = true
 	elif implant == null:

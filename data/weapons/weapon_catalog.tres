@@ -14,6 +14,9 @@
 [ext_resource type="PackedScene" path="res://src/weapons/junk_cannon/junk_cannon.tscn" id="12_junk_cannon"]
 [ext_resource type="PackedScene" path="res://src/weapons/arc_caster/arc_caster.tscn" id="13_arc_caster"]
 [ext_resource type="PackedScene" path="res://src/weapons/overclock_pistol/overclock_pistol.tscn" id="14_overclock_pistol"]
+[ext_resource type="PackedScene" path="res://src/weapons/cryo_sprayer/cryo_sprayer.tscn" id="15_cryo_sprayer"]
+[ext_resource type="PackedScene" path="res://src/weapons/rail_spike/rail_spike.tscn" id="16_rail_spike"]
+[ext_resource type="PackedScene" path="res://src/weapons/scrap_minigun/scrap_minigun.tscn" id="17_scrap_minigun"]
 
 [sub_resource type="Resource" id="Resource_scattergun"]
 script = ExtResource("2_entry")
@@ -99,6 +102,27 @@ scene = ExtResource("14_overclock_pistol")
 rarity = 1
 unlock_cost = 150
 
+[sub_resource type="Resource" id="Resource_cryo_sprayer"]
+script = ExtResource("2_entry")
+id = &"cryo_sprayer"
+scene = ExtResource("15_cryo_sprayer")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_rail_spike"]
+script = ExtResource("2_entry")
+id = &"rail_spike"
+scene = ExtResource("16_rail_spike")
+rarity = 2
+unlock_cost = 250
+
+[sub_resource type="Resource" id="Resource_scrap_minigun"]
+script = ExtResource("2_entry")
+id = &"scrap_minigun"
+scene = ExtResource("17_scrap_minigun")
+rarity = 2
+unlock_cost = 250
+
 [resource]
 script = ExtResource("1_catalog")
-entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker"), SubResource("Resource_junk_cannon"), SubResource("Resource_arc_caster"), SubResource("Resource_overclock_pistol")])
+entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker"), SubResource("Resource_junk_cannon"), SubResource("Resource_arc_caster"), SubResource("Resource_overclock_pistol"), SubResource("Resource_cryo_sprayer"), SubResource("Resource_rail_spike"), SubResource("Resource_scrap_minigun")])

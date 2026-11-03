@@ -33,6 +33,11 @@ extends Area2D
 ## Junk Cannon: hits of at least knockback_min_damage shove the robot this far.
 @export_range(0.0, 64.0, 1.0, "suffix:px") var knockback := 0.0
 @export_range(0, 999) var knockback_min_damage := 15
+## Cryo Sprayer: chill added to each robot hit; at 1 the robot freezes (a stun) for freeze_time.
+@export_range(0.0, 1.0, 0.01) var chill := 0.0
+@export_range(0.0, 5.0, 0.1, "suffix:s") var freeze_time := 1.5
+## Rail Spike: passes through cover (damaging it) and enemy shields; only walls stop it.
+@export var pierce_cover := false
 ## Arc Caster: after a hit, lightning jumps to this many more robots within chain_range.
 @export_range(0, 6) var chain_count := 0
 @export_range(0.0, 200.0, 1.0, "suffix:px") var chain_range := 72.0
@@ -123,6 +128,10 @@ func _on_body_entered(body: Node2D) -> void:
 	if not active:
 		return
 	var cover := body as Cover
+	if pierce_cover and not _is_wall(body):
+		if cover != null:
+			cover.take_damage(cover_damage)
+		return
 	if cover != null:
 		cover.take_damage(cover_damage)
 	elif _bounces_left > 0 and wall_probe != null:
@@ -134,6 +143,12 @@ func _on_body_entered(body: Node2D) -> void:
 			return
 	_pop()
 	despawn()
+
+
+## Wall tiles and other world-layer bodies (a locked door's blocker).
+func _is_wall(body: Node2D) -> bool:
+	var solid := body as CollisionObject2D
+	return body is TileMapLayer or (solid != null and (solid.collision_layer & 1) != 0)
 
 
 ## Turns toward the nearest robot in range (re-picked a few times a second).

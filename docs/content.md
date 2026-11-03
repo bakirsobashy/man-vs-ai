@@ -67,7 +67,7 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 | 9 | Volt Shotgun | Shotgun | Rare | 150 | 3×6 | 1.2 | 5 | 1.8 | 50 | Pellets stun for 0.3 s |
 | 10 | Longshot | Marksman | Rare | 150 | 28 | 1 | 5 | 1.8 | 60 | Pierces every enemy; very fast bullet |
 | 11 | Firecracker | Burst rifle | Rare | 150 | 4×3 | 2 bursts | 9 | 1.6 | 135 | Each bullet pops in a tiny blast |
-| 12 | Cryo Sprayer | Sprayer | Rare | 150 | 1/tick | 15 | 60 | 1.6 | 400 | Short range; freezes after a buildup |
+| 12 | Cryo Sprayer | Sprayer | Rare | 150 | 1/tick | 15 | 60 | 1.6 | 400 | Short range (80 px); each hit adds 8% chill, and full chill freezes a robot for 1.5 s (not bosses) |
 | 13 | Overclock Pistol | Pistol | Rare | 150 | 4 | 3→9 | 24 | 1.4 | 240 | Fire rate ramps up the longer you keep firing (rewards staying exposed) |
 | 14 | Rail Spike | Railgun | Epic | 250 | 60 | 1.2 s charge | 3 | 2.0 | 30 | Auto-fires when charged; pierces cover and enemies |
 | 15 | Scrap Minigun | Minigun | Epic | 250 | 2 | 20 | 120 | 2.5 | 600 | 0.6 s spin-up; −20% move speed while firing |
@@ -82,7 +82,9 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 - **Built in M4:** #0–#3 plus the armory's first six unlocks: #4 Bolt Revolver, #6 Ricochet Carbine, #8 Magnet Coil,
   #9 Volt Shotgun, #10 Longshot and #11 Firecracker.
 - **Built in M5 so far:** #5 Junk Cannon (big chunks of 15+ damage knock robots back 18 px), #7 Arc Caster (chains
-  within 72 px) and #13 Overclock Pistol (reaches 9 shots/s after 2 s of fire; a 0.5 s pause resets it).
+  within 72 px) and #13 Overclock Pistol (reaches 9 shots/s after 2 s of fire; a 0.5 s pause resets it) for Level 2;
+  #12 Cryo Sprayer, #14 Rail Spike (charges while the finger stays down and stops at walls) and #15 Scrap Minigun
+  for Level 3.
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
 - **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
   Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
@@ -120,11 +122,15 @@ Arena: a scrapyard full of light cover.
 | 3 · Static Storm | < 30% | 4 decoys, faster teleports, brief screen glitches (toned down by the reduced-flashing setting) |
 
 ### FORGEMOTHER† (L3, The Maker). Teaches target priority and moving floors. HP 850
+**Built in M5** (`src/bosses/forgemother/`):
+- The arena has 4 factory spots, 3 crate spots and 4 flood spots, and two conveyor belts running opposite ways.
+- Rivet fans: aimed bursts of 5 volleys, 3 rivets over 24° each.
+- Drops 96 MB and 70 Crypto.
 | Phase | HP | Attacks |
 |---|---|---|
-| 1 · Assembly | 100–60% | Builds 2 Swarmers every 6 s; fires lines of molten rivets. Conveyors move both the hero and the cover |
-| 2 · Overtime | 60–30% | Conveyors speed up and reverse; crates ride in as new cover; grenade arcs |
-| 3 · Meltdown | < 30% | Core exposed (takes ×2 damage); floods molten lanes (1.0 s tell) |
+| 1 · Assembly | 100–60% | Builds 2 Swarmers about every 6 s (at most 6 alive); fires fans of molten rivets. Conveyors carry the hero and walking robots |
+| 2 · Overtime | 60–30% | Conveyors reverse at double speed; 2 crates ride in as new cover on free crate spots; volleys of 3 grenades |
+| 3 · Meltdown | < 30% | Core exposed (takes ×2 damage); floods 3 molten lanes (1.0 s tell, 4 s long), then 2 more every cycle; 2-grenade volleys |
 
 ### WARDEN† (L4, The Watcher). Teaches directional cover and flanks. HP 1,000
 | Phase | HP | Attacks |
@@ -159,12 +165,14 @@ The first kill unlocks the M7 Line Rifle.
 
 Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero animation and direction.
 
-**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. **M5:** Eyes and Brain, all three tiers.
+**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. **M5:** Eyes and Brain (Level 2), then
+Arms and Lungs (Level 3), all three tiers.
 Implementation notes:
 - Threat Sight lengthens every enemy tell by 0.2 s and tints bullets heading at the hero.
 - Failsafe refills itself at the start of each level.
-
-Arms and Lungs show in surgery as "arrives in M5" until Level 3.
+- Dual Wield fires the holstered gun from the off hand while it has ammo; an empty one stays holstered.
+- Filter Lungs Mk II immunity covers every floor hazard (molten lanes and FORGEMOTHER's floods today).
+- Second Wind triggers once per roll; its 0.4 s of slow motion is real time (time scale 0.4).
 
 ---
 
@@ -210,7 +218,7 @@ Medium cover outright and deals 150 to Heavy. Player bullets deal 50% of their d
 | Rare-or-better chest | 30% |
 | Crypto jackpot (40×L ◈) | 20% |
 | Full ammo + 1 armor | 15% |
-| Elite ambush (one elite, 3× RAM; until elites arrive in M5, one wave of 3 threat) | 15% |
+| Elite ambush (one elite, 3× RAM; Level 1 has no elites, so there it's one wave of 3 threat) | 15% |
 | Virus: −1 EMP charge this level | 10% |
 | "ERROR 404": nothing happens | 10% |
 
