@@ -17,6 +17,20 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 | [Roadmap](docs/roadmap.md) | Milestones M0–M6 and their exit gates |
 | [Open questions](docs/open-questions.md) | Pending decisions and design risks |
 
+## Development principle: scene-first
+This project is built **node-based**. Everything you can see, collide with or position (sprites, `Area2D`s, collision
+shapes, markers, timers, UI) is a node in a `.tscn` scene built in the Godot editor. Scripts only add behavior to those
+nodes and never build them in code. At runtime the game only makes copies of authored scenes (bullets, enemies, rooms).
+The full rules and example scene trees are in [technical.md §0](docs/technical.md).
+
+Before committing, run both checks from the repository root:
+```bash
+tools/check_scene_first.sh
+```
+```bash
+godot --headless --path . --script res://tools/check_scenes.gd
+```
+
 ## Getting started
 1. Install **Godot 4.7** (the standard build; the project uses GDScript only).
 2. Open `project.godot`. The project uses the Compatibility renderer and a 360×640 portrait base resolution, and it
@@ -27,8 +41,9 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 ## Project layout
 ```
 assets/        art, audio, fonts (placeholders until the art direction is chosen)
-data/          designer-editable .tres resources (weapons, implants, enemies, levels)
+data/          non-world .tres data: implants, level configs, weapon catalog, control thresholds
 localization/  translation tables
-src/           scenes and scripts by feature (input, player, enemies, weapons, cover, levels, hub, ui…)
+src/           scenes and their scripts by feature (components, input, player, enemies, weapons, cover, levels, hub, ui…)
+tools/         scene-first and scene-load checks
 docs/          design documents (Godot skips this folder via .gdignore)
 ```

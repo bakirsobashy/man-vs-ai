@@ -42,6 +42,10 @@
 | Story | Comic panels, lab dialogue and memory rooms; final boss is the gang leader; scientist's role open |
 | Business | Small-help rewarded ads plus cosmetic IAP |
 | Production | Small team, GDScript, English first and i18n-ready, art undecided |
+| Development style | Scene-first (node-based): everything visible or physical is built in `.tscn` scenes; code adds behavior and only makes copies of authored scenes ([technical.md](technical.md) §0) |
+| Room content | Cover is hand-placed in each room scene; enemies spawn at hand-placed SpawnPoints, with types picked from the threat budget |
+| Tuning | `@export` properties on each scene, edited in the Inspector; non-world data in `.tres` files |
+| Signals | Connected in the editor; code connects only to `EventBus` and to runtime copies |
 
 ## Design risks
 | ID | Risk | Mitigation |
@@ -54,7 +58,9 @@
 | R6 | Outfits × implant overlays multiply the art cost | Outfits change only the base and clothing layers; overlays draw above outfits; limit the number of outfits |
 | R7 | The thumb hides part of the portrait screen | Hero anchored at ~45%, off-screen arrows, joystick-zone tests |
 | R8 | Android system gestures steal swipes | 16 px edge margins; immersive mode |
-| R9 | Bullet performance on low-end phones | Pooling from day one; the `BulletServer` fallback; a cap of 300 bullets |
+| R9 | Bullet performance on low-end phones | Pooled bullet scenes from day one, node-friendly optimizations ([technical.md](technical.md) §6.2), a cap of 300 bullets. A node-less bullet system only with the owner's approval |
 | R10 | A child's death is a sensitive subject (store rating, players) | Always implied, never shown; rating questionnaire at M6 |
 | R11 | Scope for a small team (5 districts, 5 bosses, 21 weapons, 18 overlays) | Vertical-slice gate at M4; some content (weapons, outfits) can ship in post-launch updates |
 | R12 | Implants can't be undone on a save | Hold-to-confirm, a clear warning, and 3 save slots |
+| R13 | Scene-first drift: code (written by people or AI) starts building nodes again | `CLAUDE.md` rules, `tools/check_scene_first.sh`, the review checklist in [technical.md](technical.md) §14 |
+| R14 | Editor signal connections break silently when nodes or methods are renamed | `tools/check_scenes.gd` checks every connection; Godot also reports broken connections when a scene loads |

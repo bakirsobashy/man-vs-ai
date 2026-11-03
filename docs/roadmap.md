@@ -21,10 +21,13 @@ The highest risk (one-finger controls) is tested first. Nothing else gets built 
 - Design docs: [GDD](GDD.md), [narrative](narrative.md), [content](content.md), [technical](technical.md), this roadmap,
   and [open questions](open-questions.md).
 - `project.godot` configured for Android portrait, plus the folder structure.
+- The scene-first rule ([technical.md](technical.md) §0), `CLAUDE.md`, and the check tools in `tools/`.
 - **Exit:** the owner reviews the [PROPOSED] items and answers the urgent open questions.
 
 ## M1: Controls greybox
 **Scope**
+- Everything built scene-first: `player.tscn`, `hud.tscn`, `test_room.tscn` and the dummy scenes are authored in the
+  editor ([technical.md](technical.md) §0).
 - `TouchController` with the debug overlay ([technical.md](technical.md) §4).
 - The hero: run, auto-fire, roll, slide to cover, in-cover, and stand-and-reload.
 - EMP on double-tap.
@@ -47,11 +50,11 @@ If the gate fails, iterate on M1 before moving on.
 
 ## M2: Combat core
 **Scope**
-- A data-driven weapon system with 4 guns.
+- 4 weapon scenes with their stats in the Inspector, plus their bullet scenes.
 - Bullet pools.
-- 4 enemies: Grunt, Charger, Turret, Swarmer.
+- 4 enemy scenes: Grunt, Charger, Turret, Swarmer.
 - Hearts, armor and the hurt overlay; reload rules.
-- Destructible cover.
+- Cover scenes for each material (light, medium, heavy, explosive).
 - Drops: RAM, Crypto and pickups.
 - HUD v1.
 
@@ -63,7 +66,7 @@ If the gate fails, iterate on M1 before moving on.
 **Scope**
 - The level generator, with validation tests.
 - Door transitions and the minimap.
-- About 8 greybox room templates for Rustline.
+- About 8 greybox room scenes for Rustline, with hand-placed cover and SpawnPoints.
 - Chest rooms.
 - Working special rooms: memory, arena, repair and terminal.
 - A placeholder boss room.

@@ -18,20 +18,20 @@
 ---
 
 ## 2. Enemies (robots only)
-| Enemy† | From | Role | Behavior | Attack (telegraph) | HP | Threat | RAM (MB) |
-|---|---|---|---|---|---|---|---|
-| Grunt | L1 | Basic shooter | Holds mid range, strafes | 3-round aimed burst (0.4 s glow) | 20 | 1 | 3 |
-| Charger | L1 | Melee **flusher** | Locks onto a line and dashes, smashing cover in its path; stunned 1 s if it hits a wall | Contact, ½ heart (0.6 s red glow + line) | 30 | 1.5 | 4 |
-| Turret | L1 | Area denial | Stationary | Slow rotating 8-way bursts (0.5 s spin-up) | 40 | 2 | 5 |
-| Swarmer | L1 | Swarm | Groups of 4–6 that rush the hero | Contact (slow and weak, no telegraph) | 6 | 0.5 | 1 |
-| Shotgunner | L2 | Pressure | Closes distance | 5-bullet 40° spread (0.5 s pump) | 28 | 1.5 | 4 |
-| Drone | L2 | Aerial **flusher** | Flies over cover and walls, circles | Aimed shots that ignore cover protection (0.4 s blink) | 15 | 1 | 3 |
-| Hacker | L2 | Support **flusher** | Keeps its distance, hides behind allies | Rigs a cover object: it blinks red for 1.5 s, then explodes (1 heart, 2 tiles). Also shields one ally | 22 | 2.5 | 8 |
-| Grenadier | L3 | **Flusher** | Stays far away | Grenade lobbed at the hero's position: landing circle for 1.0 s, explosion ignores cover | 30 | 2 | 5 |
-| Shield-bot | L3 | Blocker | Frontal shield blocks player bullets; turns slowly | 6-bullet wave every 2.5 s, lowering the shield (the attack window) | 45 | 3 | 8 |
-| Sniper | L4 | Long range | Stays at max range, relocates after each shot | Laser sight for 1.0 s, then a fast shot (1 heart). Cover blocks the laser | 25 | 2 | 6 |
-| EMP-bot | L4 | **Flusher** | Slow; projects a 3-tile EMP field | The field shorts out cover (no protection inside it); a pulse knocks the hero back | 35 | 2.5 | 6 |
-| Null Knight | L5 | Elite guard | Mirrors the hero: rolls through bullets, uses cover | Burst, roll and grenade combos | 80 | 5 | 16 |
+| Enemy† | From | Role | Behavior | Attack (telegraph) | HP | Threat | RAM (MB) | Spawn kind |
+|---|---|---|---|---|---|---|---|---|
+| Grunt | L1 | Basic shooter | Holds mid range, strafes | 3-round aimed burst (0.4 s glow) | 20 | 1 | 3 | ground |
+| Charger | L1 | Melee **flusher** | Locks onto a line and dashes, smashing cover in its path; stunned 1 s if it hits a wall | Contact, ½ heart (0.6 s red glow + line) | 30 | 1.5 | 4 | ground |
+| Turret | L1 | Area denial | Stationary | Slow rotating 8-way bursts (0.5 s spin-up) | 40 | 2 | 5 | stationary |
+| Swarmer | L1 | Swarm | Groups of 4–6 that rush the hero | Contact (slow and weak, no telegraph) | 6 | 0.5 | 1 | ground |
+| Shotgunner | L2 | Pressure | Closes distance | 5-bullet 40° spread (0.5 s pump) | 28 | 1.5 | 4 | ground |
+| Drone | L2 | Aerial **flusher** | Flies over cover and walls, circles | Aimed shots that ignore cover protection (0.4 s blink) | 15 | 1 | 3 | flyer |
+| Hacker | L2 | Support **flusher** | Keeps its distance, hides behind allies | Rigs a cover object: it blinks red for 1.5 s, then explodes (1 heart, 2 tiles). Also shields one ally | 22 | 2.5 | 8 | ground |
+| Grenadier | L3 | **Flusher** | Stays far away | Grenade lobbed at the hero's position: landing circle for 1.0 s, explosion ignores cover | 30 | 2 | 5 | ground |
+| Shield-bot | L3 | Blocker | Frontal shield blocks player bullets; turns slowly | 6-bullet wave every 2.5 s, lowering the shield (the attack window) | 45 | 3 | 8 | ground |
+| Sniper | L4 | Long range | Stays at max range, relocates after each shot | Laser sight for 1.0 s, then a fast shot (1 heart). Cover blocks the laser | 25 | 2 | 6 | ground |
+| EMP-bot | L4 | **Flusher** | Slow; projects a 3-tile EMP field | The field shorts out cover (no protection inside it); a pulse knocks the hero back | 35 | 2.5 | 6 | ground |
+| Null Knight | L5 | Elite guard | Mirrors the hero: rolls through bullets, uses cover | Burst, roll and grenade combos | 80 | 5 | 16 | ground |
 
 **Elite modifiers** (from L2; chance by level in §6). Elites cost 2× threat and drop 3× RAM.
 | Modifier | Effect | Visual |
@@ -42,6 +42,10 @@
 | Shielded | Absorbs the first 3 hits | Blue bubble |
 
 Enemy RAM drops scale by ×(1 + 0.15 × (level − 1)).
+
+**Where the numbers live:** HP, speed, RAM drop and spawn kind are exported on each enemy scene. Threat costs live in each
+level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ticked in its Inspector
+([technical.md](technical.md) §0.4).
 
 ---
 
@@ -76,6 +80,8 @@ Enemy RAM drops scale by ×(1 + 0.15 × (level − 1)).
 
 - **New-save pool:** #0–#3.
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
+- **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
+  Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
 
 ---
 
@@ -151,11 +157,14 @@ Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero a
 | Threat budget per wave | 6 | 8 | 10 | 12 | 14 |
 | Elite chance per spawn | 0% | 10% | 15% | 20% | 25% |
 
+The `WaveSpawner` spends each wave's threat budget at the room's hand-placed SpawnPoints. Room scenes contain no enemies,
+only the points where enemies can appear.
+
 **Odds for the second special room** (the first one is always the Memory room): Repair station 40% (50% in L1),
 Challenge arena 30%, Hacked terminal 30%.
 
 **Cover damage:** an enemy bullet deals 4 to cover; a Sniper shot 20; an explosion 50. A Charger destroys Light and
-Medium cover outright and deals 150 to Heavy. Player bullets deal 50% of their damage to cover.
+Medium cover outright and deals 150 to Heavy. Player bullets deal 50% of their damage to cover. Cover HP is exported on each cover scene (GDD §4.6 values).
 
 ---
 

@@ -199,6 +199,9 @@ The owner chose "floating joystick, lower part of the screen". The default split
 
 *px means logical pixels at the 360×640 base, which is roughly one dp on most phones. 1 tile = 16 px.*
 
+In the project, the joystick zone and its margins are a `JoystickZone` node in the HUD scene, and every threshold is in
+`data/controls/controls_tuning.tres`. Both are edited in the Godot editor ([technical.md](technical.md) §0, §4).
+
 ### 3.5 Control settings [PROPOSED]
 Joystick visibility, size and opacity · swipe sensitivity presets (Low / Normal / High) · double-tap window ·
 aim reticle on/off · haptics.
@@ -276,8 +279,8 @@ and sound as warning.
 - **Hackers** rig a cover object to explode; it blinks red first.
 - **Chargers** smash any cover in their path.
 
-**Level design rules.** Every combat room has clusters of cover, no walkable spot is more than about 6 tiles from
-cover, and at least one piece of cover sits near each door.
+**Level design rules.** Cover is placed by hand in each room scene. Every combat room has clusters of cover, no walkable
+spot is more than about 6 tiles from cover, and at least one piece of cover sits near each door.
 
 ### 4.7 EMP special [LOCKED: double-tap]
 - Clears every enemy bullet on screen, stuns enemies within 4 tiles for 1.5 s, and pushes them back 1 tile.
@@ -288,6 +291,8 @@ cover, and at least one piece of cover sits near each door.
 - Every enemy is a machine of the Null Syndicate†, and every robot drops RAM.
 - **Telegraph rule:** every attack shows a tell for at least 0.4 s (a glow, laser line or landing circle).
 - **Spawn rule:** enemies arrive behind a 0.8 s marker and never within 3 tiles of the hero.
+- **Where they appear:** at spawn points placed by hand in each room scene. The game picks which enemy types appear from the
+  level's threat budget ([content.md](content.md) §6).
 - Rooms run 1–3 waves, and the doors stay locked until the last wave dies.
 - From L2, elites spawn with a modifier (Overclocked, Armored, Splitter or Shielded) and drop 3× RAM.
 - Edge arrows point to enemies off screen.
