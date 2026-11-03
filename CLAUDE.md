@@ -60,6 +60,12 @@ godot --headless --path . --script res://tools/test_level_generator.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_level.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_m4.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_flow.gd
+```
 Before writing physics or tool code, read the Godot 4.7 gotchas in `docs/technical.md` §1.0:
 - `Area2D` sensors keep `monitorable` on;
 - pooled areas are parked, never toggled;
@@ -67,7 +73,10 @@ Before writing physics or tool code, read the Godot 4.7 gotchas in `docs/technic
 - `--script` tools load project classes in `_initialize()`;
 - door signals are ignored while a room transition fades (every room shares the same origin);
 - inner enums must not reuse a global class name (`State` is taken);
-- `resized` fires before `_ready`.
+- `resized` fires before `_ready`;
+- nodes kept outside the tree must be freed by whoever keeps them;
+- one leaked `AudioStreamPlayback` at exit in headless runs is harmless;
+- only argument-less signals may be connected to `AudioStreamPlayer.play`.
 If Godot isn't installed (for example in a cloud container), download the official Godot 4.7 Linux build from the
 `godotengine/godot` GitHub releases into a scratch directory and run the checks with it.
 

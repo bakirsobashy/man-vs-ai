@@ -79,6 +79,8 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 | 21 | M7 Line Rifle | Rifle | Legendary | story | 10 | 6 | 30 | 1.4 | 300 | Kade's old service rifle; unlocked free after the first WARDEN kill |
 
 - **New-save pool:** #0–#3.
+- **Built in M4:** #0–#3 plus the armory's first six unlocks: #4 Bolt Revolver, #6 Ricochet Carbine, #8 Magnet Coil,
+  #9 Volt Shotgun, #10 Longshot and #11 Firecracker. The others arrive in M5.
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
 - **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
   Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
@@ -96,6 +98,12 @@ HP values are first-pass numbers that assume the expected hero power at that lev
 | 3 · Grind | < 25% | Spins its jaw and moves with a bullet spiral; double charges |
 
 Arena: a scrapyard full of light cover.
+**Built in M4:**
+- Each phase loops through its attacks: Wreck charges (300 px/s, cover smashed, 1 s wall stun) with a 3-volley 8-way spray.
+- Magnet: streams from 3 of 8 hand-placed scrap spots for 2.4 s, a 28 px/s pull, and 2 scrap piles of light cover
+  per pull.
+- Grind: a 3 s spiral chase, then a double charge.
+- Contact damage is 1 heart; drops are 64 MB, 50 Crypto and an ammo pickup.
 
 ### GLITCH† (L2, The Liar). Teaches reading bullets and beating auto-aim. HP 700
 | Phase | HP | Attacks |
@@ -143,6 +151,9 @@ The first kill unlocks the M7 Line Rifle.
 | Legs | Hydraulic Legs | Move speed +12% | Roll distance +30% | Each roll ends in a shockwave: 10 damage within 1.5 tiles, and it clears bullets | Knee braces → mechanical legs → digitigrade hydraulics |
 
 Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero animation and direction.
+
+**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. The other four slots show in surgery as
+"arrives in M5".
 
 ---
 

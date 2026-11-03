@@ -5,14 +5,19 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 > A grieving war veteran hunts the robot gang that murdered his family. Every implant that makes him strong enough
 > to win replaces another piece of the man. There are three endings: stay human, become something in between, or become the machine.
 
-**Status:** M3, levels, is built. Each level is generated from 8–9 greybox rooms: start, combat, chest, memory, challenge
-arena, repair, terminal and a stand-in boss. Doors lock during fights, and an elevator after the boss leads to the next
-level. It passes its automated tests. Playtests on real Android phones are still to do for M1–M3.
+**Status:** M4, the vertical slice, is built on placeholder art. It has:
+- the full loop: three save slots, the prologue comic, a rehab tutorial, Dr. Vorn's lab, and Level 1 ending with SCRAPJAW;
+- surgery with the Heart and Legs implants, and Patch's armory with six unlockable guns;
+- auto-saving runs you can continue;
+- generated placeholder sound and music.
+
+It passes its automated tests. Playtests on real Android phones, the art-direction test and the real audio are still to do.
 
 ## Running the prototype
-1. Open `project.godot` in Godot 4.7 and press **Play** (F5). The main scene is a generated level, `src/levels/level.tscn`.
-   The older test rooms are still there: open `src/levels/test/combat_test.tscn` (the M2 endless arena) or
-   `src/levels/test/controls_test.tscn` (the M1 controls room) and press **F6**.
+1. Open `project.godot` in Godot 4.7 and press **Play** (F5). The game starts on the title screen: tap **PLAY** and
+   pick a save slot. A new story plays the prologue, then the rehab tutorial, then wakes you in the lab.
+   To jump straight into a level, open `src/levels/level.tscn` and press **F6** (no save is written). The older test
+   rooms are still there: `src/levels/test/combat_test.tscn` (the M2 endless arena) and `controls_test.tscn` (M1).
 2. On desktop, the mouse is the finger: hold the left button and drag in the lower 60% of the window.
 3. Controls:
    - **Hold and drag:** run while auto-firing.
@@ -23,10 +28,18 @@ level. It passes its automated tests. Playtests on real Android phones are still
    - **Tap the weapon card (top right):** swap between the pistol and the found gun.
    - **Walk into an open door:** go to the next room.
    - **Tap the minimap:** open the full map.
+   - **Tap II (top right):** pause, change the volumes and vibration, or save and quit.
 4. Tap **DBG** (top right) for the tuning panel: live gesture readout, A/B switches, threshold sliders and a
    300-bullet storm for performance checks.
 
-![M3 levels](docs/images/m3_levels.png)
+![M4 vertical slice](docs/images/m4_vertical_slice.png)
+
+**The lab** (between runs):
+- **Surgery (Dr. Vorn):** spend RAM on Fusion Heart and Hydraulic Legs, Mk I to Mk III. The first install in a body
+  slot needs a 1.5 s hold, because implants can never be removed.
+- **Armory (Patch):** spend Crypto to unlock guns; unlocked guns start turning up in chests.
+- **Elevator or Quick Start:** start a run. Dying or beating SCRAPJAW brings you back here, keeping Crypto, RAM and
+  implants. In this slice every run starts at Level 1.
 
 **A level** (Rustline Slums, from `data/levels/level_1.tres`):
 - **Combat rooms** lock their doors for 1–2 waves. Clearing one drops Crypto and sometimes a heart, ammo or armor.
@@ -35,8 +48,9 @@ level. It passes its automated tests. Playtests on real Android phones are still
 - **Repair stations** sell hearts, armor, EMP charges and ammo for Crypto.
 - **Hacked terminals** take RAM for a gamble.
 - **The challenge arena** runs 3 waves for a Rare-or-better chest.
-- **The boss room** holds a stand-in boss. Beating it reveals an elevator to a new level.
-- Robots drop RAM. The hero respawns at the room's door 1.5 s after dying (until the lab arrives in M4).
+- **The boss room** holds SCRAPJAW: charges that plow through cover, a magnet that streams scrap and builds new cover,
+  and a spinning grind. Beating him reveals the elevator back to the lab.
+- Robots drop RAM. Dying shows Dr. Vorn's Retrieved summary and returns you to the lab.
 
 **The M2 arena** (`combat_test.tscn`) runs endless, harder waves with three guns near the start. **The M1 controls
 room** (`controls_test.tscn`) has target and shooter dummies for the control A/B tests.
@@ -78,6 +92,12 @@ godot --headless --path . --script res://tools/test_level_generator.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_level.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_m4.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_flow.gd
+```
 
 ## Getting started
 1. Install **Godot 4.7** (the standard build; the project uses GDScript only).
@@ -89,7 +109,7 @@ godot --headless --path . --script res://tools/smoke_test_level.gd
 ## Project layout
 ```
 assets/        art, audio, fonts (placeholders until the art direction is chosen)
-data/          non-world .tres data: implants, level configs and waves, memories, weapon catalog, control thresholds
+data/          non-world .tres data: implants, level configs and waves, memories, dialogue, weapon catalog, control thresholds
 localization/  translation tables
 src/           scenes and their scripts by feature (components, input, player, enemies, weapons, cover, levels, hub, ui…)
 tools/         scene-first and scene-load checks, smoke tests, the level generator test
