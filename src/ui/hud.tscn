@@ -112,6 +112,58 @@ bg_color = Color(0.15, 0.05, 0.05, 0.85)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_fill"]
 bg_color = Color(0.9, 0.2, 0.2, 1)
 
+[sub_resource type="Animation" id="Animation_glitch_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/GlitchOverlay:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.3, 0.85, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_glitch"]
+length = 0.45
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/GlitchOverlay:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.18, 0.24, 0.32, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [Color(1, 0.3, 0.85, 0), Color(1, 0.3, 0.85, 0.35), Color(0.4, 1, 1, 0.1), Color(0.4, 1, 1, 0.3), Color(1, 0.3, 0.85, 0.05), Color(1, 0.3, 0.85, 0.25), Color(1, 0.3, 0.85, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_glitch_soft"]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/GlitchOverlay:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 0.3, 0.85, 0), Color(1, 0.3, 0.85, 0.12), Color(1, 0.3, 0.85, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_glitch"]
+_data = {
+&"RESET": SubResource("Animation_glitch_reset"),
+&"glitch": SubResource("Animation_glitch"),
+&"glitch_soft": SubResource("Animation_glitch_soft")
+}
+
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
 script = ExtResource("1_hud")
@@ -270,6 +322,16 @@ offset_bottom = 12.0
 pivot_offset = Vector2(6, 6)
 mouse_filter = 2
 texture = ExtResource("17_arrow")
+
+[node name="GlitchOverlay" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.3, 0.85, 0)
 
 [node name="TopBand" type="PanelContainer" parent="Root"]
 self_modulate = Color(1, 1, 1, 0.55)
@@ -713,6 +775,11 @@ layout_mode = 2
 button_pressed = true
 text = "Vibration"
 
+[node name="FlashingCheck" type="CheckButton" parent="Root/PausePanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reduced flashing"
+
 [node name="Resume" type="Button" parent="Root/PausePanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
@@ -959,6 +1026,10 @@ step = 0.05
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_hud")
 
+[node name="GlitchAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_glitch")
+
 [node name="ToastAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_toast")
@@ -988,3 +1059,4 @@ libraries/ = SubResource("AnimationLibrary_toast")
 [connection signal="pressed" from="Root/PausePanel/VBox/Resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="Root/PausePanel/VBox/Quit" to="." method="_on_quit_pressed"]
 [connection signal="pressed" from="Root/SummaryPanel/VBox/SummaryButton" to="." method="_on_summary_button_pressed"]
+[connection signal="toggled" from="Root/PausePanel/VBox/FlashingCheck" to="." method="_on_flashing_check_toggled"]

@@ -28,6 +28,10 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_longshot.tscn" id="26_longshot"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_firecracker.tscn" id="27_firecracker"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_scrap.tscn" id="28_scrap"]
+[ext_resource type="Resource" path="res://data/levels/campaign.tres" id="32_campaign"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_aerial.tscn" id="33_aerial"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_hollow.tscn" id="34_hollow"]
+[ext_resource type="PackedScene" path="res://src/enemies/swarmer/swarmer.tscn" id="35_swarmer"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
@@ -188,6 +192,18 @@ bullet_scene = ExtResource("8_enemy_bullet")
 size = 300
 hostile = true
 
+[node name="EnemyAerial" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("33_aerial")
+size = 80
+hostile = true
+
+[node name="EnemyHollow" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("34_hollow")
+size = 120
+hostile = true
+
 [node name="EnemyScrap" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("28_scrap")
@@ -213,6 +229,7 @@ hud = NodePath("../HUD")
 script = ExtResource("13_wave_spawner")
 settings = ExtResource("14_waves")
 next_wave_timer = NodePath("NextWaveTimer")
+splitter_scene = ExtResource("35_swarmer")
 
 [node name="NextWaveTimer" type="Timer" parent="WaveSpawner"]
 wait_time = 1.2
@@ -237,6 +254,7 @@ scatter = 16.0
 
 [node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer", "clear_sound")]
 script = ExtResource("1_director")
+campaign = ExtResource("32_campaign")
 config = ExtResource("2_config")
 room_holder = NodePath("../RoomHolder")
 player = NodePath("../Player")

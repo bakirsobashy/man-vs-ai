@@ -54,6 +54,7 @@ pointing/emulate_touch_from_mouse=true
 2d_physics/layer_7="pickups"
 2d_physics/layer_8="interactables"
 2d_physics/layer_9="enemy_contact"
+2d_physics/layer_10="sight_blockers"
 
 [physics]
 

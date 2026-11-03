@@ -21,7 +21,7 @@ func enter(_msg: Dictionary) -> void:
 		if aim_node != null:
 			aim_node.rotation = enemy.locked_direction.angle()
 	enemy.attack_animation.play(animation_name)
-	_left = enemy.attack_animation.current_animation_length
+	_left = enemy.attack_animation.current_animation_length / enemy.attack_animation.speed_scale
 
 
 func exit() -> void:

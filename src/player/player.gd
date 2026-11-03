@@ -548,7 +548,8 @@ func _on_touch_special_requested() -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var bullet := area as Bullet
-	if bullet == null or not bullet.active or state_machine.is_in(&"Dead"):
+	# Zero-damage bullets (GLITCH's decoys fire hollow ones) pass through.
+	if bullet == null or not bullet.active or bullet.hit_damage <= 0 or state_machine.is_in(&"Dead"):
 		return
 	if _is_protected_from(bullet):
 		cover.take_damage(bullet.cover_damage)

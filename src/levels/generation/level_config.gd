@@ -23,6 +23,11 @@ extends Resource
 @export_range(0.0, 10.0, 0.05) var arena_weight := 0.25
 @export_range(0.0, 10.0, 0.05) var terminal_weight := 0.25
 
+@export_group("Audio")
+## The district's music (the level director's own music is the fallback).
+@export var music: AudioStream
+@export var boss_music: AudioStream
+
 @export_group("Rooms")
 @export var room_pool: Array[RoomEntry] = []
 ## The boss (M3: a stand-in until SCRAPJAW arrives in M4).
@@ -38,8 +43,10 @@ extends Resource
 ## Challenge arena: waves and threat per wave (the next level's budget).
 @export_range(1, 6) var arena_waves := 3
 @export_range(1.0, 50.0, 0.5) var arena_threat := 8.0
-## Hacked-terminal ambush: one wave with this budget.
+## Hacked-terminal ambush: one wave with this budget (levels without elites).
 @export_range(1.0, 50.0, 0.5) var ambush_threat := 3.0
+## Chance that a single enemy spawns as an elite (L1 0%, L2 10% …). With elites, the terminal ambush is one elite.
+@export_range(0.0, 1.0, 0.01) var elite_chance := 0.0
 
 @export_group("Loot")
 ## Chest rarity odds: Common, Rare, Epic, Legendary.

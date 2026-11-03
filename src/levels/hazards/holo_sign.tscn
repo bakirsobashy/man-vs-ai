@@ -1,0 +1,42 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/holo_sign.svg" id="1_sprite"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sign"]
+size = Vector2(48, 8)
+
+[sub_resource type="Animation" id="Animation_flicker"]
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.1, 1.15, 1.25, 1.3, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.9), Color(1, 1, 1, 0.9), Color(1, 1, 1, 0.4), Color(1, 1, 1, 0.9), Color(1, 1, 1, 0.5), Color(1, 1, 1, 0.9)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_sign"]
+_data = {
+&"flicker": SubResource("Animation_flicker")
+}
+
+[node name="HoloSign" type="StaticBody2D" groups=["holo_signs"]]
+collision_layer = 512
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_sign")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.9)
+texture = ExtResource("1_sprite")
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_sign")
+autoplay = &"flicker"

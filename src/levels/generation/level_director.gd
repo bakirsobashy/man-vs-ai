@@ -7,6 +7,8 @@ extends Node
 ## Visited rooms are kept (out of the tree) so their pickups, cover damage and opened chests persist.
 ## The run is saved (RunState + SaveManager) on every room entry and clear, and rebuilt from its seed on Continue.
 
+## The run's levels; the director plays the one for RunState.level_number. Without it, `config` is used.
+@export var campaign: Campaign
 @export var config: LevelConfig
 ## 0 = a new random seed for every level.
 @export var fixed_seed := 0
@@ -62,14 +64,29 @@ func _ready() -> void:
 	EventBus.level_exit_requested.connect(_on_level_exit_requested)
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.summary_closed.connect(_on_summary_closed)
-	wave_spawner.settings = config.wave_settings
-	AudioManager.play_music(level_music)
 	if not RunState.active:
 		RunState.start_new_run()  # started straight from the editor or a test
+	use_config(campaign.config_for(RunState.level_number) if campaign != null else config)
 	if RunState.resuming:
 		resume_run.call_deferred()
 	else:
+		player.restore_run_state.call_deferred()  # hearts, armor and the found gun carried from the last level
 		start_level.call_deferred(fixed_seed if fixed_seed != 0 else RunState.level_seed)
+
+
+## Plays `level_config` from now on (its waves and music).
+func use_config(level_config: LevelConfig) -> void:
+	config = level_config
+	wave_spawner.settings = config.wave_settings
+	AudioManager.play_music(_music())
+
+
+func _music() -> AudioStream:
+	return config.music if config.music != null else level_music
+
+
+func _boss_music() -> AudioStream:
+	return config.boss_music if config.boss_music != null else boss_music
 
 
 ## A fresh level (new rooms). 0 = a random seed.
@@ -176,11 +193,11 @@ func _begin_fight(room: Room) -> void:
 	if current.type == Room.RoomType.BOSS:
 		var spot := room.feature("BossSpot") as Node2D
 		wave_spawner.spawn_boss(config.boss_scene, spot.global_position, room.enemies)
-		AudioManager.play_music(boss_music)
+		AudioManager.play_music(_boss_music())
 		EventBus.banner_requested.emit("BOSS")
 		return
 	var waves := room.waves if room.waves > 0 else _rng.randi_range(config.waves_min, config.waves_max)
-	wave_spawner.start_room(room.spawn_points, room.enemies, waves, config.room_threat)
+	wave_spawner.start_room(room.spawn_points, room.enemies, waves, config.room_threat, config.elite_chance)
 
 
 ## A Rare-or-better chest copy in the current room's DropLayer (arena and terminal prizes).
@@ -203,7 +220,7 @@ func _on_wave_spawner_room_cleared() -> void:
 	if clear_sound != null:
 		clear_sound.play()
 	if node.type == Room.RoomType.BOSS:
-		AudioManager.play_music(level_music)
+		AudioManager.play_music(_music())
 	match node.type:
 		Room.RoomType.COMBAT:
 			room_reward.drop(room.reward_spot.global_position)
@@ -246,7 +263,19 @@ func _autosave() -> void:
 	SaveManager.save_all()
 
 
-## The run is over (death or the boss elevator): it's no longer resumable, and the slot keeps the currencies.
+## The boss elevator: the run goes on to the next level via the lab, keeping the hero's state. After the last level
+## the run ends (the ending scene takes over once Level 5 exists).
+func _finish_level() -> void:
+	GameState.stats["best_level"] = maxi(GameState.stat("best_level"), config.level_number)
+	if campaign == null or campaign.is_last(RunState.level_number):
+		_end_run()
+		return
+	player.capture_run_state()
+	RunState.advance_level()
+	SaveManager.save_all()
+
+
+## The run is over (death or the last boss): it's no longer resumable, and the slot keeps the currencies.
 func _end_run() -> void:
 	GameState.stats["best_level"] = maxi(GameState.stat("best_level"), config.level_number)
 	RunState.end_run()
@@ -286,7 +315,7 @@ func _on_challenge_requested() -> void:
 		return
 	_fight_room = current.id
 	_set_doors(room, Door.Status.LOCKED)
-	wave_spawner.start_room(room.spawn_points, room.enemies, config.arena_waves, config.arena_threat)
+	wave_spawner.start_room(room.spawn_points, room.enemies, config.arena_waves, config.arena_threat, config.elite_chance)
 
 
 func _on_ambush_requested() -> void:
@@ -295,7 +324,10 @@ func _on_ambush_requested() -> void:
 		return
 	_fight_room = current.id
 	_set_doors(room, Door.Status.LOCKED)
-	wave_spawner.start_room(room.spawn_points, room.enemies, 1, config.ambush_threat)
+	if config.elite_chance > 0.0:
+		wave_spawner.spawn_elite_ambush(room.spawn_points, room.enemies)
+	else:
+		wave_spawner.start_room(room.spawn_points, room.enemies, 1, config.ambush_threat)
 
 
 func _on_reward_chest_requested(at: Vector2) -> void:
@@ -308,7 +340,7 @@ func _on_level_exit_requested() -> void:
 		return
 	_transitioning = true
 	if return_to_lab:
-		_end_run()
+		_finish_level()
 		SceneRouter.go_to(SceneRouter.lab_scene)
 		return
 	_pending_level = true

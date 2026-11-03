@@ -26,7 +26,7 @@ func go_to(scene_path: String) -> void:
 ## Where a freshly loaded save goes: its saved run, the prologue, the tutorial, or the lab.
 func enter_slot() -> void:
 	if SaveManager.has_run() and SaveManager.load_run():
-		go_to(level_scene)
+		go_to(lab_scene if RunState.in_lab else level_scene)
 	elif not GameState.has_flag("prologue_seen"):
 		go_to(prologue_scene)
 	elif not GameState.has_flag("tutorial_done"):

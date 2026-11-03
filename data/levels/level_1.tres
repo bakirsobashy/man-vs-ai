@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://src/levels/generation/room_entry.gd" id="2_entry"]
 [ext_resource type="Resource" path="res://data/levels/level_1_waves.tres" id="3_waves"]
 [ext_resource type="PackedScene" path="res://src/bosses/scrapjaw/scrapjaw.tscn" id="4_boss"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="5_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="6_boss_music"]
 [ext_resource type="PackedScene" path="res://src/levels/rooms/rustline/start.tscn" id="10_start"]
 [ext_resource type="PackedScene" path="res://src/levels/rooms/rustline/combat_01.tscn" id="11_combat_01"]
 [ext_resource type="PackedScene" path="res://src/levels/rooms/rustline/combat_02.tscn" id="12_combat_02"]
@@ -121,6 +123,8 @@ weight = 1.0
 script = ExtResource("1_config")
 level_number = 1
 district_name = "Rustline Slums"
+music = ExtResource("5_music")
+boss_music = ExtResource("6_boss_music")
 room_pool = Array[ExtResource("2_entry")]([SubResource("Resource_start"), SubResource("Resource_combat_01"), SubResource("Resource_combat_02"), SubResource("Resource_combat_03"), SubResource("Resource_combat_04"), SubResource("Resource_combat_05"), SubResource("Resource_combat_06"), SubResource("Resource_combat_07"), SubResource("Resource_combat_08"), SubResource("Resource_chest_01"), SubResource("Resource_chest_02"), SubResource("Resource_memory"), SubResource("Resource_arena"), SubResource("Resource_repair"), SubResource("Resource_terminal"), SubResource("Resource_boss")])
 boss_scene = ExtResource("4_boss")
 wave_settings = ExtResource("3_waves")

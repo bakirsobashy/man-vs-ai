@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LineSet" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+speaker = "Vorn"
+lines = Array[String](["Your vitals are perfect. Perfect worries me more than it should.", "You stopped asking what each part does. You only ask what it costs.", "I wanted to make you better. I keep checking whether I did."])

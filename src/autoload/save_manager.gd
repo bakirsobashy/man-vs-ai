@@ -14,6 +14,8 @@ var save_dir := "user://"
 var music_volume := 0.8
 var sfx_volume := 1.0
 var haptics := true
+## Tones down screen flashes and glitches (GDD §8.5).
+var reduced_flashing := false
 
 
 func _ready() -> void:
@@ -130,6 +132,7 @@ func load_settings() -> void:
 	music_volume = clampf(float(config.get_value("audio", "music", music_volume)), 0.0, 1.0)
 	sfx_volume = clampf(float(config.get_value("audio", "sfx", sfx_volume)), 0.0, 1.0)
 	haptics = bool(config.get_value("feedback", "haptics", haptics))
+	reduced_flashing = bool(config.get_value("accessibility", "reduced_flashing", reduced_flashing))
 
 
 ## Sets the Music and SFX bus volumes (default_bus_layout.tres) from the settings.
@@ -146,6 +149,7 @@ func save_settings() -> void:
 	config.set_value("audio", "music", music_volume)
 	config.set_value("audio", "sfx", sfx_volume)
 	config.set_value("feedback", "haptics", haptics)
+	config.set_value("accessibility", "reduced_flashing", reduced_flashing)
 	config.save(save_dir.path_join("settings.cfg"))
 
 

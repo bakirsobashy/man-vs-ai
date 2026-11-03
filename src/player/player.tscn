@@ -472,7 +472,7 @@ shape = SubResource("CircleShape2D_interact")
 [node name="LineOfSight" type="RayCast2D" parent="."]
 enabled = false
 target_position = Vector2(0, 0)
-collision_mask = 3
+collision_mask = 515
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 unique_name_in_owner = true
