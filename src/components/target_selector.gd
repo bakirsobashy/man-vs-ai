@@ -18,7 +18,8 @@ var _last_seen_at := 0.0
 
 
 func _on_retarget_timer_timeout() -> void:
-	if current_target != null and (not is_instance_valid(current_target) or not current_target.is_visible_in_tree()):
+	if current_target != null and (not is_instance_valid(current_target) or not current_target.is_visible_in_tree() \
+			or not _is_targetable(current_target)):
 		current_target = null
 	if range_area == null:
 		current_target = null
@@ -28,7 +29,8 @@ func _on_retarget_timer_timeout() -> void:
 	var nearest_distance := INF
 	var current_distance := INF
 	for body: Node2D in range_area.get_overlapping_bodies():
-		if not body.is_in_group(&"enemies") or not body.is_visible_in_tree() or not _can_see(body):
+		if not body.is_in_group(&"enemies") or not body.is_visible_in_tree() or not _is_targetable(body) \
+				or not _can_see(body):
 			continue
 		var distance := origin.distance_to(body.global_position)
 		if body == current_target:
@@ -47,6 +49,10 @@ func _on_retarget_timer_timeout() -> void:
 	current_target = nearest
 	if nearest != null:
 		_last_seen_at = now
+
+
+func _is_targetable(body: Node2D) -> bool:
+	return not body.has_method(&"is_targetable") or bool(body.call(&"is_targetable"))
 
 
 func _can_see(body: Node2D) -> bool:

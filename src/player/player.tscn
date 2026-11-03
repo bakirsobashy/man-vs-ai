@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://src/components/health.gd" id="13_health"]
 [ext_resource type="Script" path="res://src/components/target_selector.gd" id="14_target_selector"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/emp_ring.svg" id="15_emp_ring"]
+[ext_resource type="PackedScene" path="res://src/pickups/weapon_pickup.tscn" id="16_weapon_pickup"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 6.0
@@ -27,6 +28,12 @@ radius = 32.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_emp_range"]
 radius = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_magnet"]
+radius = 40.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
+radius = 18.0
 
 [sub_resource type="Animation" id="Animation_body_reset"]
 length = 0.001
@@ -298,9 +305,10 @@ _data = {
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 collision_layer = 4
-collision_mask = 11
+collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_player")
+weapon_pickup_scene = ExtResource("16_weapon_pickup")
 tuning = ExtResource("2_tuning")
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
@@ -328,8 +336,9 @@ z_index = 10
 texture = ExtResource("5_reticle")
 
 [node name="Hurtbox" type="Area2D" parent="."]
+unique_name_in_owner = true
 collision_layer = 0
-collision_mask = 32
+collision_mask = 288
 
 [node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
 shape = SubResource("RectangleShape2D_hurtbox")
@@ -349,6 +358,22 @@ collision_mask = 8
 
 [node name="Shape" type="CollisionShape2D" parent="EmpRange"]
 shape = SubResource("CircleShape2D_emp_range")
+
+[node name="PickupMagnet" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 64
+
+[node name="Shape" type="CollisionShape2D" parent="PickupMagnet"]
+shape = SubResource("CircleShape2D_magnet")
+
+[node name="InteractSensor" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 128
+
+[node name="Shape" type="CollisionShape2D" parent="InteractSensor"]
+shape = SubResource("CircleShape2D_interact")
 
 [node name="LineOfSight" type="RayCast2D" parent="."]
 enabled = false

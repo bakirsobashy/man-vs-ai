@@ -10,13 +10,59 @@
 [ext_resource type="PackedScene" path="res://src/ui/tuning_slider.tscn" id="8_tuning_slider"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/joystick_ring.svg" id="9_ring"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/joystick_knob.svg" id="10_knob"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/heart_full.svg" id="11_heart_full"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/heart_half.svg" id="12_heart_half"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/heart_empty.svg" id="13_heart_empty"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/armor_pip.svg" id="14_armor"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/crypto_coin.svg" id="15_coin"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/ram_chip.svg" id="16_ram"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/edge_arrow.svg" id="17_arrow"]
 
 [sub_resource type="Theme" id="Theme_hud"]
 default_font_size = 11
 
+[sub_resource type="Animation" id="Animation_banner_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/WaveLabel:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_banner"]
+length = 1.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Root/WaveLabel:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.4, 1.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hud"]
+_data = {
+&"RESET": SubResource("Animation_banner_reset"),
+&"banner": SubResource("Animation_banner")
+}
+
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 tuning = ExtResource("3_tuning")
+heart_full = ExtResource("11_heart_full")
+heart_half = ExtResource("12_heart_half")
+heart_empty = ExtResource("13_heart_empty")
 
 [node name="Root" type="Control" parent="."]
 layout_mode = 3
@@ -87,48 +133,278 @@ visible = false
 width = 2.0
 default_color = Color(1, 0.9, 0.3, 0.6)
 
-[node name="TopBand" type="MarginContainer" parent="Root"]
+[node name="EdgeArrows" type="Control" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Arrow1" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow2" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow3" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow4" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow5" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow6" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow7" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="Arrow8" type="TextureRect" parent="Root/EdgeArrows"]
+visible = false
+layout_mode = 0
+offset_right = 12.0
+offset_bottom = 12.0
+pivot_offset = Vector2(6, 6)
+mouse_filter = 2
+texture = ExtResource("17_arrow")
+
+[node name="TopBand" type="PanelContainer" parent="Root"]
+self_modulate = Color(1, 1, 1, 0.55)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 36.0
+offset_bottom = 44.0
 grow_horizontal = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 6
 
-[node name="Row" type="HBoxContainer" parent="Root/TopBand"]
+[node name="Margin" type="MarginContainer" parent="Root/TopBand"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 3
 
-[node name="HeartsLabel" type="Label" parent="Root/TopBand/Row"]
+[node name="Rows" type="VBoxContainer" parent="Root/TopBand/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Row1" type="HBoxContainer" parent="Root/TopBand/Margin/Rows"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Hearts" type="HBoxContainer" parent="Root/TopBand/Margin/Rows/Row1"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "HP 3/3"
+mouse_filter = 2
+theme_override_constants/separation = 1
 
-[node name="EmpLabel" type="Label" parent="Root/TopBand/Row"]
+[node name="Heart1" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Hearts"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_heart_full")
+stretch_mode = 5
+
+[node name="Heart2" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Hearts"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_heart_full")
+stretch_mode = 5
+
+[node name="Heart3" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Hearts"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_heart_full")
+stretch_mode = 5
+
+[node name="Heart4" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Hearts"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_heart_full")
+stretch_mode = 5
+
+[node name="Heart5" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Hearts"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_heart_full")
+stretch_mode = 5
+
+[node name="Heart6" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Hearts"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_heart_full")
+stretch_mode = 5
+
+[node name="Armor" type="HBoxContainer" parent="Root/TopBand/Margin/Rows/Row1"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "EMP 2"
+mouse_filter = 2
+theme_override_constants/separation = 1
 
-[node name="Spacer" type="Control" parent="Root/TopBand/Row"]
+[node name="Pip1" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Armor"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("14_armor")
+stretch_mode = 5
+
+[node name="Pip2" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Armor"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("14_armor")
+stretch_mode = 5
+
+[node name="Pip3" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Armor"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("14_armor")
+stretch_mode = 5
+
+[node name="Pip4" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row1/Armor"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("14_armor")
+stretch_mode = 5
+
+[node name="Spacer" type="Control" parent="Root/TopBand/Margin/Rows/Row1"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="AmmoLabel" type="Label" parent="Root/TopBand/Row"]
+[node name="EmpLabel" type="Label" parent="Root/TopBand/Margin/Rows/Row1"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "10/10"
+text = "EMP 2"
 
-[node name="DebugButton" type="Button" parent="Root/TopBand/Row"]
+[node name="DebugButton" type="Button" parent="Root/TopBand/Margin/Rows/Row1"]
 layout_mode = 2
 focus_mode = 0
 toggle_mode = true
 text = "DBG"
+
+[node name="Row2" type="HBoxContainer" parent="Root/TopBand/Margin/Rows"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="CryptoIcon" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row2"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("15_coin")
+stretch_mode = 5
+
+[node name="CryptoLabel" type="Label" parent="Root/TopBand/Margin/Rows/Row2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "0"
+
+[node name="RamIcon" type="TextureRect" parent="Root/TopBand/Margin/Rows/Row2"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("16_ram")
+stretch_mode = 5
+
+[node name="RamLabel" type="Label" parent="Root/TopBand/Margin/Rows/Row2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 MB"
+
+[node name="Spacer" type="Control" parent="Root/TopBand/Margin/Rows/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="WeaponCard" type="Button" parent="Root/TopBand/Margin/Rows/Row2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+focus_mode = 0
+text = "Pistol  10/10"
+alignment = 2
+
+[node name="WaveLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 88.0
+offset_bottom = 112.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+text = "WAVE 1"
+horizontal_alignment = 1
+
+[node name="PromptBubble" type="Button" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -80.0
+offset_top = 52.0
+offset_right = 80.0
+offset_bottom = 80.0
+grow_horizontal = 2
+focus_mode = 0
+text = "Take"
 
 [node name="DebugPanel" type="PanelContainer" parent="Root" node_paths=PackedStringArray("hud")]
 unique_name_in_owner = true
@@ -137,9 +413,9 @@ layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 6.0
-offset_top = 40.0
+offset_top = 48.0
 offset_right = -6.0
-offset_bottom = 40.0
+offset_bottom = 48.0
 grow_horizontal = 2
 script = ExtResource("2_debug_panel")
 tuning = ExtResource("3_tuning")
@@ -256,6 +532,16 @@ focus_mode = 0
 button_pressed = true
 text = "on"
 
+[node name="StormCaption" type="Label" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Performance test"
+
+[node name="StormButton" type="Button" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+focus_mode = 0
+text = "300-bullet storm"
+
 [node name="SwipeMaxTime" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
 layout_mode = 2
 property = &"swipe_max_time"
@@ -309,10 +595,17 @@ min_value = 0.3
 max_value = 1.0
 step = 0.05
 
-[connection signal="toggled" from="Root/TopBand/Row/DebugButton" to="Root/DebugPanel" method="_on_debug_button_toggled"]
+[node name="WaveAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_hud")
+
+[connection signal="toggled" from="Root/TopBand/Margin/Rows/Row1/DebugButton" to="Root/DebugPanel" method="_on_debug_button_toggled"]
+[connection signal="pressed" from="Root/TopBand/Margin/Rows/Row2/WeaponCard" to="." method="_on_weapon_card_pressed"]
+[connection signal="pressed" from="Root/PromptBubble" to="." method="_on_prompt_bubble_pressed"]
 [connection signal="visibility_changed" from="Root/DebugPanel" to="Root/DebugPanel" method="_on_visibility_changed"]
 [connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/CoverOption" to="Root/DebugPanel" method="_on_cover_option_item_selected"]
 [connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/ZoneOption" to="Root/DebugPanel" method="_on_zone_option_item_selected"]
 [connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/SwipeOption" to="Root/DebugPanel" method="_on_swipe_option_item_selected"]
 [connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/AnchorOption" to="Root/DebugPanel" method="_on_anchor_option_item_selected"]
 [connection signal="toggled" from="Root/DebugPanel/Margin/VBox/Options/ShowStickCheck" to="Root/DebugPanel" method="_on_show_stick_check_toggled"]
+[connection signal="pressed" from="Root/DebugPanel/Margin/VBox/Options/StormButton" to="Root/DebugPanel" method="_on_storm_button_pressed"]

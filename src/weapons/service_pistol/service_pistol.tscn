@@ -46,6 +46,7 @@ _data = {
 
 [node name="ServicePistol" type="Node2D"]
 script = ExtResource("1_weapon")
+display_name = "Pistol"
 bullet_scene = ExtResource("2_bullet")
 damage = 4
 fire_rate = 4.0

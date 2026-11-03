@@ -11,15 +11,30 @@ extends Camera2D
 @export var tuning: ControlsTuning
 ## Vertical lead, in seconds of the target's velocity.
 @export_range(0.0, 1.0, 0.01, "suffix:s") var lead_time := 0.15
+## Screen shake (hits, explosions). Strength requests arrive through EventBus.
+@export var shake_enabled := true
+@export_range(0.0, 16.0, 0.5, "suffix:px") var max_shake := 5.0
+## How fast the shake fades, per second.
+@export_range(0.1, 10.0, 0.1) var shake_decay := 2.5
+
+var _trauma := 0.0
 
 
 func _ready() -> void:
+	EventBus.screen_shake_requested.connect(_on_screen_shake_requested)
 	_place()
 	reset_smoothing.call_deferred()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	_place()
+	_trauma = maxf(_trauma - shake_decay * delta, 0.0)
+	var amount := _trauma * _trauma * max_shake if shake_enabled else 0.0
+	offset = Vector2(randf_range(-amount, amount), randf_range(-amount, amount))
+
+
+func _on_screen_shake_requested(strength: float) -> void:
+	_trauma = clampf(_trauma + strength, 0.0, 1.0)
 
 
 func _place() -> void:

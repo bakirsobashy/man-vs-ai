@@ -57,6 +57,18 @@ The highest risk (one-finger controls) is tested first. Nothing else gets built 
 If the gate fails, iterate on M1 before moving on.
 
 ## M2: Combat core
+**Status: built, device playtest pending.**
+- **Built:**
+  - Weapons: Scattergun, Buzz SMG and Rivet Driver (with piercing), two weapon slots, floor pickups.
+  - Enemies: Grunt, Charger, Turret and Swarmer, built from reusable state nodes.
+  - World: explosive barrels; RAM, Crypto and pickups with a magnet.
+  - Waves: a threat-budget wave spawner and endless waves in `combat_test.tscn`.
+  - HUD v1: hearts, armor, currencies, weapon card, prompt, wave banner, edge arrows.
+- **Tests:** the combat smoke test passes 31/31, and a 90-second endless-wave soak runs with no errors.
+- **Still to do:**
+  - the 10-minute fun test on phones;
+  - the performance gate, using the debug panel's **300-bullet storm** button and its FPS readout.
+
 **Scope**
 - 4 weapon scenes with their stats in the Inspector, plus their bullet scenes.
 - Bullet pools.

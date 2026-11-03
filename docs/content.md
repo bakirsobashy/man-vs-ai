@@ -157,7 +157,8 @@ Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero a
 | Threat budget per wave | 6 | 8 | 10 | 12 | 14 |
 | Elite chance per spawn | 0% | 10% | 15% | 20% | 25% |
 
-The `WaveSpawner` spends each wave's threat budget at the room's hand-placed SpawnPoints. Room scenes contain no enemies,
+The `WaveSpawner` spends each wave's threat budget at the room's hand-placed SpawnPoints. The M2 arena's pool and budget
+live in `data/levels/m2_arena_waves.tres`: Grunt 1, Charger 1.5 and Turret 2 (both from wave 2), and Swarmer 0.5 in groups of 4–6. Room scenes contain no enemies,
 only the points where enemies can appear.
 
 **Odds for the second special room** (the first one is always the Memory room): Repair station 40% (50% in L1),

@@ -1,0 +1,120 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://src/levels/test/arena_room.tscn" id="1_room"]
+[ext_resource type="PackedScene" path="res://src/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://src/components/bullet_pool.gd" id="3_bullet_pool"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_bullet.tscn" id="4_player_bullet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_pellet.tscn" id="5_player_pellet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_rivet.tscn" id="6_player_rivet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="7_enemy_bullet"]
+[ext_resource type="Script" path="res://src/levels/camera_follow.gd" id="8_camera"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="9_tuning"]
+[ext_resource type="Script" path="res://src/input/touch_controller.gd" id="10_touch"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="11_hud"]
+[ext_resource type="Script" path="res://src/levels/waves/wave_spawner.gd" id="12_wave_spawner"]
+[ext_resource type="Resource" path="res://data/levels/m2_arena_waves.tres" id="13_waves"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="14_drops"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="15_crypto"]
+[ext_resource type="Script" path="res://src/components/drop_chance.gd" id="16_drop_chance"]
+[ext_resource type="PackedScene" path="res://src/pickups/half_heart.tscn" id="17_half_heart"]
+[ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="18_ammo"]
+[ext_resource type="PackedScene" path="res://src/pickups/armor_pickup.tscn" id="19_armor"]
+
+[sub_resource type="Resource" id="Resource_reward_heart"]
+script = ExtResource("16_drop_chance")
+scene = ExtResource("17_half_heart")
+chance = 0.1
+amount = 1
+
+[sub_resource type="Resource" id="Resource_reward_ammo"]
+script = ExtResource("16_drop_chance")
+scene = ExtResource("18_ammo")
+chance = 0.25
+amount = 1
+
+[sub_resource type="Resource" id="Resource_reward_armor"]
+script = ExtResource("16_drop_chance")
+scene = ExtResource("19_armor")
+chance = 0.05
+amount = 1
+
+[node name="CombatTest" type="Node2D"]
+
+[node name="Room" parent="." instance=ExtResource("1_room")]
+
+[node name="DropLayer" type="Node2D" parent="." groups=["drop_layer"]]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Player" parent="." node_paths=PackedStringArray("touch", "respawn_point") instance=ExtResource("2_player")]
+position = Vector2(176, 712)
+touch = NodePath("../TouchController")
+respawn_point = NodePath("../Room/PlayerStart")
+
+[node name="BulletPools" type="Node2D" parent="."]
+position = Vector2(-4096, -4096)
+
+[node name="PlayerBullets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("3_bullet_pool")
+bullet_scene = ExtResource("4_player_bullet")
+size = 128
+
+[node name="PlayerPellets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("3_bullet_pool")
+bullet_scene = ExtResource("5_player_pellet")
+size = 120
+
+[node name="PlayerRivets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("3_bullet_pool")
+bullet_scene = ExtResource("6_player_rivet")
+size = 64
+
+[node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("3_bullet_pool")
+bullet_scene = ExtResource("7_enemy_bullet")
+size = 300
+hostile = true
+
+[node name="Camera" type="Camera2D" parent="." node_paths=PackedStringArray("target", "bounds")]
+position = Vector2(176, 448)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+script = ExtResource("8_camera")
+target = NodePath("../Player")
+bounds = NodePath("../Room/CameraBounds")
+tuning = ExtResource("9_tuning")
+
+[node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("hud")]
+script = ExtResource("10_touch")
+tuning = ExtResource("9_tuning")
+hud = NodePath("../HUD")
+
+[node name="HUD" parent="." instance=ExtResource("11_hud")]
+
+[node name="WaveSpawner" type="Node" parent="." node_paths=PackedStringArray("spawn_points", "enemy_parent", "next_wave_timer", "reward_drops", "reward_spot")]
+script = ExtResource("12_wave_spawner")
+settings = ExtResource("13_waves")
+spawn_points = NodePath("../Room/SpawnPoints")
+enemy_parent = NodePath("../Enemies")
+next_wave_timer = NodePath("NextWaveTimer")
+reward_drops = NodePath("RewardDrops")
+reward_spot = NodePath("../Room/RewardSpot")
+
+[node name="NextWaveTimer" type="Timer" parent="WaveSpawner"]
+wait_time = 2.5
+one_shot = true
+autostart = true
+
+[node name="RewardDrops" type="Node" parent="WaveSpawner"]
+script = ExtResource("14_drops")
+crypto_min = 3
+crypto_max = 6
+crypto_scene = ExtResource("15_crypto")
+extras = Array[ExtResource("16_drop_chance")]([SubResource("Resource_reward_heart"), SubResource("Resource_reward_ammo"), SubResource("Resource_reward_armor")])
+scatter = 16.0
+
+[connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
+[connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]
+[connection signal="lifted" from="TouchController" to="Player" method="_on_touch_lifted"]
+[connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]
+[connection signal="timeout" from="WaveSpawner/NextWaveTimer" to="WaveSpawner" method="_on_next_wave_timer_timeout"]

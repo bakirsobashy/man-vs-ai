@@ -13,6 +13,8 @@ extends Area2D
 @export_range(0, 999) var cover_damage := 4
 ## Despawn after this long even if nothing was hit.
 @export_range(0.1, 20.0, 0.1, "suffix:s") var lifetime := 4.0
+## Extra enemies the bullet passes through before it stops (Rivet Driver: 1).
+@export_range(0, 10) var pierce := 0
 ## Explosions ignore cover protection.
 @export var explosive := false
 ## Fired from above (drones): ignores cover protection.
@@ -23,6 +25,8 @@ var active := false
 var direction := Vector2.RIGHT
 var hit_damage := 0
 var _age := 0.0
+var _hits_left := 1
+var _hit_ids: Array[int] = []
 
 
 func launch(at: Vector2, travel_direction: Vector2, damage_override := -1) -> void:
@@ -31,9 +35,26 @@ func launch(at: Vector2, travel_direction: Vector2, damage_override := -1) -> vo
 	rotation = direction.angle()
 	hit_damage = damage if damage_override < 0 else damage_override
 	_age = 0.0
+	_hits_left = pierce + 1
+	_hit_ids.clear()
 	active = true
 	visible = true
 	set_physics_process(true)
+
+
+## Called by whatever the bullet hits. False if this target was already hit by this bullet.
+## Uses up one hit; the bullet despawns when it has none left.
+func try_hit(target: Object) -> bool:
+	if not active:
+		return false
+	var id := target.get_instance_id()
+	if _hit_ids.has(id):
+		return false
+	_hit_ids.append(id)
+	_hits_left -= 1
+	if _hits_left <= 0:
+		despawn()
+	return true
 
 
 func despawn() -> void:

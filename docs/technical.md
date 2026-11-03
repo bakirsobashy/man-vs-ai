@@ -62,8 +62,8 @@ value has sensible limits.
 - **State machines:** a `StateMachine` node with one child node per state (`Run`, `Roll`, …), each with its own script.
   The states are visible in the Scene dock.
 - **Components:** reusable behavior as small nodes with a `class_name` (and an `@icon`), so they appear in the
-  *Create New Node* dialog. They live in `src/components/`. Built in M1: `Health`, `StateMachine` (with `State`
-  children), `TargetSelector`, `BulletEmitter`, `BulletPool`. Planned: `SpawnPoint`, `Drops`, `BossPhase`.
+  *Create New Node* dialog. They live in `src/components/`. Built in M1–M2: `Health`, `StateMachine` (with `State`
+  children), `TargetSelector`, `BulletEmitter`, `BulletPool`, `Drops`, `SpawnPoint`, `ContactHitbox`. Planned: `BossPhase`.
 - **Hurtboxes** are plain `Area2D` nodes; their `area_entered` signal is connected in the editor to the scene's root script.
 - **Groups** (`enemies`, `cover`, `pickups`) are assigned in the editor (Node dock → Groups) and saved with the scene.
 - **Autoloads that need nodes are scenes.** `audio_manager.tscn` has one `AudioStreamPlayer` per music stem, and
@@ -134,21 +134,36 @@ EnemyBulletSmall (Area2D)             bullet.gd — exports: speed, damage, cove
 └─ ScreenNotifier (VisibleOnScreenNotifier2D)   returns the bullet to its pool when it leaves the screen
 ```
 
-**Enemy** (`src/enemies/grunt/grunt.tscn`)
+**Enemy** (`src/enemies/grunt/grunt.tscn`, built in M2)
 ```
-Grunt (CharacterBody2D)               enemy.gd — exports: max_hp, move_speed, ram_drop, spawn_kind
+Grunt (CharacterBody2D)               enemy.gd — exports: move_speed, spawn_kind, stun_state, death_fx_scene, attack_animation
+│                                     (group: enemies · layer: enemies · mask: world, cover, enemies)
 ├─ BodyShape (CollisionShape2D)
-├─ Sprite (AnimatedSprite2D)
-├─ %Hurtbox (Area2D)                  child CollisionShape2D (mask: player_bullets)
-├─ %Emitter (BulletEmitter)           exports: bullet_pool, count, spread_deg, speed, burst, interval, aimed — rotate to aim
+├─ %Sprite (Sprite2D)
 ├─ TelegraphGlow (Sprite2D, hidden)   shown by the "telegraph" animation
-├─ NavigationAgent2D
-├─ %StateMachine (StateMachine)       children: Spawn · Position · Telegraph · Attack · Recover
-├─ EliteFX (Node2D, hidden)           turned on when the spawner makes this enemy an elite
-├─ %Drops (Drops)                     exports: drop scenes and chances
-├─ AttackTimer (Timer)
-└─ AnimationPlayer                    spawn_in, telegraph, hurt, die
+├─ Hurtbox (Area2D)                   child Shape (mask: player_bullets)
+├─ %LineOfSight (RayCast2D)           mask: world, cover
+├─ %Health (Health)                   max_hp = 20
+├─ %Drops (Drops)                     ram_mb = 3, ram_scene, extras: 3% ammo
+├─ Emitter (BulletEmitter)            count 1, burst 3, aimed — rotate the node to aim patterns that aren't aimed
+├─ %StateMachine (StateMachine)       SpawnIn → Approach → Telegraph → Attack → Approach … (+ Stunned)
+├─ %FlashAnimation (AnimationPlayer)  RESET, hurt, spawn_in (shared: src/enemies/enemy_animations.tres)
+└─ AttackAnimation (AnimationPlayer)  RESET, telegraph
 ```
+The states are reusable nodes in `src/enemies/states/`, each tuned in the Inspector:
+- `SpawnIn`: plays `spawn_in`; the enemy is harmless and untargetable until it ends.
+- `Approach`: keeps a `min_range`–`max_range` band from the hero while strafing, then attacks after a random delay
+  (needs line of sight). With an empty `attack_state` it just closes in (swarmers).
+- `Wait`: stands still for a random time (turrets).
+- `Telegraph`: plays a tell animation; `lock_aim` remembers the direction to the hero (chargers point `aim_node` along it).
+- `FireEmitter`: fires its `emitter`, waits for the burst plus `recover_time`.
+- `Charge`: dashes along the locked direction, smashes cover, and is stunned after hitting a wall or cover.
+- `Stunned`: used by the EMP and by charges.
+
+The four M2 enemies combine these:
+- **Turret:** `Wait → Telegraph → Attack`, with a rotating 8-way emitter.
+- **Charger:** `Approach → Telegraph (lock_aim) → Charge`, plus a `ContactHitbox`.
+- **Swarmer:** an `Approach` that only closes in, plus a `ContactHitbox`.
 The Sniper adds a `LaserSight (Line2D)`. The EMP-bot carries an `EmpField (Area2D)` child with its 3-tile circle.
 The M1 greybox uses simpler test dummies (`src/enemies/dummy/`): a target dummy, plus aimed and spread shooters
 built from the same parts (Hurtbox, Health, HpBar, BulletEmitter, AttackTimer, a telegraph animation that calls
@@ -180,17 +195,21 @@ RustlineCombat03 (Node2D)             room.gd
 └─ CameraBounds (ReferenceRect)       the camera's limits in this room
 ```
 
-**Level** (`src/levels/generation/level.tscn`, M3; the M1 version is `src/levels/test/controls_test.tscn`)
+**Level** (`src/levels/generation/level.tscn`, M3; built so far: `controls_test.tscn` for M1 and the M2 arena `combat_test.tscn`)
 ```
 Level (Node2D)                        level.gd — exports: config (LevelConfig .tres)
-├─ RoomHolder (Node2D)                the current room's copy goes here (M1: the TestRoom instance)
+├─ RoomHolder (Node2D)                the current room's copy goes here (M1/M2: the room instance)
+├─ DropLayer (Node2D, group drop_layer)  pickups, dropped guns, explosions and effects are added here
+├─ Enemies (Node2D)                   the WaveSpawner adds enemy copies here
 ├─ Player (player.tscn instance)      touch → TouchController, respawn_point → the room's PlayerStart
 ├─ BulletPools (Node2D)               placed far outside the playfield (-4096, -4096): idle bullets wait there
 │                                     PlayerBullets · EnemyBulletsSmall (BulletPool — exports: bullet_scene, size, hostile)
 ├─ Camera (CameraFollow: Camera2D)    follows the Player inside the room's CameraBounds
 ├─ TouchController (TouchController)  exports: tuning (controls_tuning.tres), hud — its signals are connected to Player
 ├─ LevelGenerator (Node)              M3: picks room scenes from the config
-├─ WaveSpawner (Node)                 M2–M3: copies enemy scenes to SpawnPoints from the threat budget
+├─ WaveSpawner (WaveSpawner)          copies enemy scenes to SpawnPoints from the threat budget (WaveSettings .tres)
+│  ├─ NextWaveTimer (Timer)           starts the next wave (timeout connected in the scene)
+│  └─ RewardDrops (Drops)             the wave-clear reward
 └─ HUD (hud.tscn instance)
 ```
 
@@ -202,10 +221,14 @@ HUD (CanvasLayer)                     hud.gd — exports: tuning
    │  └─ %ZoneHint (ColorRect)        shown while the debug panel is open
    ├─ %Joystick (Control)             Ring · %Knob (TextureRect), moved to the touch point
    ├─ %TouchPath (Line2D)             the finger's path, shown while the debug panel is open
-   ├─ TopBand (MarginContainer)       %HeartsLabel · %EmpLabel · %AmmoLabel · DebugButton (later: currencies, weapon card, minimap, pause)
-   └─ %DebugPanel (DebugPanel)        M1 tuning panel: gesture readout, A/B switches (OptionButtons), TuningSlider instances
+   ├─ %EdgeArrows (Control)           Arrow1 … Arrow8 (pre-placed, hidden) — point at off-screen enemies
+   ├─ TopBand (PanelContainer)        Row1: %Hearts (Heart1–6) · %Armor (Pip1–4) · %EmpLabel · DebugButton
+   │                                  Row2: Crypto icon + %CryptoLabel · RAM icon + %RamLabel · %WeaponCard (tap = swap)
+   ├─ %WaveLabel (Label)              "WAVE n" banner, faded by WaveAnimation
+   ├─ %PromptBubble (Button, hidden)  "Take Scattergun" — tap to pick up
+   └─ %DebugPanel (DebugPanel)        gesture readout, A/B switches, TuningSlider instances, 300-bullet storm
 ```
-Later HUD nodes: `%PromptBubble`, `%BossBar` and the off-screen `EdgeArrows`.
+Later HUD nodes: `%BossBar`, minimap and pause.
 
 **Hero paper doll** (`src/player/hero_visual.tscn`)
 ```
@@ -256,7 +279,8 @@ Layers and masks are set on each node in the Inspector, never in code.
 | 5 | player_bullets | Hero projectiles (collide with world, cover, enemies) |
 | 6 | enemy_bullets | Enemy projectiles (collide with world, cover, player) |
 | 7 | pickups | Hearts, ammo, currency (detect the player) |
-| 8 | interactables | Chests, stations, NPCs, doors (detect the player) |
+| 8 | interactables | Chests, stations, NPCs, doors, weapon pickups (detected by the hero's InteractSensor) |
+| 9 | enemy_contact | `ContactHitbox` areas of enemies that hurt by touch (detected by the hero's Hurtbox) |
 
 ---
 
@@ -323,6 +347,8 @@ files live in `data/`.
 | `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries: id, scene, rarity, unlock cost, icon |
 | `ControlsTuning` | `data/controls/controls_tuning.tres` | every threshold from GDD §3.4, plus the M1 A/B switches (cover mode, hero anchor, joystick zone top, show stick) |
 | `SwipePreset` | `data/controls/swipe_low/normal/high.tres` | swipe max time, min distance, min speed |
+| `WaveSettings` | `data/levels/m2_arena_waves.tres` | enemy pool (`EnemySpawnEntry`: scene, threat cost, kind, group size, first wave, weight), threat per wave, cap, endless (part of `LevelConfig` from M3) |
+| `DropChance` | inside `Drops` nodes | pickup scene, chance, amount |
 
 Designers balance the game in the Inspector, with no code changes.
 
@@ -475,13 +501,34 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   - the Sniper's `LaserSight` Line2D, whose end point the script updates;
   - the Grenadier's landing circle, a copy of `landing_marker.tscn` placed at the target.
   The telegraph animation's length enforces the 0.4 s minimum.
-- **Movement:** `NavigationAgent2D`, with navigation taken from the room's `Walls` TileMapLayer.
-- **Spawning:**
-  - The `WaveSpawner` in `level.tscn` reads the threat budget and enemy pool from `LevelConfig`.
+- **Movement (M2):** states steer straight with `move_and_slide` and flip their strafe when they bump into something.
+  `NavigationAgent2D` with navigation baked around the cover comes with the M3 room templates.
+- **Bodies:** enemies collide with walls, cover and each other, but not with the hero. They pass through the hero,
+  and touch damage comes from `ContactHitbox` areas, which the hero checks every physics frame.
+- **Spawning** (`src/levels/waves/wave_spawner.gd`):
+  - The `WaveSpawner` reads the threat budget and enemy pool from its `WaveSettings` (in M3, from `LevelConfig`).
   - It copies enemy scenes to the room's **hand-placed `SpawnPoint`s**. Each SpawnPoint's `kinds` and `waves` exports limit which enemies can appear there, and in which wave.
   - Spawn points within 3 tiles of the hero are skipped.
   - To make an elite, the spawner turns on the copy's `EliteFX` node and applies the modifier.
 - **Deaths:** copies report through `EventBus.enemy_killed`, so no per-copy wiring is needed.
+
+### 6.4.1 Weapons, pickups and drops (M2)
+- **Two slots:**
+  - the starter pistol is pre-placed in the Player's `WeaponSlot`;
+  - a found gun is taken from a `WeaponPickup` (the gun node itself moves into `WeaponSlot`, keeping its ammo);
+  - the replaced gun moves into a new `WeaponPickup` copy on the floor;
+  - a holstered gun is hidden and paused (`Weapon.set_active`);
+  - an empty found gun switches back to the pistol.
+- **HUD requests:** the weapon card and the pickup prompt send `EventBus.weapon_swap_requested` and
+  `EventBus.interact_requested`. The hero's `InteractSensor` decides what the prompt says.
+- **Piercing:** `Bullet.pierce` lets a bullet (the Rivet Driver's) hit more enemies; `try_hit()` never hits the same target twice.
+- **Pickups:** `Pickup` scenes (RAM, Crypto, half heart, armor, ammo).
+  - The hero's `PickupMagnet` (40 px) pulls in only what the hero can use; a full hero leaves hearts on the floor.
+  - Currencies go to the `RunState` autoload, which holds the run's wallet until saving arrives in M4.
+- **Drops:** each enemy's `Drops` node drops its RAM (plus a 3% ammo chance) into the level's `drop_layer` node (a
+  Node2D at the origin). The spawner's `RewardDrops` drops the wave-clear reward: 3–6 Crypto, 10% ½ heart, 25% ammo, 5% armor.
+- **Barrels:** a cover scene with `provides_cover = false` and `break_scene = explosion.tscn`. The `Explosion` damages
+  the hero (ignoring cover), enemies and cover in 32 px, so barrels chain.
 
 ### 6.5 Bosses
 ```
@@ -681,6 +728,16 @@ func restore_purchases() -> void
   - auto-fire damages a dummy;
   - a double-tap fires the EMP and clears bullets;
   - the roll's i-frames let bullets pass.
+- **Combat smoke test (M2):** run `godot --headless --path . --script res://tools/smoke_test_combat.gd`.
+  It loads `combat_test.tscn` and checks 31 results. The checks cover:
+  - wave spawning, spawn-in and drops;
+  - the wave-clear reward and the pickup magnet;
+  - floor guns, swapping and firing with a found gun;
+  - the empty-gun fallback;
+  - barrel explosions;
+  - swarmer contact damage;
+  - a charger smashing cover;
+  - EMP stuns, turret fire and rivet piercing.
 - **Unit tests** for the pure logic: the gesture classifier, level-generator constraints and determinism, economy math, and
   save migrations. Pick GUT or gdUnit4 at M1.
 - **Playtest builds** include the debug overlay. Optional local telemetry (deaths per room, gesture misclassifications)

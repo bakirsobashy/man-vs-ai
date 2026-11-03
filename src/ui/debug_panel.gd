@@ -97,3 +97,19 @@ func _on_anchor_option_item_selected(index: int) -> void:
 
 func _on_show_stick_check_toggled(on: bool) -> void:
 	tuning.show_joystick = on
+
+
+## M2 performance check: up to 300 enemy bullets at once, in rings flying outward from the hero.
+func _on_storm_button_pressed() -> void:
+	var hero := get_tree().get_first_node_in_group(&"player") as Node2D
+	if hero == null:
+		return
+	for node: Node in get_tree().get_nodes_in_group(&"bullet_pools"):
+		var pool := node as BulletPool
+		if pool == null or not pool.hostile:
+			continue
+		for ring: int in 10:
+			for i: int in 30:
+				var direction := Vector2.RIGHT.rotated(TAU * (i + ring * 0.5) / 30.0)
+				pool.spawn(hero.global_position + direction * (40.0 + ring * 8.0), direction)
+		return
