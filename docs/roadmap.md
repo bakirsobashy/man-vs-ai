@@ -25,6 +25,14 @@ The highest risk (one-finger controls) is tested first. Nothing else gets built 
 - **Exit:** the owner reviews the [PROPOSED] items and answers the urgent open questions.
 
 ## M1: Controls greybox
+**Status: built, device playtest pending.**
+- **Built:** the player, touch controller, HUD with debug panel, test room, cover in three materials, and target and shooter dummies.
+- **Tests:** the headless smoke test (`tools/smoke_test_controls.gd`) passes all 17 checks.
+- **Still to do:**
+  - build an Android export and put it on 2+ phones;
+  - run the exit-gate playtest below;
+  - then copy the winning values into `controls_tuning.tres`.
+
 **Scope**
 - Everything built scene-first: `player.tscn`, `hud.tscn`, `test_room.tscn` and the dummy scenes are authored in the
   editor ([technical.md](technical.md) §0).

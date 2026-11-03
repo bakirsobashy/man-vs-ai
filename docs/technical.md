@@ -62,8 +62,9 @@ value has sensible limits.
 - **State machines:** a `StateMachine` node with one child node per state (`Run`, `Roll`, …), each with its own script.
   The states are visible in the Scene dock.
 - **Components:** reusable behavior as small nodes with a `class_name` (and an `@icon`), so they appear in the
-  *Create New Node* dialog: `Health`, `Hurtbox`, `BulletEmitter`, `SpawnPoint`, `Drops`, `StateMachine`,
-  `TargetSelector`, `BossPhase`. They live in `src/components/`.
+  *Create New Node* dialog. They live in `src/components/`. Built in M1: `Health`, `StateMachine` (with `State`
+  children), `TargetSelector`, `BulletEmitter`, `BulletPool`. Planned: `SpawnPoint`, `Drops`, `BossPhase`.
+- **Hurtboxes** are plain `Area2D` nodes; their `area_entered` signal is connected in the editor to the scene's root script.
 - **Groups** (`enemies`, `cover`, `pickups`) are assigned in the editor (Node dock → Groups) and saved with the scene.
 - **Autoloads that need nodes are scenes.** `audio_manager.tscn` has one `AudioStreamPlayer` per music stem, and
   `scene_router.tscn` has the fade `ColorRect` and its `AnimationPlayer`. Pure data and signal autoloads (`EventBus`,
@@ -86,43 +87,48 @@ needs the owner's OK in review.
 `%Name` marks a scene-unique node. A component name in brackets (`Hurtbox: Area2D`) means an `Area2D` running the
 `Hurtbox` component script.
 
-**Player** (`src/player/player.tscn`)
+**Player** (`src/player/player.tscn`, built in M1)
 ```
-Player (CharacterBody2D)              player.gd — exports: move_speed, roll_distance, roll_time, iframe_ratio,
-│                                     recovery_time, reload_speed_running / _standing / _cover
-├─ BodyShape (CollisionShape2D)       CircleShape2D — body vs. walls and cover (layer: player)
-├─ Visual (HeroVisual)                instance of hero_visual.tscn
-├─ GunPivot (Node2D)                  rotated toward the current target
-│  └─ %WeaponSlot (Node2D)            the equipped weapon's scene sits here
-├─ %Hurtbox (Hurtbox: Area2D)         child CollisionShape2D: RectangleShape2D 6×6 (layer: player)
-├─ %CoverSensor (Area2D)              child CollisionShape2D: CircleShape2D r = 32 px — the 2-tile cover radius (mask: cover)
-├─ %LineOfSight (RayCast2D)           mask: world, cover
+Player (CharacterBody2D)              player.gd — exports: move_speed, roll_*, cover slide, reload multipliers, EMP,
+│                                     haptics (group: player · motion_mode: floating)
+├─ %BodyShape (CollisionShape2D)      CircleShape2D r = 6 px — body vs. walls, cover and enemies
+├─ Visual (Node2D)                    Body (Sprite2D); becomes the hero_visual.tscn paper doll at M4
+├─ %GunPivot (Node2D)                 rotated toward the current target
+│  └─ %WeaponSlot (Node2D)            the equipped weapon's scene: ServicePistol (instance)
+├─ %Reticle (Sprite2D, top_level)     drawn on the current target
+├─ Hurtbox (Area2D)                   child Shape: RectangleShape2D 6×6 (mask: enemy_bullets); crouch scales it to 6×4
+├─ %CoverSensor (Area2D)              child Shape: CircleShape2D r = 32 px — the 2-tile cover radius (mask: cover)
+├─ %EmpRange (Area2D)                 child Shape: CircleShape2D r = 64 px — the EMP stun radius (mask: enemies)
+├─ LineOfSight (RayCast2D)            mask: world, cover
 ├─ %StateMachine (StateMachine)       children: Run · Roll · SlideToCover · InCover · Stand · Dead
-├─ %Health (Health)                   exports: max_half_hearts, max_armor — uses InvulnTimer
-├─ %TargetSelector (TargetSelector)
+├─ %Health (Health)                   max_hp = 6 (half-hearts), max_armor = 4 — uses InvulnTimer
+├─ %TargetSelector (TargetSelector)   uses LineOfSight; re-evaluated by RetargetTimer
 ├─ RetargetTimer (Timer)              0.1 s
 ├─ InvulnTimer (Timer)                1.0 s
-├─ PartialReloadTimer (Timer)         0.3 s
-├─ AnimationPlayer                    hurt_blink, roll, crouch
-└─ Sounds (Node2D)                    Roll · Hurt · CoverEnter (AudioStreamPlayer2D)
+├─ %PartialReloadTimer (Timer)        0.3 s
+├─ %RespawnTimer (Timer)              1.5 s (greybox only)
+├─ EmpWave (Sprite2D, hidden)         the EMP ring
+├─ %BodyAnimation (AnimationPlayer)   roll, crouch, uncrouch
+├─ %FlashAnimation (AnimationPlayer)  hurt_blink, exposed, dead
+└─ %EmpAnimation (AnimationPlayer)    emp
 ```
 
-**Weapon** (`src/weapons/scattergun/scattergun.tscn`)
+**Weapon** (`src/weapons/service_pistol/service_pistol.tscn`, built in M1)
 ```
-Scattergun (Node2D)                   weapon.gd — exports: damage, fire_rate, magazine, reload_time, ammo_pool,
-│                                     spread_deg, pellets, bullet_pool
+ServicePistol (Node2D)                weapon.gd — exports: bullet_scene, damage, fire_rate, magazine_size, reload_time,
+│                                     ammo_pool, spread_deg, pellets
 ├─ Sprite (Sprite2D)
 ├─ %Muzzle (Marker2D)                 bullets start here
-├─ %Range (Area2D)                    child CollisionShape2D: CircleShape2D r = 144 px (9 tiles) (mask: enemies)
-├─ FireTimer (Timer)
-├─ ReloadTimer (Timer)
-├─ MuzzleFlash (AnimatedSprite2D)
-└─ ShotSound (AudioStreamPlayer2D)
+│  └─ MuzzleFlash (Sprite2D, hidden)
+├─ %Range (Area2D)                    child Shape: CircleShape2D r = 144 px (9 tiles) — the auto-aim range (mask: enemies)
+└─ %MuzzleAnimation (AnimationPlayer) flash
 ```
+Fire rate and reload time are weapon stats, so the weapon needs no Timer nodes. Sounds arrive with the audio pass.
 
-**Bullet** (`src/weapons/bullets/enemy_bullet_small.tscn`)
+**Bullet** (`src/weapons/bullets/enemy_bullet_small.tscn`, built in M1)
 ```
-EnemyBulletSmall (Area2D)             bullet.gd — exports: speed, damage, lifetime, explosive, aerial (layer: enemy_bullets)
+EnemyBulletSmall (Area2D)             bullet.gd — exports: speed, damage, cover_damage, lifetime, explosive, aerial
+│                                     (layer: enemy_bullets · mask: world, cover)
 ├─ Shape (CollisionShape2D)           CircleShape2D r = 3 px
 ├─ Sprite (Sprite2D)
 └─ ScreenNotifier (VisibleOnScreenNotifier2D)   returns the bullet to its pool when it leaves the screen
@@ -133,7 +139,7 @@ EnemyBulletSmall (Area2D)             bullet.gd — exports: speed, damage, life
 Grunt (CharacterBody2D)               enemy.gd — exports: max_hp, move_speed, ram_drop, spawn_kind
 ├─ BodyShape (CollisionShape2D)
 ├─ Sprite (AnimatedSprite2D)
-├─ %Hurtbox (Hurtbox: Area2D)         child CollisionShape2D (layer: enemies)
+├─ %Hurtbox (Area2D)                  child CollisionShape2D (mask: player_bullets)
 ├─ %Emitter (BulletEmitter)           exports: bullet_pool, count, spread_deg, speed, burst, interval, aimed — rotate to aim
 ├─ TelegraphGlow (Sprite2D, hidden)   shown by the "telegraph" animation
 ├─ NavigationAgent2D
@@ -144,16 +150,21 @@ Grunt (CharacterBody2D)               enemy.gd — exports: max_hp, move_speed, 
 └─ AnimationPlayer                    spawn_in, telegraph, hurt, die
 ```
 The Sniper adds a `LaserSight (Line2D)`. The EMP-bot carries an `EmpField (Area2D)` child with its 3-tile circle.
+The M1 greybox uses simpler test dummies (`src/enemies/dummy/`): a target dummy, plus aimed and spread shooters
+built from the same parts (Hurtbox, Health, HpBar, BulletEmitter, AttackTimer, a telegraph animation that calls
+`fire_emitter()` at its end).
 
-**Cover** (`src/cover/crate_light.tscn`)
+**Cover** (`src/cover/crate_light.tscn`, built in M1)
 ```
-CrateLight (StaticBody2D)             cover.gd — exports: max_hp = 40, material (layer: cover, group: cover)
-├─ Shape (CollisionShape2D)           RectangleShape2D 32×16
-├─ Sprite (AnimatedSprite2D)          frames: intact · cracked · broken
-├─ BreakFX (CPUParticles2D)
-├─ AnimationPlayer                    hit, break
-└─ BreakSound (AudioStreamPlayer2D)
+CrateLight (StaticBody2D)             cover.gd — exports: max_hp = 40, cover_material, cracked_below, regenerates
+│                                     (layer: cover · group: cover)
+├─ %Shape (CollisionShape2D)          RectangleShape2D 32×16
+├─ %Sprite (Sprite2D, 3 frames)       intact · cracked · broken
+├─ %Animation (AnimationPlayer)       hit, break (shared library: src/cover/cover_animations.tres)
+└─ %RegenTimer (Timer)                test rooms only: rebuilds broken cover
 ```
+`barrier_medium.tscn` (48×16, 120 HP) and `block_heavy.tscn` (32×32, 300 HP) follow the same tree. Break
+particles and sounds arrive with the art and audio passes.
 
 **Room template** (`src/levels/rooms/rustline/rustline_combat_03.tscn`)
 ```
@@ -169,30 +180,32 @@ RustlineCombat03 (Node2D)             room.gd
 └─ CameraBounds (ReferenceRect)       the camera's limits in this room
 ```
 
-**Level** (`src/levels/generation/level.tscn`)
+**Level** (`src/levels/generation/level.tscn`, M3; the M1 version is `src/levels/test/controls_test.tscn`)
 ```
 Level (Node2D)                        level.gd — exports: config (LevelConfig .tres)
-├─ RoomHolder (Node2D)                the current room's copy goes here
-├─ Player (player.tscn instance)
-├─ Camera (Camera2D)                  limits come from the room's CameraBounds
-├─ BulletPools (Node)                 PlayerBullets · EnemyBulletsSmall · EnemyBulletsLarge (BulletPool — exports: bullet_scene, size)
-├─ LevelGenerator (Node)              picks room scenes from the config
-├─ WaveSpawner (Node)                 copies enemy scenes to SpawnPoints from the threat budget
+├─ RoomHolder (Node2D)                the current room's copy goes here (M1: the TestRoom instance)
+├─ Player (player.tscn instance)      touch → TouchController, respawn_point → the room's PlayerStart
+├─ BulletPools (Node2D)               placed far outside the playfield (-4096, -4096): idle bullets wait there
+│                                     PlayerBullets · EnemyBulletsSmall (BulletPool — exports: bullet_scene, size, hostile)
+├─ Camera (CameraFollow: Camera2D)    follows the Player inside the room's CameraBounds
+├─ TouchController (TouchController)  exports: tuning (controls_tuning.tres), hud — its signals are connected to Player
+├─ LevelGenerator (Node)              M3: picks room scenes from the config
+├─ WaveSpawner (Node)                 M2–M3: copies enemy scenes to SpawnPoints from the threat budget
 └─ HUD (hud.tscn instance)
 ```
 
-**HUD** (`src/ui/hud.tscn`)
+**HUD** (`src/ui/hud.tscn`, built in M1)
 ```
-HUD (CanvasLayer)
-├─ %JoystickZone (Control)            anchored to the lower 60% with 16 px side and bottom margins — the zone IS this node
-├─ %Joystick (Control)                Ring · Knob (TextureRect), moved to the touch point
-├─ TopBand (MarginContainer)          hearts, armor, EMP, currencies, weapon card, minimap, pause
-├─ %PromptBubble (Button, hidden)
-├─ %BossBar (ProgressBar, hidden)
-├─ EdgeArrows (Control)               Arrow1 … Arrow8 (hidden, pre-placed)
-├─ DebugOverlay (Control, hidden)     M1 tuning sliders
-└─ %TouchController (TouchController) exports: tuning (controls_tuning.tres), zone (JoystickZone)
+HUD (CanvasLayer)                     hud.gd — exports: tuning
+└─ Root (Control, full screen, ignores touches; theme sets the 11 px HUD font)
+   ├─ %JoystickZone (Control)         anchored to the lower 60% with 16 px side and bottom margins — the zone IS this node
+   │  └─ %ZoneHint (ColorRect)        shown while the debug panel is open
+   ├─ %Joystick (Control)             Ring · %Knob (TextureRect), moved to the touch point
+   ├─ %TouchPath (Line2D)             the finger's path, shown while the debug panel is open
+   ├─ TopBand (MarginContainer)       %HeartsLabel · %EmpLabel · %AmmoLabel · DebugButton (later: currencies, weapon card, minimap, pause)
+   └─ %DebugPanel (DebugPanel)        M1 tuning panel: gesture readout, A/B switches (OptionButtons), TuningSlider instances
 ```
+Later HUD nodes: `%PromptBubble`, `%BossBar` and the off-screen `EdgeArrows`.
 
 **Hero paper doll** (`src/player/hero_visual.tscn`)
 ```
@@ -220,6 +233,16 @@ HeroVisual (Node2D)                   hero_visual.gd — shows the layers that m
 | 2D physics layer names | §1.1 | |
 
 Settings that depend on the art style get decided at M4: texture filter (nearest for pixel art), pixel snapping, integer scaling.
+
+### 1.0 Godot 4.7 gotchas (found while building M1)
+- **An `Area2D` with `monitorable = false` doesn't detect static bodies,** even with `monitoring` on. Keep
+  `monitorable` on for every sensor; give sensors `collision_layer = 0` so nothing else detects them.
+- **Don't toggle `monitoring` or `monitorable` on pooled areas.** Detection can silently stop after a pooled
+  bullet is recycled. Inactive bullets are hidden and parked at their pool node's position instead (§6.2).
+- **Controls placed in the world swallow touches** (a `ReferenceRect` or a dummy's `ProgressBar`, for example). Set
+  `mouse_filter = Ignore` on every Control that isn't a button.
+- **Command-line tools see autoloads only from `_initialize()`.** A `--script` tool that uses project classes
+  (which use `EventBus`) loads them in `_initialize()`, not `_init()`; see `tools/smoke_test_controls.gd`.
 
 ### 1.1 Physics layers
 Layers and masks are set on each node in the Inspector, never in code.
@@ -298,7 +321,8 @@ files live in `data/`.
 | `StatModifier` | Inside `ImplantData` | stat (enum), op (add / mul), value |
 | `LevelConfig` | `data/levels/level_1.tres` … | district, room-count ranges, room pool (scene, type, weight), waves and threat per wave, enemy pool (scene, threat cost, first wave), elite chance, chest odds, boss scene |
 | `WeaponCatalog` | `data/weapons/weapon_catalog.tres` | entries: id, scene, rarity, unlock cost, icon |
-| `ControlsTuning` | `data/controls/controls_tuning.tres` | every threshold from GDD §3.4 |
+| `ControlsTuning` | `data/controls/controls_tuning.tres` | every threshold from GDD §3.4, plus the M1 A/B switches (cover mode, hero anchor, joystick zone top, show stick) |
+| `SwipePreset` | `data/controls/swipe_low/normal/high.tres` | swipe max time, min distance, min speed |
 
 Designers balance the game in the Inspector, with no code changes.
 
@@ -311,7 +335,8 @@ hard-coded values.
 
 ## 4. Input: TouchController
 This is the highest-risk system, so it gets built first (M1), with a live debug overlay. The `TouchController` node lives
-in `hud.tscn` (§0.8).
+in the level scene next to the HUD (§0.8): its `hud` export points at the HUD, and its signals are connected to the
+Player in the editor. Code: `src/input/touch_controller.gd`.
 
 ### 4.1 Output intents
 | Intent | Type | When |
@@ -356,11 +381,20 @@ func _classify_release(release_pos: Vector2, now: float) -> void:
 - The thresholds live in `data/controls/controls_tuning.tres`, assigned to the controller's `tuning` export in the
   Inspector. The debug overlay edits that resource at runtime, and the sensitivity settings swap in preset resources.
 
-### 4.3 Debug overlay (M1)
-- A hidden `DebugOverlay` Control in `hud.tscn`, with a slider for every threshold.
-- It shows the touch path, the classification result and its timings, the joystick vector, the current target, FPS and
-  the bullet count. Drawing the touch path with `_draw()` is allowed here (§0.1).
-- Logs misclassifications during playtests.
+### 4.3 Debug panel (M1)
+- The **DBG** button in the HUD's top band opens `%DebugPanel` in `hud.tscn`.
+- **Readout:** FPS, enemy bullets in flight, the hero's state, and the last gesture with its duration, travel and speed.
+- **A/B switches** (OptionButtons whose item ids carry the values):
+  - cover spot: nearest point / smart side;
+  - stick zone top: 35 / 40 / 50%;
+  - swipe sensitivity: Low / Normal / High (`SwipePreset` resources);
+  - hero screen height: 40 / 45 / 55%;
+  - show stick.
+- **Sliders** (`TuningSlider` instances): swipe max time, min distance, min speed, double-tap window, stick radius,
+  full speed at.
+- While the panel is open, the joystick zone is tinted and the finger's path is drawn by the `%TouchPath` Line2D
+  node, so no `_draw()` is needed.
+- Changes apply live to the shared `controls_tuning.tres` resource in memory. They aren't saved, so note the winning values from a playtest in the `.tres`.
 
 ---
 
@@ -378,7 +412,7 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 
 - **Hurt** is an overlay, not a state: `InvulnTimer` runs and the `hurt_blink` animation plays without interrupting
   the current state.
-- **The hurtbox and the cover radius are visible in the editor.** They're the `%Hurtbox` rectangle (6×6 px, 6×4 when
+- **The hurtbox and the cover radius are visible in the editor.** They're the `Hurtbox` rectangle (6×6 px, 6×4 when
   crouched via the `crouch` animation) and the `%CoverSensor` circle (32 px).
 - **Reload lives in the weapon scene,** because each gun keeps its own magazine. The player's current state passes
   its speed multiplier to the equipped weapon: running 0.5, standing 1.0, cover 1.4, all exported on `player.tscn`.
@@ -402,11 +436,13 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   `enemy_bullet_large.tscn`, `grenade.tscn`.
 - **Pooling:** each `BulletPool` node in `level.tscn` pre-copies its `bullet_scene` `size` times when the level loads,
   then hands bullets out and takes them back. Nothing is instanced in the middle of a fight.
+- **Who detects what:** hurtboxes monitor the bullet layers; bullets only watch for walls and cover (`body_entered`).
+- **Idle bullets are parked, not switched off.** A despawned bullet is hidden, stops processing, and moves back to its
+  pool node's position, which the level places far outside the playfield. Physics flags are never toggled (§1.0).
 - **Node-friendly performance:**
-  - bullets are only `monitorable`, and the hurtboxes do the monitoring;
   - circle shapes only;
   - movement is a few lines in `_physics_process`;
-  - bullets are recycled through their `VisibleOnScreenNotifier2D`;
+  - bullets are recycled through their `VisibleOnScreenNotifier2D` or their lifetime;
   - a cap of 300 enemy bullets.
 - **No node-less bullet system.** Drawing bullets in code with no nodes is ruled out. It would only be considered with
   the owner's explicit approval, and only if a low-end test device can't hold 30 fps after the steps above.
@@ -635,6 +671,16 @@ func restore_purchases() -> void
 - **Scene-first check:** run `tools/check_scene_first.sh` from the repo root.
 - **Scene check:** run `godot --headless --path . --script res://tools/check_scenes.gd`. It instantiates every scene under `src/`
   and validates each editor connection.
+- **Controls smoke test (M1):** run `godot --headless --path . --script res://tools/smoke_test_controls.gd`.
+  It loads `controls_test.tscn`, plays scripted gestures and checks 17 reactions. The checks cover:
+  - holding moves and fires;
+  - lifting stands;
+  - a swipe rolls;
+  - lifting near cover slides into cover and hugs the near face;
+  - cover absorbs bullets from its side only;
+  - auto-fire damages a dummy;
+  - a double-tap fires the EMP and clears bullets;
+  - the roll's i-frames let bullets pass.
 - **Unit tests** for the pure logic: the gesture classifier, level-generator constraints and determinism, economy math, and
   save migrations. Pick GUT or gdUnit4 at M1.
 - **Playtest builds** include the debug overlay. Optional local telemetry (deaths per room, gesture misclassifications)

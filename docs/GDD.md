@@ -136,7 +136,8 @@ The owner chose "floating joystick, lower part of the screen". The default split
 - Floating joystick: the touch-down point becomes the stick's center. The finger's offset sets direction, and speed
   rises with the offset, reaching full speed at about 70% of the stick radius.
 - If the finger drags past the radius, the center follows it, so reversing direction feels instant.
-- The joystick is invisible by default; settings can turn on a faint ring.
+- The joystick is invisible by default; settings can turn on a faint ring. (During M1 testing it's shown, and the debug
+  panel can hide it.)
 
 **Auto-fire (run & gun)**
 - The hero fires **while the finger is down**, whether moving or holding still, and stops on lift.

@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://src/levels/test/test_room.tscn" id="1_room"]
+[ext_resource type="PackedScene" path="res://src/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://src/components/bullet_pool.gd" id="3_bullet_pool"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_bullet.tscn" id="4_player_bullet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="5_enemy_bullet"]
+[ext_resource type="Script" path="res://src/levels/camera_follow.gd" id="6_camera"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="7_tuning"]
+[ext_resource type="Script" path="res://src/input/touch_controller.gd" id="8_touch"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="9_hud"]
+
+[node name="ControlsTest" type="Node2D"]
+
+[node name="Room" parent="." instance=ExtResource("1_room")]
+
+[node name="Player" parent="." node_paths=PackedStringArray("touch", "respawn_point") instance=ExtResource("2_player")]
+position = Vector2(176, 840)
+touch = NodePath("../TouchController")
+respawn_point = NodePath("../Room/PlayerStart")
+
+[node name="BulletPools" type="Node2D" parent="."]
+position = Vector2(-4096, -4096)
+
+[node name="PlayerBullets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("3_bullet_pool")
+bullet_scene = ExtResource("4_player_bullet")
+size = 96
+
+[node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("3_bullet_pool")
+bullet_scene = ExtResource("5_enemy_bullet")
+size = 300
+hostile = true
+
+[node name="Camera" type="Camera2D" parent="." node_paths=PackedStringArray("target", "bounds")]
+position = Vector2(176, 576)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+script = ExtResource("6_camera")
+target = NodePath("../Player")
+bounds = NodePath("../Room/CameraBounds")
+tuning = ExtResource("7_tuning")
+
+[node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("hud")]
+script = ExtResource("8_touch")
+tuning = ExtResource("7_tuning")
+hud = NodePath("../HUD")
+
+[node name="HUD" parent="." instance=ExtResource("9_hud")]
+
+[connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
+[connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]
+[connection signal="lifted" from="TouchController" to="Player" method="_on_touch_lifted"]
+[connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]

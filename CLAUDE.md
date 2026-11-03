@@ -41,13 +41,21 @@ The project owner develops node-based. Every change must follow these rules:
   `shape` property of a `CollisionShape2D` node.
 
 ## Checks before committing
-Run both from the repository root. Here `godot` means a Godot 4.7 binary.
+Run these from the repository root. Here `godot` means a Godot 4.7 binary.
 ```bash
 tools/check_scene_first.sh
 ```
 ```bash
 godot --headless --path . --script res://tools/check_scenes.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_controls.gd
+```
+Before writing physics or tool code, read the Godot 4.7 gotchas in `docs/technical.md` §1.0:
+- `Area2D` sensors keep `monitorable` on;
+- pooled areas are parked, never toggled;
+- world-space Controls ignore the mouse;
+- `--script` tools load project classes in `_initialize()`.
 If Godot isn't installed (for example in a cloud container), download the official Godot 4.7 Linux build from the
 `godotengine/godot` GitHub releases into a scratch directory and run the checks with it.
 

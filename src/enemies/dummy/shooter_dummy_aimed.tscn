@@ -1,0 +1,101 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/dummy/dummy.gd" id="1_dummy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/dummy_shooter.svg" id="3_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/dummy/dummy_flash_animations.tres" id="4_flash"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="5_emitter"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="6_bullet"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="7_glow"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/dummy/dummy_attack_animations.tres" id="8_attack"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(14, 14)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(16, 16)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
+bg_color = Color(0.08, 0.08, 0.1, 0.8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_fill"]
+bg_color = Color(0.45, 0.9, 0.4, 1)
+
+[node name="ShooterDummyAimed" type="StaticBody2D" groups=["enemies"] node_paths=PackedStringArray("emitter", "attack_animation", "screen_notifier")]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_dummy")
+emitter = NodePath("Emitter")
+attack_animation = NodePath("AttackAnimation")
+screen_notifier = NodePath("ScreenNotifier")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("3_sprite")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_hurtbox")
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 60
+
+[node name="HpBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+offset_left = -10.0
+offset_top = -15.0
+offset_right = 10.0
+offset_bottom = -12.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_bar_fill")
+max_value = 60.0
+value = 60.0
+show_percentage = false
+
+[node name="RespawnTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 2.0
+one_shot = true
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("4_flash")
+
+[node name="Emitter" type="Marker2D" parent="."]
+script = ExtResource("5_emitter")
+bullet_scene = ExtResource("6_bullet")
+count = 1
+burst = 3
+burst_interval = 0.15
+aimed = true
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("7_glow")
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 1.8
+autostart = true
+
+[node name="ScreenNotifier" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-8, -8, 16, 16)
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = ExtResource("8_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]
+[connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]
+[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]

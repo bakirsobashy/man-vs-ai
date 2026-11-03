@@ -8,7 +8,9 @@ extends SceneTree
 const SCENE_ROOT := "res://src"
 
 
-func _init() -> void:
+# _initialize (not _init): it runs after the project's autoloads are registered,
+# so scripts that use autoloads such as EventBus compile.
+func _initialize() -> void:
 	var failures := 0
 	var scenes := _find_scenes(SCENE_ROOT)
 	for path: String in scenes:

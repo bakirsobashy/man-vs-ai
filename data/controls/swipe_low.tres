@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SwipePreset" format=3]
+
+[ext_resource type="Script" path="res://src/input/swipe_preset.gd" id="1_preset"]
+
+[resource]
+script = ExtResource("1_preset")
+swipe_max_time = 0.22
+swipe_min_dist = 32.0
+swipe_min_speed = 700.0

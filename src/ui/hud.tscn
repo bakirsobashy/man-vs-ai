@@ -1,0 +1,318 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://src/ui/debug_panel.gd" id="2_debug_panel"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="3_tuning"]
+[ext_resource type="Script" path="res://src/input/swipe_preset.gd" id="4_swipe_preset"]
+[ext_resource type="Resource" path="res://data/controls/swipe_low.tres" id="5_swipe_low"]
+[ext_resource type="Resource" path="res://data/controls/swipe_normal.tres" id="6_swipe_normal"]
+[ext_resource type="Resource" path="res://data/controls/swipe_high.tres" id="7_swipe_high"]
+[ext_resource type="PackedScene" path="res://src/ui/tuning_slider.tscn" id="8_tuning_slider"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/joystick_ring.svg" id="9_ring"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/joystick_knob.svg" id="10_knob"]
+
+[sub_resource type="Theme" id="Theme_hud"]
+default_font_size = 11
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+tuning = ExtResource("3_tuning")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = SubResource("Theme_hud")
+
+[node name="JoystickZone" type="Control" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_top = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="ZoneHint" type="ColorRect" parent="Root/JoystickZone"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.05)
+
+[node name="Joystick" type="Control" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 96.0
+mouse_filter = 2
+
+[node name="Ring" type="TextureRect" parent="Root/Joystick"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_ring")
+
+[node name="Knob" type="TextureRect" parent="Root/Joystick"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 28.0
+offset_top = 28.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+texture = ExtResource("10_knob")
+
+[node name="TouchPath" type="Line2D" parent="Root"]
+unique_name_in_owner = true
+visible = false
+width = 2.0
+default_color = Color(1, 0.9, 0.3, 0.6)
+
+[node name="TopBand" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 36.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="Row" type="HBoxContainer" parent="Root/TopBand"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="HeartsLabel" type="Label" parent="Root/TopBand/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "HP 3/3"
+
+[node name="EmpLabel" type="Label" parent="Root/TopBand/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "EMP 2"
+
+[node name="Spacer" type="Control" parent="Root/TopBand/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="AmmoLabel" type="Label" parent="Root/TopBand/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "10/10"
+
+[node name="DebugButton" type="Button" parent="Root/TopBand/Row"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "DBG"
+
+[node name="DebugPanel" type="PanelContainer" parent="Root" node_paths=PackedStringArray("hud")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 40.0
+offset_right = -6.0
+offset_bottom = 40.0
+grow_horizontal = 2
+script = ExtResource("2_debug_panel")
+tuning = ExtResource("3_tuning")
+swipe_presets = Array[ExtResource("4_swipe_preset")]([ExtResource("5_swipe_low"), ExtResource("6_swipe_normal"), ExtResource("7_swipe_high")])
+hud = NodePath("../..")
+
+[node name="Margin" type="MarginContainer" parent="Root/DebugPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="Root/DebugPanel/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="InfoLabel" type="Label" parent="Root/DebugPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FPS -"
+autowrap_mode = 3
+
+[node name="Options" type="GridContainer" parent="Root/DebugPanel/Margin/VBox"]
+layout_mode = 2
+mouse_filter = 2
+columns = 2
+
+[node name="CoverCaption" type="Label" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cover spot"
+
+[node name="CoverOption" type="OptionButton" parent="Root/DebugPanel/Margin/VBox/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+selected = 0
+item_count = 2
+popup/item_0/text = "Nearest point"
+popup/item_0/id = 0
+popup/item_1/text = "Smart side"
+popup/item_1/id = 1
+
+[node name="ZoneCaption" type="Label" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Stick zone top"
+
+[node name="ZoneOption" type="OptionButton" parent="Root/DebugPanel/Margin/VBox/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+selected = 1
+item_count = 3
+popup/item_0/text = "35%"
+popup/item_0/id = 35
+popup/item_1/text = "40%"
+popup/item_1/id = 40
+popup/item_2/text = "50%"
+popup/item_2/id = 50
+
+[node name="SwipeCaption" type="Label" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Swipe sensitivity"
+
+[node name="SwipeOption" type="OptionButton" parent="Root/DebugPanel/Margin/VBox/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+selected = 1
+item_count = 3
+popup/item_0/text = "Low"
+popup/item_0/id = 0
+popup/item_1/text = "Normal"
+popup/item_1/id = 1
+popup/item_2/text = "High"
+popup/item_2/id = 2
+
+[node name="AnchorCaption" type="Label" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Hero screen height"
+
+[node name="AnchorOption" type="OptionButton" parent="Root/DebugPanel/Margin/VBox/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+selected = 1
+item_count = 3
+popup/item_0/text = "40%"
+popup/item_0/id = 40
+popup/item_1/text = "45%"
+popup/item_1/id = 45
+popup/item_2/text = "55%"
+popup/item_2/id = 55
+
+[node name="StickCaption" type="Label" parent="Root/DebugPanel/Margin/VBox/Options"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Show stick"
+
+[node name="ShowStickCheck" type="CheckBox" parent="Root/DebugPanel/Margin/VBox/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+button_pressed = true
+text = "on"
+
+[node name="SwipeMaxTime" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
+layout_mode = 2
+property = &"swipe_max_time"
+caption = "Swipe max time"
+min_value = 0.1
+max_value = 0.5
+step = 0.01
+unit = " s"
+
+[node name="SwipeMinDistance" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
+layout_mode = 2
+property = &"swipe_min_dist"
+caption = "Swipe min distance"
+min_value = 8.0
+max_value = 64.0
+step = 1.0
+unit = " px"
+
+[node name="SwipeMinSpeed" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
+layout_mode = 2
+property = &"swipe_min_speed"
+caption = "Swipe min speed"
+min_value = 100.0
+max_value = 1500.0
+step = 25.0
+unit = " px/s"
+
+[node name="DoubleTapWindow" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
+layout_mode = 2
+property = &"double_tap_window"
+caption = "Double-tap window"
+min_value = 0.15
+max_value = 0.6
+step = 0.01
+unit = " s"
+
+[node name="StickRadius" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
+layout_mode = 2
+property = &"stick_radius"
+caption = "Stick radius"
+min_value = 24.0
+max_value = 96.0
+step = 2.0
+unit = " px"
+
+[node name="FullSpeedAt" parent="Root/DebugPanel/Margin/VBox" instance=ExtResource("8_tuning_slider")]
+layout_mode = 2
+property = &"full_speed_at"
+caption = "Full speed at"
+min_value = 0.3
+max_value = 1.0
+step = 0.05
+
+[connection signal="toggled" from="Root/TopBand/Row/DebugButton" to="Root/DebugPanel" method="_on_debug_button_toggled"]
+[connection signal="visibility_changed" from="Root/DebugPanel" to="Root/DebugPanel" method="_on_visibility_changed"]
+[connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/CoverOption" to="Root/DebugPanel" method="_on_cover_option_item_selected"]
+[connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/ZoneOption" to="Root/DebugPanel" method="_on_zone_option_item_selected"]
+[connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/SwipeOption" to="Root/DebugPanel" method="_on_swipe_option_item_selected"]
+[connection signal="item_selected" from="Root/DebugPanel/Margin/VBox/Options/AnchorOption" to="Root/DebugPanel" method="_on_anchor_option_item_selected"]
+[connection signal="toggled" from="Root/DebugPanel/Margin/VBox/Options/ShowStickCheck" to="Root/DebugPanel" method="_on_show_stick_check_toggled"]
