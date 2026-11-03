@@ -35,7 +35,8 @@ func physics_update(delta: float) -> void:
 			# Light and medium cover break at once; heavy cover takes a second smash on the next frame.
 			EventBus.screen_shake_requested.emit(0.15)
 			return
-	if cover != null or collider is TileMapLayer:
+	# Walls: wall tiles and any other static body (a locked door's blocker).
+	if cover != null or collider is TileMapLayer or collider is StaticBody2D:
 		EventBus.screen_shake_requested.emit(0.3)
 		machine.transition_to(stunned_state, {"duration": stun_time})
 	else:

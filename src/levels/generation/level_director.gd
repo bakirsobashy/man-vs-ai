@@ -45,6 +45,14 @@ var _transitioning := false
 var _rng := RandomNumberGenerator.new()
 
 
+## Visited rooms wait outside the tree; free them with the level (a scene change would leak them otherwise).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		for room: Room in _rooms.values():
+			if is_instance_valid(room) and not room.is_inside_tree():
+				room.free()
+
+
 func _ready() -> void:
 	_rng.randomize()
 	EventBus.door_entered.connect(_on_door_entered)
