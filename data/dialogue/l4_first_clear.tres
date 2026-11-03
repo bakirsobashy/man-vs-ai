@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Conversation" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/conversation.gd" id="1_conversation"]
+[ext_resource type="Script" path="res://src/ui/dialogue/dialogue_line.gd" id="2_line"]
+
+[sub_resource type="Resource" id="Resource_line0"]
+script = ExtResource("2_line")
+speaker = "Vorn"
+text = "The Warden kept recordings of everything. Including that night."
+
+[sub_resource type="Resource" id="Resource_line1"]
+script = ExtResource("2_line")
+speaker = "Kade"
+text = "Where is it?"
+
+[sub_resource type="Resource" id="Resource_line2"]
+script = ExtResource("2_line")
+speaker = "Vorn"
+text = "The Syndicate Core. Zero keeps it close. A trophy. Patch dug up your old service rifle while you were out."
+
+[sub_resource type="Resource" id="Resource_line3"]
+script = ExtResource("2_line")
+speaker = "Vorn"
+text = "Before you go down there: whatever is on that recording, you are still the one who decides what it makes of you."
+
+[resource]
+script = ExtResource("1_conversation")
+lines = Array[ExtResource("2_line")]([SubResource("Resource_line0"), SubResource("Resource_line1"), SubResource("Resource_line2"), SubResource("Resource_line3")])

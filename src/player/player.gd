@@ -115,6 +115,8 @@ var secondary: Weapon
 var weapon: Weapon
 var emp_charges := 0
 var rolling_invulnerable := false
+## True while a roll is still moving (the hero is off the floor: glass holes can't drop him).
+var airborne := false
 var cover: Cover
 var cover_normal := Vector2.ZERO
 var _reload_multiplier := 1.0
@@ -447,11 +449,35 @@ func take_explosion_hit(amount: int) -> void:
 	_hurt(amount)
 
 
-## Molten floors and other hazards: rolling crosses them, and Filter Lungs Mk II make the hero immune.
-func take_hazard_hit(amount: int) -> void:
-	if state_machine.is_in(&"Dead") or rolling_invulnerable or hazard_immune or health.is_invulnerable():
+## Molten floors, laser grids and other hazards: rolling crosses them. Filter Lungs Mk II make the hero immune to
+## floor hazards (`floor_hazard`), not to lasers.
+func take_hazard_hit(amount: int, floor_hazard := true) -> void:
+	if state_machine.is_in(&"Dead") or rolling_invulnerable or health.is_invulnerable() or (floor_hazard and hazard_immune):
 		return
 	_hurt(amount)
+
+
+## Cracked glass gives way (Skyline Spires): the hero is put back at `spot` and loses `amount` (unless he's still
+## invulnerable from a recent hit).
+func fall_to(spot: Vector2, amount: int) -> void:
+	if state_machine.is_in(&"Dead"):
+		return
+	global_position = spot
+	EventBus.toast_requested.emit("The glass gives way")
+	if not health.is_invulnerable():
+		_hurt(amount)
+	if not state_machine.is_in(&"Dead"):
+		state_machine.transition_to(&"Run" if touch.touching else &"Stand")
+
+
+## EMP-bot pulses: shove the hero (out of cover). Rolling dodges it. Returns true when he was shoved.
+func knock_back(offset: Vector2) -> bool:
+	if state_machine.is_in(&"Dead") or rolling_invulnerable:
+		return false
+	if not state_machine.is_in(&"Run"):
+		state_machine.transition_to(&"Stand")
+	move_and_collide(offset)
+	return true
 
 
 ## Filter Lungs Mk III: a bullet passing through a roll's i-frames slows time briefly and boosts damage.
@@ -586,8 +612,9 @@ func _state() -> PlayerState:
 
 
 func _is_protected_from(bullet: Bullet) -> bool:
-	return state_machine.is_in(&"InCover") and cover != null and cover.is_intact() \
-		and not bullet.explosive and not bullet.aerial and bullet.direction.dot(cover_normal) > 0.0
+	return state_machine.is_in(&"InCover") and is_instance_valid(cover) and cover.is_intact() \
+		and not bullet.explosive and not bullet.aerial and bullet.direction.dot(cover_normal) > 0.0 \
+		and not EmpField.shorts_out(self)
 
 
 func _away_from_threats() -> Vector2:

@@ -161,9 +161,9 @@ If the gate fails, iterate on M1 before moving on.
 - An external playtest with 10+ people, including a "would you play again?" question.
 
 ## M5: Content production
-**Status: in progress, built district by district (the owner's choice). Levels 2 and 3 are playable.**
-- **The campaign:** runs go L1 → lab → L2 → lab → L3. Hearts, armor and the found gun carry between levels, and
-  death restarts at Level 1. Beating the last built level ends the run until Level 4 exists.
+**Status: in progress, built district by district (the owner's choice). Levels 2, 3 and 4 are playable.**
+- **The campaign:** runs go L1 → lab → L2 → lab → L3 → lab → L4. Hearts, armor and the found gun carry between
+  levels, and death restarts at Level 1. Beating the last built level ends the run until Level 5 exists.
 - **Level 2, Neon Bazaar:**
   - 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
   - **Elite modifiers** (Overclocked, Armored, Splitter, Shielded), from Level 2 at 10%.
@@ -177,16 +177,25 @@ If the gate fails, iterate on M1 before moving on.
     drops when it attacks). Elites at 15%.
   - **FORGEMOTHER**: Assembly (builds Swarmers, rivet fans), Overtime (belts reverse at double speed, crates ride
     in, grenade volleys) and Meltdown (core takes double damage, molten floods with a 1 s warning).
-  - **Guns:** the Cryo Sprayer, Rail Spike and Scrap Minigun (15 of 21 guns).
+  - **Guns:** the Cryo Sprayer, Rail Spike and Scrap Minigun.
   - **Implants:** Servo Arms and Filter Lungs (all 6 body slots now have implants).
   - **Story:** Lena's Message and the Level 3 lab talk.
+- **Level 4, Skyline Spires:**
+  - 16 rooms with timed laser grids (off, a warning blink, then ½ heart; rolls pass through) and cracking glass
+    floors (they break 0.9 s after you step on them; falling costs a heart, and a roll carries you over a hole).
+  - The **Sniper** (a laser sight that cover blocks, a 1-heart shot, then it relocates) and the **EMP-bot** (an EMP
+    field that shorts out cover, and a pulse that knocks the hero out of it). Elites at 20%.
+  - **WARDEN**: Overwatch (2 flanking Drones, perched snipes), Suppression (EMP fields on the hero, sweeping fire)
+    and Hunt (drops down 80% faster, sweeps and snipes). The first kill unlocks the M7 Line Rifle.
+  - **Guns:** the Swarm Launcher, Beam Cutter and Toaster Cannon, plus the M7 Line Rifle story gun (19 of 21 guns).
+  - **Story:** Mira's Birthday and the Level 4 lab talk (the Warden's recording is in the Syndicate Core).
 - **Owner decisions:** Vorn is morally grey (Q1), the Normal ending has Patched and Hollow flavors (Q8), and
   post-game is NG+ threat levels (Q5).
 - **Tests:**
   - every earlier suite still passes;
-  - the Level 2 smoke test passes 44/44 and the Level 3 smoke test 49/49;
+  - the Level 2 smoke test passes 44/44, Level 3 49/49 and Level 4 43/43;
   - the generator validates 10,000 layouts for each campaign level.
-- **Next:** Level 4 (Skyline Spires), then L5, the endings and NG+, then balance.
+- **Next:** Level 5 (Syndicate Core), then the endings and NG+, then balance.
 
 **Scope**
 - Districts 2–5: templates, hazards and tilesets.

@@ -32,6 +32,10 @@ extends Resource
 @export var room_pool: Array[RoomEntry] = []
 ## The boss (M3: a stand-in until SCRAPJAW arrives in M4).
 @export var boss_scene: PackedScene
+## A story gun the first boss kill unlocks (Level 4: WARDEN unlocks the M7 Line Rifle). Empty for none.
+@export var boss_reward_weapon := &""
+## Its name in the unlock banner.
+@export var boss_reward_name := ""
 
 @export_group("Fights")
 ## Enemy pool used in this level's rooms.

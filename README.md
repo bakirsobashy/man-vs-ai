@@ -5,11 +5,13 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 > A grieving war veteran hunts the robot gang that murdered his family. Every implant that makes him strong enough
 > to win replaces another piece of the man. There are three endings: stay human, become something in between, or become the machine.
 
-**Status:** M5 (content) is in progress, district by district: **Levels 2 and 3 are playable.** A run now goes
-Rustline Slums → lab → Neon Bazaar → lab → The Foundry.
+**Status:** M5 (content) is in progress, district by district: **Levels 2, 3 and 4 are playable.** A run now goes
+Rustline Slums → lab → Neon Bazaar → lab → The Foundry → lab → Skyline Spires.
 - **Level 2, the Neon Bazaar:** holo-signs, Shotgunners, Drones, Hackers, elite robots and GLITCH.
 - **Level 3, The Foundry:** conveyor belts, molten lanes, Grenadiers, Shield-bots and FORGEMOTHER.
-- Six more guns and four more implants (Hawk Optics, Neural Coprocessor, Servo Arms, Filter Lungs): every body slot
+- **Level 4, Skyline Spires:** laser grids, cracking glass, Snipers, EMP-bots and WARDEN, whose first kill unlocks
+  Kade's old M7 Line Rifle.
+- Ten more guns and four more implants (Hawk Optics, Neural Coprocessor, Servo Arms, Filter Lungs): every body slot
   now has implants.
 
 On top of the M4 vertical slice, on placeholder art:
@@ -44,6 +46,8 @@ It passes its automated tests. Playtests on real Android phones, the art-directi
 ![Level 2: Neon Bazaar](docs/images/m5_l2_neon_bazaar.png)
 
 ![Level 3: The Foundry](docs/images/m5_l3_foundry.png)
+
+![Level 4: Skyline Spires](docs/images/m5_l4_skyline.png)
 
 **The lab** (between runs):
 - **Surgery (Dr. Vorn):** spend RAM on implants for all six body slots (Heart, Legs, Eyes, Brain, Arms, Lungs),
@@ -115,6 +119,9 @@ godot --headless --path . --script res://tools/smoke_test_l2.gd
 ```
 ```bash
 godot --headless --path . --script res://tools/smoke_test_l3.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_l4.gd
 ```
 
 ## Getting started

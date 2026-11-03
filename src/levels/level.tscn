@@ -37,6 +37,9 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_cryo.tscn" id="38_cryo"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_rail.tscn" id="39_rail"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_rivet.tscn" id="40_rivet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_missile.tscn" id="41_missile"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_toast.tscn" id="42_toast"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_sniper.tscn" id="43_sniper"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
@@ -210,6 +213,22 @@ size = 80
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("39_rail")
 size = 8
+
+[node name="PlayerMissiles" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("41_missile")
+size = 48
+
+[node name="PlayerToast" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("42_toast")
+size = 24
+
+[node name="EnemySniper" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("43_sniper")
+size = 24
+hostile = true
 
 [node name="EnemyRivets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")

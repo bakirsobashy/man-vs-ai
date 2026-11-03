@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3]
+
+[ext_resource type="Script" path="res://src/levels/features/memory_data.gd" id="1_memory"]
+
+[resource]
+script = ExtResource("1_memory")
+id = "l4_miras_birthday"
+title = "Mira's Birthday"
+text = "A hologram, flickering: Mira blowing out seven candles, Button the rabbit propped up beside her plate. She missed one. Kade blew it out for her."
+band_texts = Array[String](["A hologram, flickering: Mira blowing out seven candles, Button the rabbit propped up beside her plate. She missed one. Kade blew it out for her.", "A hologram. Mira and the candles. Seven, he thinks. The rabbit was there. The rabbit was always there.", "A hologram of a child and a cake. \"Seven candles. I counted them. I don't remember why that mattered.\"", "Hologram file: bday_07.holo. Candles: 7. Toy present: 1 (rabbit, \"Button\"). Significance: high. ...Do not compress."])
+heal = 1

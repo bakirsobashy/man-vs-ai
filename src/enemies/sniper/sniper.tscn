@@ -1,0 +1,241 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/sniper.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/components/drop_chance.gd" id="11_drop_chance"]
+[ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="12_ammo"]
+[ext_resource type="Script" path="res://src/enemies/states/telegraph.gd" id="14_telegraph"]
+[ext_resource type="Script" path="res://src/enemies/states/fire_emitter.gd" id="15_fire"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="16_emitter"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="92_hit"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_sniper.tscn" id="17_sniper"]
+[ext_resource type="Script" path="res://src/enemies/states/snipe.gd" id="18_snipe"]
+[ext_resource type="Script" path="res://src/enemies/states/relocate.gd" id="19_relocate"]
+[ext_resource type="Script" path="res://src/components/laser_sight.gd" id="21_laser"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/elite_ring.svg" id="90_elite"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/shield_bubble.svg" id="91_shield"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 6.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 8.0
+
+[sub_resource type="Resource" id="Resource_ammo_drop"]
+script = ExtResource("11_drop_chance")
+scene = ExtResource("12_ammo")
+chance = 0.03
+amount = 1
+
+[sub_resource type="Animation" id="Animation_attack_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph"]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.5, 0.5), Vector2(1.15, 1.15)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.2, 0.3, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_attack"]
+_data = {
+&"RESET": SubResource("Animation_attack_reset"),
+&"telegraph": SubResource("Animation_telegraph")
+}
+
+[node name="Sniper" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("attack_animation", "nav_agent")]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 36.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+attack_animation = NodePath("AttackAnimation")
+nav_agent = NodePath("NavAgent")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="LaserSight" type="Line2D" parent="." node_paths=PackedStringArray("ray")]
+visible = false
+width = 1.5
+default_color = Color(1, 0.2, 0.2, 0.45)
+script = ExtResource("21_laser")
+ray = NodePath("Ray")
+
+[node name="Ray" type="RayCast2D" parent="LaserSight"]
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 3
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("20_glow")
+
+[node name="EliteFX" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("90_elite")
+
+[node name="ShieldBubble" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("91_shield")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 6.0
+target_desired_distance = 6.0
+radius = 6.0
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 515
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 25
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 6
+ram_scene = ExtResource("9_ram")
+extras = Array[ExtResource("11_drop_chance")]([SubResource("Resource_ammo_drop")])
+
+[node name="Emitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_sniper")
+count = 1
+spread_deg = 0.0
+burst = 1
+burst_interval = 0.1
+aimed = false
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("92_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Approach"
+
+[node name="Approach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 170.0
+max_range = 260.0
+strafe_ratio = 0.3
+attack_state = &"Snipe"
+attack_delay_min = 0.8
+attack_delay_max = 1.4
+needs_line_of_sight = false
+
+[node name="Snipe" type="Node" parent="StateMachine" node_paths=PackedStringArray("laser", "emitter")]
+script = ExtResource("18_snipe")
+laser = NodePath("../../LaserSight")
+emitter = NodePath("../../Emitter")
+next_state = &"Relocate"
+
+[node name="Relocate" type="Node" parent="StateMachine"]
+script = ExtResource("19_relocate")
+next_state = &"Approach"
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+next_state = &"Approach"
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]

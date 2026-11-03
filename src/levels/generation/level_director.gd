@@ -234,6 +234,7 @@ func _on_wave_spawner_room_cleared() -> void:
 			GameState.add_stat("boss_kills")
 			GameState.stats["best_level"] = maxi(GameState.stat("best_level"), config.level_number)
 			GameState.set_flag("l%d_cleared" % config.level_number)
+			_grant_boss_reward()
 	RunState.rooms_cleared += 1
 	GameState.add_stat("rooms_cleared")
 	EventBus.room_cleared.emit(node.id)
@@ -273,6 +274,14 @@ func _finish_level() -> void:
 	player.capture_run_state()
 	RunState.advance_level()
 	SaveManager.save_all()
+
+
+## The first kill of some bosses unlocks a story gun (WARDEN: the M7 Line Rifle).
+func _grant_boss_reward() -> void:
+	if config.boss_reward_weapon == &"" or GameState.is_unlocked(config.boss_reward_weapon):
+		return
+	GameState.unlock_weapon(config.boss_reward_weapon)
+	EventBus.toast_requested.emit("%s unlocked" % config.boss_reward_name.to_upper())
 
 
 ## The run is over (death or the last boss): it's no longer resumable, and the slot keeps the currencies.

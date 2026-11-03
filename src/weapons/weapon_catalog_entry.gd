@@ -9,3 +9,5 @@ enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 @export var rarity := Rarity.COMMON
 ## Crypto to unlock it in the lab (M4). 0 = unlocked from the start.
 @export_range(0, 9999) var unlock_cost := 0
+## Story guns (the M7 Line Rifle) can't be bought: the armory shows this hint until the story unlocks them.
+@export var unlock_hint := ""

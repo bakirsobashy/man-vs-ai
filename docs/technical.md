@@ -539,6 +539,9 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
     Wind: an enemy bullet reaching the hurtbox during roll i-frames sets `Engine.time_scale` to 0.4 until
     `SlowMoTimer` (0.4 s, ignores time scale) and gives both guns `damage_scale` 1.2 until `DamageBoostTimer` (3 s).
     Once per roll.
+- **Level 4 hooks:** `take_hazard_hit(amount, floor_hazard)` (Filter Lungs only block floor hazards),
+  `fall_to(spot, amount)` for glass, `knock_back(offset)` for EMP pulses, and `airborne` (set by the Roll state while
+  the roll still moves).
 - **Runs (M4):** `capture_run_state()` and `restore_run_state()` move hearts, armor, EMP charges and the found gun
   (by catalog id) to and from `RunState`. `auto_respawn` is on in the test levels; real levels turn it off and the
   LevelDirector shows the Retrieved summary instead.
@@ -637,6 +640,14 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   - **Shield-bot** (`guard.gd`): `ShieldPivot/Shield` is a StaticBody2D on layer 11 (enemy_shields) in front of the
     body. Guard turns the pivot toward the hero at 60°/s while it advances, then disables the shield's shape and dims
     it for the Telegraph and the 6-bullet wave (the attack window). Rail Spike spikes pass through shields.
+- **Level 4 robots (M5):**
+  - **Sniper** (`snipe.gd`, `relocate.gd`): its `LaserSight` (a `LaserSight` Line2D component with a child RayCast2D,
+    mask world and cover) tracks the hero for 1 s and holds still for the last 0.25 s, so cover blocks the laser.
+    Then the `Emitter` (`aimed` off) fires a 1-heart `enemy_bullet_sniper.tscn` along the locked line, and the Sniper
+    walks to a new spot 160–260 px from the hero inside the room.
+  - **EMP-bot** (`pulse.gd`): carries an `emp_field.tscn` instance (48 px, §6.6), so cover gives no protection near
+    it. After its Telegraph, `Pulse` calls `Player.knock_back()` (48 px, out of cover) when the hero is within 56 px;
+    rolling dodges it.
 
 ### 6.4.1 Weapons, pickups and drops (M2)
 - **Two slots:**
@@ -666,6 +677,16 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
     cover and keeps flying (walls still stop it).
   - Scrap Minigun: `spin_up` 0.6 s of held fire, then 20 shots/s; `firing_move_scale` 0.8 slows the hero (Run state)
     while it has fired in the last 0.25 s. `charge_progress()` reports charge or spin-up for effects.
+  - Swarm Launcher: 4 `pellets` of `player_missile.tscn` (homing 360°/s within 140 px).
+  - Beam Cutter (`beam_weapon.gd`, `BeamWeapon`): overrides `_can_emit()` and `_emit()`. Each tick (10/s) casts the
+    `BeamRay` under the Muzzle (mask world, cover, enemies, shields): 3 damage to the first robot body, 6 to cover.
+    The top-level `Beam` Line2D shows it until the `BeamTimer` (0.12 s). Magazine and ammo count ticks.
+  - Toaster Cannon: `player_toast.tscn` copies `burning_ground.tscn` where it hits and, with `pop_on_expire`, where
+    it runs out. Burning ground (mask: enemies) deals 3 to each robot on it every 0.5 s for 3 s.
+  - M7 Line Rifle: a plain rifle (10 damage, 6/s). Its catalog entry has `unlock_hint` ("Beat WARDEN"), so the
+    armory shows the hint instead of a price and `LabUI.unlock()` refuses it.
+- **Bullet guns and beams share one loop:** `Weapon.try_fire()` handles cooldown, charge, magazine and reload, then
+  `_shoot()` calls `_emit(aim)` for the shot itself.
 - **Barrels:** a cover scene with `provides_cover = false` and `break_scene = explosion.tscn`. The `Explosion` damages
   the hero (ignoring cover), enemies and cover in 32 px, so barrels chain.
 
@@ -720,6 +741,18 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
 - Her Swarmers are in the `forge_minions` group, which `clears_group_on_death` removes when she falls. The arena is
   `rooms/foundry/boss.tscn`.
 
+**WARDEN** (`src/bosses/warden/warden.tscn`, M5): HP 1,000, thresholds [0.6, 0.3].
+- **Overwatch:** he stays on the arena's `BossSpot` (the perch). `build.gd` keeps 2 Drones alive on the
+  `DroneSpots` markers (group `drone_spots`), and `snipe.gd` fires the `SnipeEmitter` after a 1 s laser tell.
+- **Suppression:** `zone.gd` copies `emp_zone.tscn` onto the hero and 2 spots around him (0.6 s warning, then 3 s
+  of shorted cover); `sweep.gd` swings the `SweepEmitter` burst 100° across the hero; he approaches and repeats with
+  2 zones.
+- **Hunt:** `enrage.gd` multiplies his move speed by 1.8 once; then he strafes close, sweeps 140° and snipes with a
+  0.7 s tell.
+- His Drones are in the `warden_drones` group (`clears_group_on_death`). The arena is `rooms/skyline/boss.tscn`.
+- **Story gun:** `LevelConfig.boss_reward_weapon` (`&"m7_line_rifle"` on Level 4) is unlocked by the LevelDirector
+  on the first boss clear, with a toast.
+
 ### 6.6 Hazards (M5)
 All hazards are scenes in `src/levels/hazards/`, placed by hand in room scenes under a `Hazards` node.
 - **Conveyor** (`conveyor.tscn`, group `conveyors`): an Area2D that moves every overlapping CharacterBody2D along
@@ -731,6 +764,15 @@ All hazards are scenes in `src/levels/hazards/`, placed by hand in room scenes u
 - **Molten flood** (`molten_flood.tscn`): the same script with `starts_warming`: it blinks harmlessly until its
   `WarmupTimer` (1 s) fires, then burns until its `LifeTimer` (4 s from the copy) removes it.
 - **Holo-sign** (`holo_sign.tscn`, Level 2): a StaticBody2D on layer 10 only (§1.1).
+- **Laser grid** (`laser_grid.tscn`, Level 4): an Area2D (mask: player) that cycles off (2 s), warning (0.6 s) and
+  on (1.4 s) with its `PhaseTimer`; `start_offset` staggers neighbors. While on it calls
+  `Player.take_hazard_hit(1, false)` on entry and every 0.5 s: rolls pass, Filter Lungs don't (not a floor hazard).
+- **Glass floor** (`glass_floor.tscn`, Level 4, 32×32 px): the hero stepping on it starts the `CrackTimer` (0.9 s);
+  then it's a hole until the `RegrowTimer` (4 s). A hero on the hole who isn't `airborne` (the moving part of a
+  roll) gets `Player.fall_to()`: back to the spot he stepped on from (pushed clear of the panel), minus a heart.
+- **EMP field** (`emp_field.tscn` on EMP-bots; `emp_zone.tscn`, the warming copy WARDEN drops): an Area2D in the
+  `emp_fields` group. `EmpField.shorts_out(hero)` is true inside an active field, and `Player._is_protected_from()`
+  then ignores cover.
 - **Layout rule:** belts and lanes stay out of the 44 px clearance around every door `Entry` (§7.3), so a hero
   walking in is never carried or burned at the door.
 
@@ -815,6 +857,9 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
   - The Foundry (`rooms/foundry/`): Assembly Line, Smelter, Press Floor, Casting Bay, Crane Yard, Slag Pit, Long
     Line and Loading Dock, with conveyors and molten lanes; the boss room is Forgemother's Floor (`FactorySpots`,
     `FloodSpots`, `Cover/CrateSpots`).
+  - Skyline Spires (`rooms/skyline/`): Glass Walk, Laser Hall, Atrium, Searchlight, Bridge, Server Row, Long Fall
+    and Helipad, with laser grids and glass floors (kept off PlayerStart, which a resumed run uses); the boss room
+    is Warden's Roof (`DroneSpots`).
 - **Launch target:** about 12 combat templates per district, plus 2 for each other room type.
 
 ---
@@ -1014,6 +1059,14 @@ func restore_purchases() -> void
   - the Cryo Sprayer's freeze, the Rail Spike's charge and cover pierce, and the Scrap Minigun's spin-up and slow;
   - Servo Arms and Filter Lungs at every tier, including Dual Wield and Second Wind;
   - FORGEMOTHER's three phases, Lena's Message and the Level 3 lab talk.
+
+- **Level 4 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l4.gd`. It checks 43
+  results:
+  - the laser grid cycle (and that rolls pass, Filter Lungs don't help), glass cracking, falls, rolls over holes
+    and regrowth;
+  - EMP fields shorting out cover, the EMP-bot pulse, and the Sniper's laser, shot, relocation and blocked laser;
+  - the Swarm Launcher, Beam Cutter (damage and cover), Toaster Cannon burning ground and the M7 story entry;
+  - WARDEN's three phases, the M7 unlock, Mira's Birthday, the Level 4 talk and the armory's M7 row.
 
   The generator test now validates 10,000 layouts for every campaign level, and the flow test covers L1 → lab → L2.
 - **Unit tests** for the remaining pure logic: the gesture classifier and economy math. Pick GUT or

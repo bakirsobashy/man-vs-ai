@@ -15,6 +15,16 @@
 | 4 | Skyline Spires | Glass, wind, searchlights | Timed laser grids, cracking glass floors | Sniper, EMP-bot | WARDEN | Cold, sparse, high synths |
 | 5 | Syndicate Core | Servers, cables, coolant | Coolant floods (slow), firewall lasers | Null Knight, plus elite variants | ZERO | Every motif combined |
 
+**Built hazard numbers** (exports on each hazard scene in `src/levels/hazards/`):
+| Hazard | Numbers |
+|---|---|
+| Holo-sign (L2) | Blocks line of sight only |
+| Conveyor (L3) | Carries the hero and walking robots at 40 px/s along the belt |
+| Molten lane (L3) | ½ heart on contact and every 1 s while standing in it; rolls cross it; Filter Lungs Mk II make the hero immune |
+| Laser grid (L4) | Off 2 s, warning blink 0.6 s, on 1.4 s; ½ heart on contact and every 0.5 s while on; rolls pass; Filter Lungs don't help |
+| Glass floor (L4) | 2×2 tiles; breaks 0.9 s after the hero steps on it and grows back after 4 s; falling costs 1 heart and puts him back where he stepped on; a roll carries him over a hole |
+| EMP field (L4) | 3-tile radius: cover gives no protection inside it (EMP-bots carry one; WARDEN's warn for 0.6 s, then last 3 s) |
+
 ---
 
 ## 2. Enemies (robots only)
@@ -84,7 +94,10 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 - **Built in M5 so far:** #5 Junk Cannon (big chunks of 15+ damage knock robots back 18 px), #7 Arc Caster (chains
   within 72 px) and #13 Overclock Pistol (reaches 9 shots/s after 2 s of fire; a 0.5 s pause resets it) for Level 2;
   #12 Cryo Sprayer, #14 Rail Spike (charges while the finger stays down and stops at walls) and #15 Scrap Minigun
-  for Level 3.
+  for Level 3; #16 Swarm Launcher (4 missiles homing at 360°/s within 140 px), #17 Beam Cutter (10 ticks/s of 3
+  damage, 6 to cover, 170 px beam), #18 Toaster Cannon (burning ground: 3 damage every 0.5 s for 3 s, also where a
+  toast lands) and #21 M7 Line Rifle for Level 4. The M7 can't be bought: the armory shows "Beat WARDEN" until the
+  first WARDEN kill unlocks it.
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
 - **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
   Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
@@ -140,6 +153,12 @@ Arena: a scrapyard full of light cover.
 | 3 · Hunt | < 30% | Drops down and strafes fast, mixing laser sweeps with snipes |
 
 The first kill unlocks the M7 Line Rifle.
+
+**Built in M5** (`src/bosses/warden/`):
+- Overwatch keeps 2 Drones alive on 4 hand-placed drone spots and snipes from the perch every 2.3–2.7 s.
+- Suppression drops 3 EMP fields (then 2 per cycle) on and around the hero and sweeps 16 volleys across 100°.
+- Hunt raises his speed ×1.8, sweeps 140° and snipes with a 0.7 s tell.
+- Drops 112 MB and 80 Crypto.
 
 ### ZERO† (L5, The Leader). The final exam. HP 1,400
 | Phase | HP | Attacks |

@@ -109,9 +109,7 @@ func try_fire(target_position: Vector2) -> bool:
 	if magazine <= 0:
 		start_reload()
 		return false
-	if _pool == null:
-		_pool = BulletPool.find_for(get_tree(), bullet_scene)
-	if _pool == null:
+	if not _can_emit():
 		return false
 	_cooldown = 1.0 / current_fire_rate()
 	_since_shot = 0.0
@@ -128,13 +126,7 @@ func _shoot(target_position: Vector2) -> void:
 	if magazine <= 0 or reloading:
 		_burst_left = 0
 		return
-	var aim := (target_position - muzzle.global_position).normalized()
-	var spread := deg_to_rad(spread_deg * spread_scale)
-	for i: int in pellets:
-		var angle := randf_range(-spread, spread) * 0.5
-		if pellets > 1:
-			angle = -spread * 0.5 + spread * i / (pellets - 1) + randf_range(-spread, spread) / (pellets * 4.0)
-		_pool.spawn(muzzle.global_position, aim.rotated(angle), _roll_damage())
+	_emit((target_position - muzzle.global_position).normalized())
 	magazine -= 1
 	muzzle_animation.stop()
 	muzzle_animation.play(&"flash")
@@ -144,6 +136,23 @@ func _shoot(target_position: Vector2) -> void:
 		start_reload()
 	else:
 		announce()
+
+
+## Whether a shot can go out (bullet guns need their level's BulletPool). BeamWeapon overrides it.
+func _can_emit() -> bool:
+	if _pool == null:
+		_pool = BulletPool.find_for(get_tree(), bullet_scene)
+	return _pool != null
+
+
+## One shot's bullets along `aim` (pellets fan out across the spread). BeamWeapon overrides it.
+func _emit(aim: Vector2) -> void:
+	var spread := deg_to_rad(spread_deg * spread_scale)
+	for i: int in pellets:
+		var angle := randf_range(-spread, spread) * 0.5
+		if pellets > 1:
+			angle = -spread * 0.5 + spread * i / (pellets - 1) + randf_range(-spread, spread) / (pellets * 4.0)
+		_pool.spawn(muzzle.global_position, aim.rotated(angle), _roll_damage())
 
 
 ## Shots per second right now (the Overclock Pistol's ramp included).

@@ -30,6 +30,8 @@ extends Area2D
 @export_range(0.0, 2.0, 0.05, "suffix:s") var stun_time := 0.0
 ## Firecracker: copied at the hit point whenever the bullet hits something.
 @export var blast_scene: PackedScene
+## Also copy blast_scene where the bullet runs out of range (the Toaster Cannon's toast lands burning).
+@export var pop_on_expire := false
 ## Junk Cannon: hits of at least knockback_min_damage shove the robot this far.
 @export_range(0.0, 64.0, 1.0, "suffix:px") var knockback := 0.0
 @export_range(0, 999) var knockback_min_damage := 15
@@ -121,6 +123,8 @@ func _physics_process(delta: float) -> void:
 	global_position += direction * speed * delta
 	_age += delta
 	if _age >= lifetime:
+		if pop_on_expire:
+			_pop()
 		despawn()
 
 

@@ -82,7 +82,7 @@ func install(slot_name: String) -> bool:
 
 ## Pays and unlocks a gun for this save's chest pool. Returns false if it can't.
 func unlock(entry: WeaponCatalogEntry) -> bool:
-	if GameState.is_unlocked(entry.id) or not GameState.spend_crypto(entry.unlock_cost):
+	if GameState.is_unlocked(entry.id) or entry.unlock_hint != "" or not GameState.spend_crypto(entry.unlock_cost):
 		return false
 	GameState.unlock_weapon(entry.id)
 	SaveManager.save_slot()
