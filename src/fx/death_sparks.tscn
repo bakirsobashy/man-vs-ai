@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/fx/one_shot_fx.gd" id="1_fx"]
+
+[node name="DeathSparks" type="CPUParticles2D"]
+emitting = true
+amount = 14
+lifetime = 0.45
+one_shot = true
+explosiveness = 1.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 40.0
+initial_velocity_max = 110.0
+scale_amount_min = 1.5
+scale_amount_max = 3.0
+color = Color(1, 0.72, 0.3, 1)
+script = ExtResource("1_fx")
+
+[connection signal="finished" from="." to="." method="_on_finished"]

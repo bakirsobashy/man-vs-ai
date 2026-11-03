@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/pickups/pickup.gd" id="1_pickup"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/armor_pickup.svg" id="2_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/pickups/pickup_animations.tres" id="3_animations"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 6.0
+
+[node name="ArmorPickup" type="Area2D"]
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_pickup")
+kind = 3
+amount = 1
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_sprite")
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries/ = ExtResource("3_animations")
+autoplay = &"bob"

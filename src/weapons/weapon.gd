@@ -3,8 +3,10 @@ extends Node2D
 ## A gun. Its stats are Inspector exports; Muzzle, Range and the flash are nodes in the weapon scene.
 ## Each gun keeps its own magazine; the owner sets reload_speed from its current state.
 
-signal ammo_changed(magazine: int, magazine_size: int, reserve: int, reloading: bool)
+signal ammo_changed(weapon: Weapon, magazine: int, magazine_size: int, reserve: int, reloading: bool)
 
+## Name shown on the HUD weapon card and the pickup prompt.
+@export var display_name := "Gun"
 ## The bullet scene this gun fires. A BulletPool for it must exist in the level.
 @export var bullet_scene: PackedScene
 ## Damage per bullet (enemy HP).
@@ -15,9 +17,9 @@ signal ammo_changed(magazine: int, magazine_size: int, reserve: int, reloading: 
 @export_range(1, 999) var magazine_size := 10
 ## Reload time at standing speed.
 @export_range(0.1, 5.0, 0.05, "suffix:s") var reload_time := 1.2
-## Spare ammo; -1 means infinite.
+## Spare ammo on top of the loaded magazine; -1 means infinite.
 @export_range(-1, 9999) var ammo_pool := -1
-## Total spread; each bullet gets a random angle inside it.
+## Total spread. One bullet gets a random angle inside it; several pellets fan out across it.
 @export_range(0.0, 90.0, 0.5, "suffix:°") var spread_deg := 4.0
 ## Bullets per shot.
 @export_range(1, 20) var pellets := 1
@@ -48,6 +50,12 @@ func _physics_process(delta: float) -> void:
 			_finish_reload()
 
 
+## Shown and processing while in the hero's hands; hidden and paused when holstered.
+func set_active(on: bool) -> void:
+	visible = on
+	process_mode = Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED
+
+
 func try_fire(target_position: Vector2) -> bool:
 	if reloading or _cooldown > 0.0:
 		return false
@@ -59,8 +67,11 @@ func try_fire(target_position: Vector2) -> bool:
 	if _pool == null:
 		return false
 	var aim := (target_position - muzzle.global_position).normalized()
-	for _i: int in pellets:
-		var angle := deg_to_rad(randf_range(-spread_deg, spread_deg) * 0.5)
+	var spread := deg_to_rad(spread_deg)
+	for i: int in pellets:
+		var angle := randf_range(-spread, spread) * 0.5
+		if pellets > 1:
+			angle = -spread * 0.5 + spread * i / (pellets - 1) + randf_range(-spread, spread) / (pellets * 4.0)
 		_pool.spawn(muzzle.global_position, aim.rotated(angle), damage)
 	magazine -= 1
 	_cooldown = 1.0 / fire_rate
@@ -94,8 +105,27 @@ func refill() -> void:
 	announce()
 
 
+## Out of bullets for good (magazine and spare ammo both empty).
+func is_empty() -> bool:
+	return magazine <= 0 and reserve == 0
+
+
+func needs_ammo() -> bool:
+	return ammo_pool >= 0 and reserve < ammo_pool
+
+
+## Ammo pickups add a share of the gun's pool (content.md: 25%).
+func add_ammo_share(share: float) -> void:
+	if ammo_pool < 0:
+		return
+	reserve = mini(reserve + ceili(ammo_pool * share), ammo_pool)
+	if magazine == 0:
+		start_reload()
+	announce()
+
+
 func announce() -> void:
-	ammo_changed.emit(magazine, magazine_size, reserve, reloading)
+	ammo_changed.emit(self, magazine, magazine_size, reserve, reloading)
 
 
 func _finish_reload() -> void:

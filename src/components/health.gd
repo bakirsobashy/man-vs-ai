@@ -33,6 +33,18 @@ func reset() -> void:
 	changed.emit(hp, max_hp, armor, false)
 
 
+func heal(amount: int) -> void:
+	if not is_alive() or amount <= 0:
+		return
+	hp = mini(hp + amount, max_hp)
+	changed.emit(hp, max_hp, armor, false)
+
+
+func add_armor(amount: int) -> void:
+	armor = mini(armor + amount, max_armor)
+	changed.emit(hp, max_hp, armor, false)
+
+
 func is_alive() -> bool:
 	return hp > 0
 

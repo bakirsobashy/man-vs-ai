@@ -17,6 +17,8 @@ extends Marker2D
 @export var aimed := true
 ## Group whose first node is the aim target.
 @export var target_group := &"player"
+## Turns the emitter after every volley (rotating turret patterns).
+@export_range(-180.0, 180.0, 0.5, "suffix:°") var rotate_per_volley_deg := 0.0
 
 var _volleys_left := 0
 var _next_volley_in := 0.0
@@ -28,6 +30,15 @@ func fire() -> void:
 	_next_volley_in = 0.0
 
 
+func stop() -> void:
+	_volleys_left = 0
+
+
+## Seconds from the first volley to the last.
+func burst_duration() -> float:
+	return (burst - 1) * burst_interval
+
+
 func _physics_process(delta: float) -> void:
 	if _volleys_left <= 0:
 		return
@@ -37,6 +48,7 @@ func _physics_process(delta: float) -> void:
 	_volley()
 	_volleys_left -= 1
 	_next_volley_in = burst_interval
+	rotation_degrees += rotate_per_volley_deg
 
 
 func _volley() -> void:

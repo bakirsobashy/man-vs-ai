@@ -64,3 +64,4 @@
 | R12 | Implants can't be undone on a save | Hold-to-confirm, a clear warning, and 3 save slots |
 | R13 | Scene-first drift: code (written by people or AI) starts building nodes again | `CLAUDE.md` rules, `tools/check_scene_first.sh`, the review checklist in [technical.md](technical.md) §14 |
 | R14 | Editor signal connections break silently when nodes or methods are renamed | `tools/check_scenes.gd` checks every connection; Godot also reports broken connections when a scene loads |
+| R15 | M2 enemies steer straight and can get stuck behind cover | Strafe flips on collision for now; M3 adds `NavigationAgent2D` with navigation baked around each room's cover |

@@ -39,6 +39,20 @@ func is_alive() -> bool:
 	return health.is_alive()
 
 
+func is_targetable() -> bool:
+	return is_alive()
+
+
+## Damage from explosions and other non-bullet sources.
+func take_damage(amount: int) -> void:
+	if not is_alive():
+		return
+	health.take_hit(amount)
+	if is_alive():
+		flash_animation.stop()
+		flash_animation.play(&"hurt")
+
+
 func stun(duration: float) -> void:
 	if not is_alive():
 		return
@@ -56,13 +70,9 @@ func fire_emitter() -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var bullet := area as Bullet
-	if bullet == null or not bullet.active or not is_alive():
+	if bullet == null or not bullet.active or not is_alive() or not bullet.try_hit(self):
 		return
-	health.take_hit(bullet.hit_damage)
-	bullet.despawn()
-	if is_alive():
-		flash_animation.stop()
-		flash_animation.play(&"hurt")
+	take_damage(bullet.hit_damage)
 
 
 func _on_health_changed(hp: int, _max_hp: int, _armor: int, _damaged: bool) -> void:

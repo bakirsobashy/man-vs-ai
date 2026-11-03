@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/pickups/weapon_pickup.gd" id="1_weapon_pickup"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/pickup_glow.svg" id="2_glow"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 10.0
+
+[node name="WeaponPickup" type="Area2D"]
+collision_layer = 128
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_weapon_pickup")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture = ExtResource("2_glow")
+
+[node name="Holder" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(-7, 0)

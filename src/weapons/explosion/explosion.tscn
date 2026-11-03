@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/weapons/explosion/explosion.gd" id="1_explosion"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/explosion.svg" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_blast"]
+radius = 32.0
+
+[sub_resource type="Animation" id="Animation_explode"]
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.2, 0.2), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_explosion"]
+_data = {
+&"explode": SubResource("Animation_explode")
+}
+
+[node name="Explosion" type="Area2D"]
+collision_layer = 0
+collision_mask = 14
+script = ExtResource("1_explosion")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_blast")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_sprite")
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_explosion")
+autoplay = &"explode"
+
+[connection signal="animation_finished" from="Animation" to="." method="_on_animation_finished"]

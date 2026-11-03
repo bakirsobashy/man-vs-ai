@@ -1,0 +1,109 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/swarmer.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/components/drop_chance.gd" id="11_drop_chance"]
+[ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="12_ammo"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="Script" path="res://src/components/contact_hitbox.gd" id="19_contact"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 4.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 6.0
+
+[sub_resource type="Resource" id="Resource_ammo_drop"]
+script = ExtResource("11_drop_chance")
+scene = ExtResource("12_ammo")
+chance = 0.03
+amount = 1
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
+radius = 8.0
+
+[node name="Swarmer" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 60.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="ContactHitbox" type="Area2D" parent="."]
+collision_layer = 256
+collision_mask = 0
+monitoring = false
+script = ExtResource("19_contact")
+damage = 1
+
+[node name="Shape" type="CollisionShape2D" parent="ContactHitbox"]
+shape = SubResource("CircleShape2D_contact")
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 3
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 6
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 1
+ram_scene = ExtResource("9_ram")
+extras = Array[ExtResource("11_drop_chance")]([SubResource("Resource_ammo_drop")])
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Approach"
+
+[node name="Approach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 0.0
+max_range = 0.0
+strafe_ratio = 0.0
+attack_state = &""
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+next_state = &"Approach"
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]

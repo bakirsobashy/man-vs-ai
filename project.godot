@@ -13,12 +13,13 @@ config_version=5
 config/name="Man vs AI"
 config/description="One-finger top-down roguelite shooter for Android (portrait)."
 config/features=PackedStringArray("4.7", "GL Compatibility")
-run/main_scene="res://src/levels/test/controls_test.tscn"
+run/main_scene="res://src/levels/test/combat_test.tscn"
 config/icon="res://icon.svg"
 
 [autoload]
 
 EventBus="*res://src/autoload/event_bus.gd"
+RunState="*res://src/autoload/run_state.gd"
 
 [debug]
 
@@ -48,6 +49,7 @@ pointing/emulate_touch_from_mouse=true
 2d_physics/layer_6="enemy_bullets"
 2d_physics/layer_7="pickups"
 2d_physics/layer_8="interactables"
+2d_physics/layer_9="enemy_contact"
 
 [physics]
 
