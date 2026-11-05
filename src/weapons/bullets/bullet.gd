@@ -5,6 +5,11 @@ extends Area2D
 ## Physics flags are never toggled: an inactive bullet is hidden and parked at its pool's position,
 ## which the level scene places far outside the playfield.
 
+## Emitted when a pool launches this copy (components such as the Black Box's BulletEater reset on it).
+signal launched
+## Emitted where the bullet pops: on each hit, on walls and cover, and on expiry with pop_on_expire.
+signal popped(at: Vector2)
+
 ## Travel speed.
 @export_range(0.0, 2000.0, 1.0, "suffix:px/s") var speed := 160.0
 ## Damage to whatever it hits (hero: half-hearts; enemies: HP). A weapon can override it per shot.
@@ -32,6 +37,9 @@ extends Area2D
 @export var blast_scene: PackedScene
 ## Also copy blast_scene where the bullet runs out of range (the Toaster Cannon's toast lands burning).
 @export var pop_on_expire := false
+## Peacekeeper: hits ignore enemy shields (shield hits from Hackers and Shielded elites, and Shield-bot plates when
+## the scene's mask leaves out the enemy_shields layer).
+@export var ignores_shields := false
 ## Junk Cannon: hits of at least knockback_min_damage shove the robot this far.
 @export_range(0.0, 64.0, 1.0, "suffix:px") var knockback := 0.0
 @export_range(0, 999) var knockback_min_damage := 15
@@ -72,6 +80,7 @@ func launch(at: Vector2, travel_direction: Vector2, damage_override := -1) -> vo
 	active = true
 	visible = true
 	set_physics_process(true)
+	launched.emit()
 
 
 ## Called by whatever the bullet hits. False if this target was already hit by this bullet.
@@ -209,6 +218,7 @@ func _draw_arc(from: Vector2, to: Vector2) -> void:
 
 
 func _pop() -> void:
+	popped.emit(global_position)
 	if blast_scene == null:
 		return
 	var layer := get_tree().get_first_node_in_group(&"drop_layer") as Node2D

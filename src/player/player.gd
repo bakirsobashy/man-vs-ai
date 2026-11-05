@@ -117,6 +117,8 @@ var emp_charges := 0
 var rolling_invulnerable := false
 ## True while a roll is still moving (the hero is off the floor: glass holes can't drop him).
 var airborne := false
+## Active slows by source instance id (coolant).
+var _slows: Dictionary[int, float] = {}
 var cover: Cover
 var cover_normal := Vector2.ZERO
 var _reload_multiplier := 1.0
@@ -468,6 +470,23 @@ func fall_to(spot: Vector2, amount: int) -> void:
 		_hurt(amount)
 	if not state_machine.is_in(&"Dead"):
 		state_machine.transition_to(&"Run" if touch.touching else &"Stand")
+
+
+## Coolant (Syndicate Core) slows the hero while he wades through it. Each source sets its own factor.
+func set_slow(source: Node, factor: float) -> void:
+	_slows[source.get_instance_id()] = factor
+
+
+func clear_slow(source: Node) -> void:
+	_slows.erase(source.get_instance_id())
+
+
+## The strongest slow on the hero right now (1 = none). Rolls ignore it.
+func slow_scale() -> float:
+	var scale := 1.0
+	for factor: float in _slows.values():
+		scale = minf(scale, factor)
+	return scale
 
 
 ## EMP-bot pulses: shove the hero (out of cover). Rolling dodges it. Returns true when he was shoved.

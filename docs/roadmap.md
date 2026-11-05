@@ -161,9 +161,9 @@ If the gate fails, iterate on M1 before moving on.
 - An external playtest with 10+ people, including a "would you play again?" question.
 
 ## M5: Content production
-**Status: in progress, built district by district (the owner's choice). Levels 2, 3 and 4 are playable.**
-- **The campaign:** runs go L1 → lab → L2 → lab → L3 → lab → L4. Hearts, armor and the found gun carry between
-  levels, and death restarts at Level 1. Beating the last built level ends the run until Level 5 exists.
+**Status: in progress, built district by district (the owner's choice). All five levels are playable.**
+- **The campaign:** runs go L1 → lab → L2 → lab → L3 → lab → L4 → lab → L5. Hearts, armor and the found gun carry
+  between levels, and death restarts at Level 1. Beating ZERO ends the run (the endings come next).
 - **Level 2, Neon Bazaar:**
   - 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
   - **Elite modifiers** (Overclocked, Armored, Splitter, Shielded), from Level 2 at 10%.
@@ -189,13 +189,23 @@ If the gate fails, iterate on M1 before moving on.
     and Hunt (drops down 80% faster, sweeps and snipes). The first kill unlocks the M7 Line Rifle.
   - **Guns:** the Swarm Launcher, Beam Cutter and Toaster Cannon, plus the M7 Line Rifle story gun (19 of 21 guns).
   - **Story:** Mira's Birthday and the Level 4 lab talk (the Warden's recording is in the Syndicate Core).
+- **Level 5, Syndicate Core:**
+  - 16 rooms with coolant channels (they flood on a cycle and halve the hero's speed) and sweeping firewalls (roll
+    through them).
+  - The **Null Knight** mirrors the hero: it rolls through bullets, takes cover and chains bursts with grenades.
+    Elites at 25%.
+  - **ZERO**: Duel (rolls, cover, bursts), Syndicate (Glitch's decoys, Scrapjaw's charge, Forgemother's minions,
+    Warden's laser) and Zero Hour (overclocked spirals while the arena's edge firewalls close in).
+  - **Guns:** the Peacekeeper (ignores enemy shields) and the Black Box (an orb that eats enemy bullets and bursts
+    them back). All 21 guns exist.
+  - **Story:** The Night, the Warden's recording, in four band variants.
 - **Owner decisions:** Vorn is morally grey (Q1), the Normal ending has Patched and Hollow flavors (Q8), and
   post-game is NG+ threat levels (Q5).
 - **Tests:**
   - every earlier suite still passes;
-  - the Level 2 smoke test passes 44/44, Level 3 49/49 and Level 4 43/43;
+  - the Level 2 smoke test passes 44/44, Level 3 49/49, Level 4 43/43 and Level 5 33/33;
   - the generator validates 10,000 layouts for each campaign level.
-- **Next:** Level 5 (Syndicate Core), then the endings and NG+, then balance.
+- **Next:** the endings and credits, NG+ threat levels, then balance.
 
 **Scope**
 - Districts 2–5: templates, hazards and tilesets.

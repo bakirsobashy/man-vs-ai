@@ -8,7 +8,7 @@ func enter(_msg: Dictionary) -> void:
 
 func physics_update(_delta: float) -> void:
 	var move := player.touch.move_vector
-	player.velocity = move * player.move_speed * player.weapon.move_speed_scale()
+	player.velocity = move * player.move_speed * player.weapon.move_speed_scale() * player.slow_scale()
 	player.move_and_slide()
 	player.update_aim(move)
 	player.try_fire()

@@ -40,6 +40,8 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_missile.tscn" id="41_missile"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_toast.tscn" id="42_toast"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_sniper.tscn" id="43_sniper"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_peacekeeper.tscn" id="44_peacekeeper"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_blackbox.tscn" id="45_blackbox"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
@@ -223,6 +225,16 @@ size = 48
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("42_toast")
 size = 24
+
+[node name="PlayerPeacekeeper" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("44_peacekeeper")
+size = 64
+
+[node name="PlayerBlackBox" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("45_blackbox")
+size = 6
 
 [node name="EnemySniper" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")

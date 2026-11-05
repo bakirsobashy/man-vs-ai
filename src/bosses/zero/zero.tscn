@@ -1,0 +1,468 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/zero.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="Script" path="res://src/enemies/states/telegraph.gd" id="14_telegraph"]
+[ext_resource type="Script" path="res://src/enemies/states/fire_emitter.gd" id="15_fire"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="16_emitter"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="17_small"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_sniper.tscn" id="18_sniper"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="21_crypto"]
+[ext_resource type="Script" path="res://src/components/laser_sight.gd" id="22_laser"]
+[ext_resource type="Script" path="res://src/components/dodge_sensor.gd" id="23_dodge_sensor"]
+[ext_resource type="Script" path="res://src/components/contact_hitbox.gd" id="24_contact"]
+[ext_resource type="Script" path="res://src/components/boss_phases.gd" id="29_phases"]
+[ext_resource type="Script" path="res://src/enemies/states/phase_resume.gd" id="30_resume"]
+[ext_resource type="Script" path="res://src/enemies/states/dodge_roll.gd" id="41_dodge"]
+[ext_resource type="Script" path="res://src/enemies/states/seek_cover.gd" id="42_seek"]
+[ext_resource type="Script" path="res://src/enemies/states/summon_decoys.gd" id="43_decoys"]
+[ext_resource type="Script" path="res://src/enemies/states/charge.gd" id="44_charge"]
+[ext_resource type="Script" path="res://src/enemies/states/build.gd" id="45_build"]
+[ext_resource type="Script" path="res://src/enemies/states/snipe.gd" id="46_snipe"]
+[ext_resource type="Script" path="res://src/enemies/states/overclock.gd" id="47_overclock"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="48_hit"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/boss_roar.wav" id="49_roar"]
+[ext_resource type="PackedScene" path="res://src/bosses/glitch/glitch_decoy.tscn" id="50_decoy"]
+[ext_resource type="PackedScene" path="res://src/enemies/swarmer/swarmer.tscn" id="51_swarmer"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 11.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 13.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
+radius = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dodge"]
+radius = 44.0
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AimPivot/AimLine:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph"]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.8, 0.8), Vector2(2, 2)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.2, 0.2, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_charge_tell"]
+length = 0.7
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.7),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.7),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.8, 0.8), Vector2(2, 2)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.5, 0.2, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AimPivot/AimLine:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.7),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_attack"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"telegraph": SubResource("Animation_telegraph"),
+&"charge_tell": SubResource("Animation_charge_tell")
+}
+
+[node name="Zero" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("attack_animation", "nav_agent")]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 58.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+attack_animation = NodePath("AttackAnimation")
+nav_agent = NodePath("NavAgent")
+is_boss = true
+clears_groups_on_death = Array[StringName]([&"glitch_decoys", &"zero_minions", &"zero_edges"])
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("20_glow")
+
+[node name="AimPivot" type="Node2D" parent="."]
+
+[node name="AimLine" type="Line2D" parent="AimPivot"]
+visible = false
+points = PackedVector2Array(16, 0, 240, 0)
+width = 3.0
+default_color = Color(1, 0.3, 0.2, 0.7)
+
+[node name="LaserSight" type="Line2D" parent="." node_paths=PackedStringArray("ray")]
+visible = false
+width = 2.0
+default_color = Color(1, 0.2, 0.2, 0.45)
+script = ExtResource("22_laser")
+max_length = 520.0
+ray = NodePath("Ray")
+
+[node name="Ray" type="RayCast2D" parent="LaserSight"]
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 3
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="ContactHitbox" type="Area2D" parent="."]
+collision_layer = 256
+collision_mask = 0
+monitoring = false
+script = ExtResource("24_contact")
+damage = 2
+
+[node name="Shape" type="CollisionShape2D" parent="ContactHitbox"]
+shape = SubResource("CircleShape2D_contact")
+
+[node name="DodgeSensor" type="Area2D" parent="." node_paths=PackedStringArray("state_machine", "cooldown_timer")]
+collision_layer = 0
+collision_mask = 16
+script = ExtResource("23_dodge_sensor")
+state_machine = NodePath("../StateMachine")
+cooldown_timer = NodePath("../DodgeCooldown")
+from_states = Array[StringName]([&"DuelApproach", &"DuelCover", &"SyndicateApproach", &"HourApproach"])
+chance = 0.5
+
+[node name="Shape" type="CollisionShape2D" parent="DodgeSensor"]
+shape = SubResource("CircleShape2D_dodge")
+
+[node name="DodgeCooldown" type="Timer" parent="."]
+wait_time = 1.6
+one_shot = true
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 6.0
+target_desired_distance = 6.0
+radius = 6.0
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 515
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 1400
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 160
+ram_scene = ExtResource("9_ram")
+crypto_min = 120
+crypto_max = 120
+crypto_scene = ExtResource("21_crypto")
+
+[node name="BurstEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_small")
+count = 2
+spread_deg = 10.0
+burst = 4
+burst_interval = 0.08
+aimed = true
+
+[node name="SnipeEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("18_sniper")
+aimed = false
+
+[node name="SpiralEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_small")
+count = 6
+spread_deg = 300.0
+burst = 24
+burst_interval = 0.1
+aimed = false
+rotate_per_volley_deg = 11.0
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("48_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="RoarSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("49_roar")
+pitch_scale = 0.7
+bus = &"SFX"
+
+[node name="Phases" type="Node" parent="." node_paths=PackedStringArray("state_machine", "roar")]
+script = ExtResource("29_phases")
+state_machine = NodePath("../StateMachine")
+boss_name = "ZERO"
+thresholds = Array[float]([0.65, 0.3])
+phase_states = Array[StringName]([&"DuelApproach", &"SyndicateStart", &"ZeroHourStart"])
+phase_names = Array[String](["DUEL", "SYNDICATE", "ZERO HOUR"])
+roar = NodePath("../RoarSound")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Resume"
+
+[node name="Resume" type="Node" parent="StateMachine" node_paths=PackedStringArray("phases")]
+script = ExtResource("30_resume")
+phases = NodePath("../../Phases")
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+next_state = &"Resume"
+
+[node name="Dodge" type="Node" parent="StateMachine"]
+script = ExtResource("41_dodge")
+next_state = &"Resume"
+
+[node name="DuelApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 100.0
+max_range = 180.0
+strafe_ratio = 0.7
+attack_state = &"DuelCover"
+attack_delay_min = 0.9
+attack_delay_max = 1.4
+needs_line_of_sight = false
+
+[node name="DuelCover" type="Node" parent="StateMachine"]
+script = ExtResource("42_seek")
+next_state = &"DuelTell"
+
+[node name="DuelTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"DuelBurst"
+
+[node name="DuelBurst" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../BurstEmitter")
+recover_time = 0.4
+next_state = &"DuelApproach"
+
+[node name="SyndicateStart" type="Node" parent="StateMachine"]
+script = ExtResource("43_decoys")
+decoy_scene = ExtResource("50_decoy")
+count = 2
+next_state = &"ChargeTell"
+
+[node name="ChargeTell" type="Node" parent="StateMachine" node_paths=PackedStringArray("aim_node")]
+script = ExtResource("14_telegraph")
+animation_name = &"charge_tell"
+next_state = &"Charge"
+lock_aim = true
+aim_node = NodePath("../../AimPivot")
+
+[node name="Charge" type="Node" parent="StateMachine"]
+script = ExtResource("44_charge")
+speed = 300.0
+max_distance = 360.0
+stunned_state = &"Stunned"
+stun_time = 0.8
+next_state = &"Build"
+plow_through_cover = true
+
+[node name="Build" type="Node" parent="StateMachine"]
+script = ExtResource("45_build")
+minion_scene = ExtResource("51_swarmer")
+count = 2
+minion_group = &"zero_minions"
+max_alive = 4
+next_state = &"SyndicateSnipe"
+
+[node name="SyndicateSnipe" type="Node" parent="StateMachine" node_paths=PackedStringArray("laser", "emitter")]
+script = ExtResource("46_snipe")
+laser = NodePath("../../LaserSight")
+emitter = NodePath("../../SnipeEmitter")
+aim_time = 1.0
+next_state = &"SyndicateApproach"
+
+[node name="SyndicateApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 100.0
+max_range = 180.0
+strafe_ratio = 0.7
+attack_state = &"SyndicateDecoys"
+attack_delay_min = 1.0
+attack_delay_max = 1.5
+needs_line_of_sight = false
+
+[node name="SyndicateDecoys" type="Node" parent="StateMachine"]
+script = ExtResource("43_decoys")
+decoy_scene = ExtResource("50_decoy")
+count = 2
+next_state = &"ChargeTell"
+
+[node name="ZeroHourStart" type="Node" parent="StateMachine"]
+script = ExtResource("47_overclock")
+attack_rate = 1.5
+next_state = &"Spiral"
+
+[node name="Spiral" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../SpiralEmitter")
+recover_time = 0.3
+next_state = &"HourApproach"
+
+[node name="HourApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 80.0
+max_range = 150.0
+strafe_ratio = 0.9
+attack_state = &"HourTell"
+attack_delay_min = 0.6
+attack_delay_max = 1.0
+needs_line_of_sight = false
+
+[node name="HourTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"HourBurst"
+
+[node name="HourBurst" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../BurstEmitter")
+recover_time = 0.2
+next_state = &"HourSnipe"
+
+[node name="HourSnipe" type="Node" parent="StateMachine" node_paths=PackedStringArray("laser", "emitter")]
+script = ExtResource("46_snipe")
+laser = NodePath("../../LaserSight")
+emitter = NodePath("../../SnipeEmitter")
+aim_time = 0.7
+next_state = &"Spiral"
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="changed" from="Health" to="Phases" method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]
+[connection signal="area_entered" from="DodgeSensor" to="DodgeSensor" method="_on_area_entered"]

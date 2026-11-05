@@ -542,6 +542,8 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - **Level 4 hooks:** `take_hazard_hit(amount, floor_hazard)` (Filter Lungs only block floor hazards),
   `fall_to(spot, amount)` for glass, `knock_back(offset)` for EMP pulses, and `airborne` (set by the Roll state while
   the roll still moves).
+- **Level 5 hooks:** `set_slow(source, factor)` / `clear_slow(source)` keep one slow per source (coolant floods);
+  the Run state multiplies its speed by `slow_scale()`, the strongest of them. Rolls aren't slowed.
 - **Runs (M4):** `capture_run_state()` and `restore_run_state()` move hearts, armor, EMP charges and the found gun
   (by catalog id) to and from `RunState`. `auto_respawn` is on in the test levels; real levels turn it off and the
   LevelDirector shows the Retrieved summary instead.
@@ -562,6 +564,8 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - **Bullets are authored scenes** (§0.8) in `src/weapons/bullets/`. Their exports cover every gun's trait: `pierce`,
   `bounces` (with a `WallProbe` RayCast2D node that finds the wall's normal), `homing` and `homing_range`, `stun_time`,
   and `blast_scene` (a copy placed where the bullet hits, the Firecracker's `mini_blast.tscn`).
+- **Bullet signals (M5):** `launched` when a pool launches the copy and `popped(at)` wherever it pops. Components
+  inside a bullet scene connect to them there (the Black Box's `BulletEater`).
 - **Pooling:** each `BulletPool` node in `level.tscn` pre-copies its `bullet_scene` `size` times when the level loads,
   then hands bullets out and takes them back. Nothing is instanced in the middle of a fight.
 - **Who detects what:** hurtboxes monitor the bullet layers; bullets only watch for walls and cover (`body_entered`).
@@ -648,6 +652,13 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
   - **EMP-bot** (`pulse.gd`): carries an `emp_field.tscn` instance (48 px, §6.6), so cover gives no protection near
     it. After its Telegraph, `Pulse` calls `Player.knock_back()` (48 px, out of cover) when the hero is within 56 px;
     rolling dodges it.
+- **Level 5 robot (M5): the Null Knight** mirrors the hero.
+  - Its `DodgeSensor` (a component Area2D, mask: player bullets) switches it to `Dodge` (`dodge_roll.gd`) when a live
+    player bullet comes within 44 px while it's in Approach or SeekCover (60% chance, then a 1.6 s `DodgeCooldown`).
+    The roll is 56 px across the bullet's path in 0.3 s with `Enemy.dodging` set, so bullets pass through and auto-aim
+    skips it, like the hero's i-frames.
+  - `seek_cover.gd` walks it to the far side of the nearest intact cover within 140 px. From there it fires a 4-volley
+    burst and lobs a grenade (`lob.gd`).
 
 ### 6.4.1 Weapons, pickups and drops (M2)
 - **Two slots:**
@@ -685,6 +696,12 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
     it runs out. Burning ground (mask: enemies) deals 3 to each robot on it every 0.5 s for 3 s.
   - M7 Line Rifle: a plain rifle (10 damage, 6/s). Its catalog entry has `unlock_hint` ("Beat WARDEN"), so the
     armory shows the hint instead of a price and `LabUI.unlock()` refuses it.
+  - Peacekeeper: `player_peacekeeper.tscn` leaves the enemy_shields layer out of its mask (Shield-bot plates don't
+    stop it) and has `ignores_shields`, so `Enemy.take_damage(amount, true)` skips shield hits (Hackers, Shielded
+    elites).
+  - Black Box: a slow orb (`player_blackbox.tscn`, 3 damage, `pop_on_expire`) with a `BulletEater` child (mask: enemy
+    bullets) that despawns the enemy bullets it touches. On `popped` it fires 4 + one per eaten bullet (up to 20)
+    `player_bullet.tscn` shards of 6 damage in a full circle.
 - **Bullet guns and beams share one loop:** `Weapon.try_fire()` handles cooldown, charge, magazine and reload, then
   `_shoot()` calls `_emit(aim)` for the shot itself.
 - **Barrels:** a cover scene with `provides_cover = false` and `break_scene = explosion.tscn`. The `Explosion` damages
@@ -727,7 +744,7 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
   Its four walls block movement and bullets, its corners are open, and its `LifeTimer` removes it after 3 s.
 - **Static Storm:** 4 decoys, faster blinks, and `EventBus.screen_glitch_requested`. The HUD's `GlitchOverlay` plays
   `glitch`, or the gentle `glitch_soft` with the reduced-flashing setting.
-- `clears_group_on_death` removes the decoys when GLITCH falls. The arena (`rooms/neon/boss.tscn`) holds
+- `clears_groups_on_death` removes the decoys when GLITCH falls. The arena (`rooms/neon/boss.tscn`) holds
   `TeleportSpots` (group `teleport_spots`).
 
 **FORGEMOTHER** (`src/bosses/forgemother/forgemother.tscn`, M5): HP 850, thresholds [0.6, 0.3]. She ignores conveyors.
@@ -738,7 +755,7 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
   (`lob.gd`, `scatter` 40 px) between rivet fans.
 - **Meltdown** (`flood.gd`): sets `damage_taken_scale` to 2 and shows `CoreGlow`, then copies `molten_flood.tscn`
   onto random `FloodSpots` (group `flood_spots`): 3 at once, then 2 per cycle.
-- Her Swarmers are in the `forge_minions` group, which `clears_group_on_death` removes when she falls. The arena is
+- Her Swarmers are in the `forge_minions` group, which `clears_groups_on_death` removes when she falls. The arena is
   `rooms/foundry/boss.tscn`.
 
 **WARDEN** (`src/bosses/warden/warden.tscn`, M5): HP 1,000, thresholds [0.6, 0.3].
@@ -749,9 +766,22 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
   2 zones.
 - **Hunt:** `enrage.gd` multiplies his move speed by 1.8 once; then he strafes close, sweeps 140° and snipes with a
   0.7 s tell.
-- His Drones are in the `warden_drones` group (`clears_group_on_death`). The arena is `rooms/skyline/boss.tscn`.
+- His Drones are in the `warden_drones` group (`clears_groups_on_death`). The arena is `rooms/skyline/boss.tscn`.
 - **Story gun:** `LevelConfig.boss_reward_weapon` (`&"m7_line_rifle"` on Level 4) is unlocked by the LevelDirector
   on the first boss clear, with a toast.
+
+**ZERO** (`src/bosses/zero/zero.tscn`, M5): HP 1,400, thresholds [0.65, 0.3]. He has the Null Knight's `DodgeSensor`
+(50%, from his approach and cover states) and a `Dodge` that returns to `Resume`.
+- **Duel:** approach, `seek_cover.gd`, then a telegraphed `BurstEmitter` burst (4 volleys of 2).
+- **Syndicate:** the earlier bosses' states with his own nodes: `summon_decoys.gd` (2 `glitch_decoy.tscn` copies on
+  the arena's `TeleportSpots`), a locked-aim `charge_tell` and a cover-plowing `charge.gd` (`AimPivot/AimLine`,
+  `ContactHitbox` 1 heart), `build.gd` (2 Swarmers on `FactorySpots`, group `zero_minions`, at most 4) and
+  `snipe.gd` (`LaserSight`, `SnipeEmitter`).
+- **Zero Hour:** `overclock.gd` sets `attack_rate` to 1.5 and switches on every `FirewallLaser` in the `zero_edges`
+  group (the arena's top and bottom edges, which sweep 200 px inward); then `SpiralEmitter` spirals (24 volleys of 6),
+  close bursts and 0.7 s snipes.
+- `clears_groups_on_death` removes `glitch_decoys`, `zero_minions` and `zero_edges`. The arena is
+  `rooms/core/boss.tscn`.
 
 ### 6.6 Hazards (M5)
 All hazards are scenes in `src/levels/hazards/`, placed by hand in room scenes under a `Hazards` node.
@@ -773,8 +803,15 @@ All hazards are scenes in `src/levels/hazards/`, placed by hand in room scenes u
 - **EMP field** (`emp_field.tscn` on EMP-bots; `emp_zone.tscn`, the warming copy WARDEN drops): an Area2D in the
   `emp_fields` group. `EmpField.shorts_out(hero)` is true inside an active field, and `Player._is_protected_from()`
   then ignores cover.
-- **Layout rule:** belts and lanes stay out of the 44 px clearance around every door `Entry` (§7.3), so a hero
-  walking in is never carried or burned at the door.
+- **Coolant flood** (`coolant_flood.tscn`, Level 5, 4×4 tiles before scaling): cycles dry (3 s), warning (0.8 s)
+  and flooded (3 s); `start_offset` staggers neighbors. While flooded it calls `Player.set_slow(self, 0.5)` for a
+  hero inside, and `clear_slow` when he leaves, it drains or it leaves the tree.
+- **Firewall laser** (`firewall_laser.tscn`, Level 5): a 320 px `Wall` Area2D across the room. The `SweepAnimation`
+  keys `progress` 0 → 1 → 0 and the wall sits at `progress × travel` along the node's local +Y, one round trip per
+  `period`. Contact and 0.5 s ticks call `take_hazard_hit(1, false)`; rolls pass. With `active` off it's hidden and
+  harmless until `set_active(true)`, which also burns a hero already in it.
+- **Layout rule:** belts, lanes, grids, glass and coolant stay out of the 40–44 px clearance around every door
+  `Entry` (§7.3), and an active firewall's whole sweep does too, so a hero walking in is never hit at the door.
 
 ---
 
@@ -860,6 +897,9 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
   - Skyline Spires (`rooms/skyline/`): Glass Walk, Laser Hall, Atrium, Searchlight, Bridge, Server Row, Long Fall
     and Helipad, with laser grids and glass floors (kept off PlayerStart, which a resumed run uses); the boss room
     is Warden's Roof (`DroneSpots`).
+  - Syndicate Core (`rooms/core/`): Server Farm, Firewall Hall, Cooling Tower, Data Stream, Crossfire, Vault, Long
+    Bus and Coolant Pit, with coolant floods and firewalls; the boss room is Zero's Core (`TeleportSpots`,
+    `FactorySpots` and two inactive edge firewalls in `zero_edges`).
 - **Launch target:** about 12 combat templates per district, plus 2 for each other room type.
 
 ---
@@ -1067,6 +1107,12 @@ func restore_purchases() -> void
   - EMP fields shorting out cover, the EMP-bot pulse, and the Sniper's laser, shot, relocation and blocked laser;
   - the Swarm Launcher, Beam Cutter (damage and cover), Toaster Cannon burning ground and the M7 story entry;
   - WARDEN's three phases, the M7 unlock, Mira's Birthday, the Level 4 talk and the armory's M7 row.
+- **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
+  results:
+  - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);
+  - the Null Knight's dodge roll, its cooldown, cover and grenade combo;
+  - the Peacekeeper through plates and bubbles, the Black Box eating bullets and bursting shards, all 21 guns;
+  - The Night, and ZERO's Duel, Syndicate echoes and Zero Hour, and what he takes with him.
 
   The generator test now validates 10,000 layouts for every campaign level, and the flow test covers L1 → lab → L2.
 - **Unit tests** for the remaining pure logic: the gesture classifier and economy math. Pick GUT or

@@ -24,6 +24,8 @@
 | Laser grid (L4) | Off 2 s, warning blink 0.6 s, on 1.4 s; ½ heart on contact and every 0.5 s while on; rolls pass; Filter Lungs don't help |
 | Glass floor (L4) | 2×2 tiles; breaks 0.9 s after the hero steps on it and grows back after 4 s; falling costs 1 heart and puts him back where he stepped on; a roll carries him over a hole |
 | EMP field (L4) | 3-tile radius: cover gives no protection inside it (EMP-bots carry one; WARDEN's warn for 0.6 s, then last 3 s) |
+| Coolant flood (L5) | Dry 3 s, warning 0.8 s, flooded 3 s; the hero moves at half speed while wading through it (rolls aren't slowed) |
+| Firewall (L5) | A wall of light across the room sweeping out and back; ½ heart on contact and every 0.5 s; rolls pass through |
 
 ---
 
@@ -41,7 +43,7 @@
 | Shield-bot | L3 | Blocker | Frontal shield blocks player bullets; turns slowly | 6-bullet wave every 2.5 s, lowering the shield (the attack window) | 45 | 3 | 8 | ground |
 | Sniper | L4 | Long range | Stays at max range, relocates after each shot | Laser sight for 1.0 s, then a fast shot (1 heart). Cover blocks the laser | 25 | 2 | 6 | ground |
 | EMP-bot | L4 | **Flusher** | Slow; projects a 3-tile EMP field | The field shorts out cover (no protection inside it); a pulse knocks the hero back | 35 | 2.5 | 6 | ground |
-| Null Knight | L5 | Elite guard | Mirrors the hero: rolls through bullets, uses cover | Burst, roll and grenade combos | 80 | 5 | 16 | ground |
+| Null Knight | L5 | Elite guard | Mirrors the hero: rolls through bullets (60%, 1.6 s cooldown), uses cover | Burst, roll and grenade combos | 80 | 5 | 16 | ground |
 
 **Elite modifiers** (from L2; chance by level in §6). Elites cost 2× threat and drop 3× RAM.
 | Modifier | Effect | Visual |
@@ -97,7 +99,9 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
   for Level 3; #16 Swarm Launcher (4 missiles homing at 360°/s within 140 px), #17 Beam Cutter (10 ticks/s of 3
   damage, 6 to cover, 170 px beam), #18 Toaster Cannon (burning ground: 3 damage every 0.5 s for 3 s, also where a
   toast lands) and #21 M7 Line Rifle for Level 4. The M7 can't be bought: the armory shows "Beat WARDEN" until the
-  first WARDEN kill unlocks it.
+  first WARDEN kill unlocks it. Level 5 adds #19 Peacekeeper (ignores Shield-bot plates, Hacker shields and Shielded
+  elites) and #20 Black Box (the orb eats enemy bullets and pops into 4 shards plus one per bullet eaten, up to 20,
+  6 damage each). All 21 guns are built.
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
 - **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
   Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
@@ -166,6 +170,14 @@ The first kill unlocks the M7 Line Rifle.
 | 1 · Duel | 100–65% | Mirrors the hero: rolls through bullets, takes cover, fires bursts |
 | 2 · Syndicate | 65–30% | Echoes earlier bosses: Scrapjaw's charge, Glitch's decoys, Forgemother's minions, Warden's laser |
 | 3 · Zero Hour | < 30% | Overclocked bullet-hell as the arena edges close in. At 0 HP, the ending scene for the hero's band plays |
+
+**Built in M5** (`src/bosses/zero/`):
+- Duel: he rolls through half of the bullets that come at him (1.6 s cooldown), takes cover and fires 4-volley bursts.
+- Syndicate: 2 decoys on 8 teleport spots, a cover-plowing charge (1 heart on contact), 2 Swarmers (at most 4) and a
+  1 s laser snipe.
+- Zero Hour: attacks 50% faster; spirals of 6 bullets over 24 volleys; the top and bottom edge firewalls sweep
+  200 px inward and back.
+- Drops 160 MB and 120 Crypto.
 
 ---
 

@@ -149,7 +149,7 @@ death_fx_scene = ExtResource("10_sparks")
 attack_animation = NodePath("AttackAnimation")
 nav_agent = NodePath("NavAgent")
 is_boss = true
-clears_group_on_death = &"forge_minions"
+clears_groups_on_death = Array[StringName]([&"forge_minions"])
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_body")

@@ -23,8 +23,8 @@ const ELITE_COLORS: Array[Color] = [Color.WHITE, Color(1, 0.3, 0.25), Color(0.75
 @export var nav_agent: NavigationAgent2D
 ## Bosses report their health to the HUD's boss bar.
 @export var is_boss := false
-## Group of summons removed when this enemy dies (GLITCH's decoys).
-@export var clears_group_on_death := &""
+## Groups whose members (a boss's decoys, minions or drones) are removed when this robot dies.
+@export var clears_groups_on_death: Array[StringName] = []
 
 @onready var sprite: Sprite2D = %Sprite
 @onready var health: Health = %Health
@@ -52,6 +52,8 @@ var shield_hits := 0
 var chill := 0.0
 ## Damage taken is multiplied by this (FORGEMOTHER's exposed core: 2).
 var damage_taken_scale := 1.0
+## True during a dodge roll (Null Knight, ZERO): bullets pass through, like the hero's i-frames.
+var dodging := false
 
 
 func _ready() -> void:
@@ -63,7 +65,7 @@ func is_alive() -> bool:
 
 
 func is_targetable() -> bool:
-	return not spawning and health.is_alive()
+	return not spawning and not dodging and health.is_alive()
 
 
 func to_player() -> Vector2:
@@ -121,10 +123,11 @@ func give_shield(hits: int) -> void:
 		shield_bubble.visible = true
 
 
-func take_damage(amount: int) -> void:
+## `through_shields` (the Peacekeeper) skips shield hits.
+func take_damage(amount: int, through_shields := false) -> void:
 	if not is_targetable():
 		return
-	if shield_hits > 0:
+	if shield_hits > 0 and not through_shields:
 		shield_hits -= 1
 		if shield_bubble != null:
 			shield_bubble.visible = shield_hits > 0
@@ -148,7 +151,7 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var bullet := area as Bullet
 	if bullet == null or not bullet.active or not is_targetable() or not bullet.try_hit(self):
 		return
-	take_damage(bullet.hit_damage)
+	take_damage(bullet.hit_damage, bullet.ignores_shields)
 	if bullet.stun_time > 0.0 and health.is_alive() and not is_boss:
 		stun(bullet.stun_time)
 	if bullet.chill > 0.0 and health.is_alive() and not is_boss:
@@ -172,8 +175,8 @@ func _on_health_changed(hp: int, max_hp: int, _armor: int, _damaged: bool) -> vo
 
 
 func _on_health_died() -> void:
-	if clears_group_on_death != &"":
-		for summon: Node in get_tree().get_nodes_in_group(clears_group_on_death):
+	for group: StringName in clears_groups_on_death:
+		for summon: Node in get_tree().get_nodes_in_group(group):
 			summon.queue_free()
 	drops.drop(global_position)
 	var layer := get_tree().get_first_node_in_group(&"drop_layer")

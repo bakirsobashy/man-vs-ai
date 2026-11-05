@@ -20,7 +20,9 @@
 [ext_resource type="PackedScene" path="res://src/weapons/swarm_launcher/swarm_launcher.tscn" id="18_swarm_launcher"]
 [ext_resource type="PackedScene" path="res://src/weapons/beam_cutter/beam_cutter.tscn" id="19_beam_cutter"]
 [ext_resource type="PackedScene" path="res://src/weapons/toaster_cannon/toaster_cannon.tscn" id="20_toaster_cannon"]
-[ext_resource type="PackedScene" path="res://src/weapons/m7_line_rifle/m7_line_rifle.tscn" id="21_m7_line_rifle"]
+[ext_resource type="PackedScene" path="res://src/weapons/peacekeeper/peacekeeper.tscn" id="21_peacekeeper"]
+[ext_resource type="PackedScene" path="res://src/weapons/black_box/black_box.tscn" id="22_black_box"]
+[ext_resource type="PackedScene" path="res://src/weapons/m7_line_rifle/m7_line_rifle.tscn" id="23_m7_line_rifle"]
 
 [sub_resource type="Resource" id="Resource_scattergun"]
 script = ExtResource("2_entry")
@@ -148,14 +150,28 @@ scene = ExtResource("20_toaster_cannon")
 rarity = 2
 unlock_cost = 250
 
+[sub_resource type="Resource" id="Resource_peacekeeper"]
+script = ExtResource("2_entry")
+id = &"peacekeeper"
+scene = ExtResource("21_peacekeeper")
+rarity = 3
+unlock_cost = 400
+
+[sub_resource type="Resource" id="Resource_black_box"]
+script = ExtResource("2_entry")
+id = &"black_box"
+scene = ExtResource("22_black_box")
+rarity = 3
+unlock_cost = 400
+
 [sub_resource type="Resource" id="Resource_m7_line_rifle"]
 script = ExtResource("2_entry")
 id = &"m7_line_rifle"
-scene = ExtResource("21_m7_line_rifle")
+scene = ExtResource("23_m7_line_rifle")
 rarity = 3
 unlock_cost = 0
 unlock_hint = "Beat WARDEN"
 
 [resource]
 script = ExtResource("1_catalog")
-entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker"), SubResource("Resource_junk_cannon"), SubResource("Resource_arc_caster"), SubResource("Resource_overclock_pistol"), SubResource("Resource_cryo_sprayer"), SubResource("Resource_rail_spike"), SubResource("Resource_scrap_minigun"), SubResource("Resource_swarm_launcher"), SubResource("Resource_beam_cutter"), SubResource("Resource_toaster_cannon"), SubResource("Resource_m7_line_rifle")])
+entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker"), SubResource("Resource_junk_cannon"), SubResource("Resource_arc_caster"), SubResource("Resource_overclock_pistol"), SubResource("Resource_cryo_sprayer"), SubResource("Resource_rail_spike"), SubResource("Resource_scrap_minigun"), SubResource("Resource_swarm_launcher"), SubResource("Resource_beam_cutter"), SubResource("Resource_toaster_cannon"), SubResource("Resource_peacekeeper"), SubResource("Resource_black_box"), SubResource("Resource_m7_line_rifle")])

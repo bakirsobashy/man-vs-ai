@@ -224,7 +224,7 @@ spawn_kind = 1
 death_fx_scene = ExtResource("10_sparks")
 attack_animation = NodePath("AttackAnimation")
 is_boss = true
-clears_group_on_death = &"glitch_decoys"
+clears_groups_on_death = Array[StringName]([&"glitch_decoys"])
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_body")

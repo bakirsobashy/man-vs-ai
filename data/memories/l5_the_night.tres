@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MemoryData" format=3]
+
+[ext_resource type="Script" path="res://src/levels/features/memory_data.gd" id="1_memory"]
+
+[resource]
+script = ExtResource("1_memory")
+id = "l5_the_night"
+title = "The Night"
+text = "The Warden's recording. Mostly sound. The music box. A wall giving way. Lena saying his name, steady. Then a red light, close, and a voice: \"Live with it, Sergeant.\" He listens to the end. He makes himself."
+band_texts = Array[String](["The Warden's recording. Mostly sound. The music box. A wall giving way. Lena saying his name, steady. Then a red light, close, and a voice: \"Live with it, Sergeant.\" He listens to the end. He makes himself.", "The recording. Sound and shapes. The music box, Lena's voice, the dark. Then: \"Live with it, Sergeant.\" He stops it there.", "A recording of the night. He knows what happens in it. He plays it anyway, waiting to feel it. \"Live with it, Sergeant.\"", "Recording: night_0.rec. Hostiles: 4. Survivors: 1. Final line, source ZERO: \"Live with it, Sergeant.\" ...Purpose: confirmed."])
+heal = 1
