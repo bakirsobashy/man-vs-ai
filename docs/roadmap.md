@@ -161,9 +161,10 @@ If the gate fails, iterate on M1 before moving on.
 - An external playtest with 10+ people, including a "would you play again?" question.
 
 ## M5: Content production
-**Status: in progress, built district by district (the owner's choice). All five levels are playable.**
+**Status: content complete. All five levels, every boss and the endings are playable; the balance pass and adaptive
+audio layers are left.**
 - **The campaign:** runs go L1 → lab → L2 → lab → L3 → lab → L4 → lab → L5. Hearts, armor and the found gun carry
-  between levels, and death restarts at Level 1. Beating ZERO ends the run (the endings come next).
+  between levels, and death restarts at Level 1. Beating ZERO plays the ending for Kade's band.
 - **Level 2, Neon Bazaar:**
   - 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
   - **Elite modifiers** (Overclocked, Armored, Splitter, Shielded), from Level 2 at 10%.
@@ -199,13 +200,18 @@ If the gate fails, iterate on M1 before moving on.
   - **Guns:** the Peacekeeper (ignores enemy shields) and the Black Box (an orb that eats enemy bullets and bursts
     them back). All 21 guns exist.
   - **Story:** The Night, the Warden's recording, in four band variants.
+- **Endings and post-game:**
+  - Four ending comics (Humanity, Normal Patched, Normal Hollow, Transformation) by implant count, then the credits
+    and Vorn's post-credits line, then the lab.
+  - NG+ threat levels (Q5): each ending unlocks the next (up to 5), picked in the lab: +15% threat and +5% elite
+    chance per level for +10% RAM.
 - **Owner decisions:** Vorn is morally grey (Q1), the Normal ending has Patched and Hollow flavors (Q8), and
   post-game is NG+ threat levels (Q5).
 - **Tests:**
   - every earlier suite still passes;
-  - the Level 2 smoke test passes 44/44, Level 3 49/49, Level 4 43/43 and Level 5 33/33;
+  - the Level 2 smoke test passes 44/44, Level 3 49/49, Level 4 43/43, Level 5 33/33 and the endings test 25/25;
   - the generator validates 10,000 layouts for each campaign level.
-- **Next:** the endings and credits, NG+ threat levels, then balance.
+- **Left in M5:** the balance pass (it needs the M5 playtests' data) and adaptive audio layers.
 
 **Scope**
 - Districts 2–5: templates, hazards and tilesets.

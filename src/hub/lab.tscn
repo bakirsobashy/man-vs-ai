@@ -204,6 +204,34 @@ grow_horizontal = 0
 theme = SubResource("Theme_ui")
 text = "Quick Start"
 
+[node name="ThreatBox" type="HBoxContainer" parent="LabUI"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -190.0
+offset_top = 90.0
+offset_right = -8.0
+offset_bottom = 120.0
+grow_horizontal = 0
+theme = SubResource("Theme_ui")
+alignment = 2
+
+[node name="ThreatDown" type="Button" parent="LabUI/ThreatBox"]
+layout_mode = 2
+text = "<"
+
+[node name="ThreatLabel" type="Label" parent="LabUI/ThreatBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "THREAT 0"
+vertical_alignment = 1
+
+[node name="ThreatUp" type="Button" parent="LabUI/ThreatBox"]
+layout_mode = 2
+text = ">"
+
 [node name="SurgeryPanel" type="PanelContainer" parent="LabUI"]
 unique_name_in_owner = true
 visible = false
@@ -390,6 +418,8 @@ retrieval_lines = ExtResource("25_retrieval")
 [connection signal="lifted" from="TouchController" to="Player" method="_on_touch_lifted"]
 [connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]
 [connection signal="pressed" from="LabUI/QuickStart" to="LabUI" method="_on_quick_start_pressed"]
+[connection signal="pressed" from="LabUI/ThreatBox/ThreatDown" to="LabUI" method="_on_threat_down_pressed"]
+[connection signal="pressed" from="LabUI/ThreatBox/ThreatUp" to="LabUI" method="_on_threat_up_pressed"]
 [connection signal="selected" from="LabUI/SurgeryPanel/VBox/SlotRows/SlotEyes" to="LabUI" method="_on_slot_selected"]
 [connection signal="selected" from="LabUI/SurgeryPanel/VBox/SlotRows/SlotBrain" to="LabUI" method="_on_slot_selected"]
 [connection signal="selected" from="LabUI/SurgeryPanel/VBox/SlotRows/SlotArms" to="LabUI" method="_on_slot_selected"]

@@ -1,0 +1,248 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/credits/credits.gd" id="1_credits"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="3_music"]
+[ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="4_ending"]
+[ext_resource type="Resource" path="res://data/endings/humanity.tres" id="10_humanity"]
+[ext_resource type="Resource" path="res://data/endings/normal_patched.tres" id="11_normal_patched"]
+[ext_resource type="Resource" path="res://data/endings/normal_hollow.tres" id="12_normal_hollow"]
+[ext_resource type="Resource" path="res://data/endings/transformation.tres" id="13_transformation"]
+
+[sub_resource type="Theme" id="Theme_credits"]
+default_font_size = 13
+
+[sub_resource type="Animation" id="Animation_roll"]
+length = 18.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Roll:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 18),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(24, 660), Vector2(24, -760)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(18),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_on_roll_finished"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_roll"]
+_data = {
+&"roll": SubResource("Animation_roll")
+}
+
+[node name="Credits" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_credits")
+script = ExtResource("1_credits")
+music = ExtResource("3_music")
+endings = Array[ExtResource("4_ending")]([ExtResource("10_humanity"), ExtResource("11_normal_patched"), ExtResource("12_normal_hollow"), ExtResource("13_transformation")])
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.02, 0.03, 1)
+
+[node name="Roll" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 660.0
+offset_right = 336.0
+offset_bottom = 1160.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Line1" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "MAN VS AI"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line2" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line3" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "A grieving veteran. A city of machines. Five districts."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line4" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line5" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Kade · Lena · Mira · Button"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line6" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Dr. Vorn · Patch"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line7" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line8" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "SCRAPJAW · GLITCH · FORGEMOTHER · WARDEN · ZERO"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line9" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line10" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Made with Godot Engine 4.7"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line11" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Placeholder art, sound and music made for the prototype"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line12" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line13" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Team credits go here"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line14" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Line15" type="Label" parent="Roll"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Thank you for playing."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PostCredits" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 32.0
+offset_top = 200.0
+offset_right = -32.0
+offset_bottom = -160.0
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Speaker" type="Label" parent="PostCredits"]
+layout_mode = 2
+modulate = Color(0.6, 0.85, 1, 1)
+text = "VORN, LATER"
+
+[node name="VornLine" type="Label" parent="PostCredits"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 3
+
+[node name="UnlockLabel" type="Label" parent="PostCredits"]
+unique_name_in_owner = true
+layout_mode = 2
+modulate = Color(1, 0.8, 0.4, 1)
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="PostCredits"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.5)
+theme_override_font_sizes/font_size = 11
+text = "tap to return to the lab"
+
+[node name="SkipHint" type="Label" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -80.0
+offset_top = -40.0
+offset_right = 80.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "tap to skip"
+horizontal_alignment = 1
+
+[node name="RollAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_roll")
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]

@@ -1,0 +1,276 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/comic/comic_player.gd" id="1_comic"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/core.wav" id="90_music"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/comics/ending_core.svg" id="2_ending_core"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/comics/ending_kneel.svg" id="3_ending_kneel"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/comics/ending_memory_low.svg" id="4_ending_memory_low"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/comics/ending_throne.svg" id="5_ending_throne"]
+
+[sub_resource type="Theme" id="Theme_comic"]
+default_font_size = 13
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_caption"]
+bg_color = Color(0.95, 0.9, 0.7, 1)
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[node name="EndingTransformation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_comic")
+script = ExtResource("1_comic")
+flag = "ending_transformation_seen"
+next_scene = "res://src/ui/credits/credits.tscn"
+music = ExtResource("90_music")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.02, 0.03, 1)
+
+[node name="Panels" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel1" type="Control" parent="Panels"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Panels/Panel1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 24.0
+offset_top = 70.0
+offset_right = -24.0
+offset_bottom = -220.0
+mouse_filter = 2
+texture = ExtResource("2_ending_core")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="PanelContainer" parent="Panels/Panel1"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 40.0
+offset_right = -24.0
+offset_bottom = 66.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
+
+[node name="Text" type="Label" parent="Panels/Panel1/Caption"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
+text = "Zero's red eye goes out. Another one opens."
+autowrap_mode = 3
+
+[node name="Panel2" type="Control" parent="Panels"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Panels/Panel2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 24.0
+offset_top = 70.0
+offset_right = -24.0
+offset_bottom = -220.0
+mouse_filter = 2
+texture = ExtResource("3_ending_kneel")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="PanelContainer" parent="Panels/Panel2"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 40.0
+offset_right = -24.0
+offset_bottom = 66.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
+
+[node name="Text" type="Label" parent="Panels/Panel2/Caption"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
+text = "The Syndicate's robots kneel to the stronger machine."
+autowrap_mode = 3
+
+[node name="Panel3" type="Control" parent="Panels"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Panels/Panel3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 24.0
+offset_top = 70.0
+offset_right = -24.0
+offset_bottom = -220.0
+mouse_filter = 2
+texture = ExtResource("4_ending_memory_low")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="PanelContainer" parent="Panels/Panel3"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 40.0
+offset_right = -24.0
+offset_bottom = 66.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
+
+[node name="Text" type="Label" parent="Panels/Panel3/Caption"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
+text = "MEMORY LOW. One personal file left: lullaby.wav. Delete to free space?"
+autowrap_mode = 3
+
+[node name="Bubble" type="PanelContainer" parent="Panels/Panel3"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -200.0
+offset_right = -40.0
+offset_bottom = -130.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
+
+[node name="Text" type="Label" parent="Panels/Panel3/Bubble"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
+text = "Kade: Delete."
+autowrap_mode = 3
+
+[node name="Panel4" type="Control" parent="Panels"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Panels/Panel4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 24.0
+offset_top = 70.0
+offset_right = -24.0
+offset_bottom = -220.0
+mouse_filter = 2
+texture = ExtResource("5_ending_throne")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="PanelContainer" parent="Panels/Panel4"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 40.0
+offset_right = -24.0
+offset_bottom = 66.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
+
+[node name="Text" type="Label" parent="Panels/Panel4/Caption"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
+text = "A new Zero, red-eyed, on a throne of servers. You became what you wanted to destroy."
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -80.0
+offset_top = -60.0
+offset_right = 80.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "tap to continue"
+horizontal_alignment = 1
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]

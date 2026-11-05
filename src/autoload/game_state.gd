@@ -19,6 +19,11 @@ var implants: Dictionary[String, int] = {}
 var unlocked_weapons: Array[String] = []
 var memories: Array[String] = []
 var endings_seen: Array[String] = []
+## The ending of the last finished campaign (the credits show its post-credits line).
+var last_ending := ""
+## NG+ (Q5): the threat level new runs start at, and the highest one an ending has unlocked.
+var threat_level := 0
+var threat_unlocked := 0
 ## runs, deaths, best_level, boss_kills, rooms_cleared.
 var stats: Dictionary[String, int] = {}
 ## One-time story beats: prologue_seen, tutorial_done, first-implant panels, lab talks…
@@ -45,6 +50,9 @@ func reset_to_new() -> void:
 	unlocked_weapons = STARTER_WEAPONS.duplicate()
 	memories.clear()
 	endings_seen.clear()
+	last_ending = ""
+	threat_level = 0
+	threat_unlocked = 0
 	stats = {"runs": 0, "deaths": 0, "best_level": 0, "boss_kills": 0, "rooms_cleared": 0}
 	flags.clear()
 	playtime_s = 0.0
@@ -101,6 +109,15 @@ func filled_slots() -> int:
 	return count
 
 
+## A campaign was finished: remember the ending and unlock threat level `unlock_threat` (if it's new).
+func record_ending(ending_id: String, unlock_threat: int) -> void:
+	if not endings_seen.has(ending_id):
+		endings_seen.append(ending_id)
+	last_ending = ending_id
+	threat_unlocked = maxi(threat_unlocked, unlock_threat)
+	add_stat("endings")
+
+
 func humanity_band() -> Band:
 	var filled := filled_slots()
 	if filled == 0:
@@ -151,6 +168,9 @@ func to_dict() -> Dictionary:
 		"unlocked_weapons": unlocked_weapons.duplicate(),
 		"memories": memories.duplicate(),
 		"endings_seen": endings_seen.duplicate(),
+		"last_ending": last_ending,
+		"threat_level": threat_level,
+		"threat_unlocked": threat_unlocked,
 		"stats": stats.duplicate(),
 		"flags": flags.duplicate(),
 	}
@@ -169,6 +189,9 @@ func from_dict(data: Dictionary) -> void:
 	unlocked_weapons = _strings(data.get("unlocked_weapons", []), STARTER_WEAPONS)
 	memories = _strings(data.get("memories", []), [])
 	endings_seen = _strings(data.get("endings_seen", []), [])
+	last_ending = str(data.get("last_ending", ""))
+	threat_unlocked = maxi(int(data.get("threat_unlocked", 0)), 0)
+	threat_level = clampi(int(data.get("threat_level", 0)), 0, threat_unlocked)
 	flags = _strings(data.get("flags", []), [])
 	var saved_stats: Variant = data.get("stats", {})
 	if saved_stats is Dictionary:

@@ -194,7 +194,18 @@ Zero falls, and the Syndicate's robots kneel to the stronger machine. Kade's sys
 deletes the last file, Mira's lullaby, to free space. The final panel shows the new Zero, red-eyed, on a throne of
 servers. *"You became what you wanted to destroy."*
 
-Once Q1 is decided, each ending gets a post-credits line that reveals Vorn's true role.
+Each ending closes on a post-credits line from Vorn. He's morally grey (Q1), so each one shows a different side of him:
+
+| Ending | Vorn, later |
+|---|---|
+| Humanity | *"Subject declined every upgrade. Outcome: better than anything I could have made of him. Note to self: stop offering."* |
+| Normal (Patched) | *"He kept most of himself. I kept my notes. I am still not sure which of us got the better deal."* |
+| Normal (Hollow) | *"He won with what I gave him and lost what I took. Every part was his choice. I made sure it was."* |
+| Transformation | *"Project complete. He is everything I built him to be. I should feel proud. I should feel something."* |
+
+**Built in M5:** four ending comics of four panels each (`src/ui/comic/ending_*.tscn`, placeholder art). The Normal
+flavors share the rain-and-music-box structure: Patched hums the missing note (*"Close enough."*), Hollow doesn't
+notice (*"Mission complete."*).
 
 ---
 

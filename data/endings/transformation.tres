@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EndingData" format=3]
+
+[ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="1_ending"]
+
+[resource]
+script = ExtResource("1_ending")
+id = "transformation"
+title = "Transformation"
+band = 3
+comic_scene = "res://src/ui/comic/ending_transformation.tscn"
+post_credits = "Project complete. He is everything I built him to be. I should feel proud. I should feel something."

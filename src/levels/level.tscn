@@ -314,7 +314,7 @@ crypto_max = 30
 crypto_scene = ExtResource("16_crypto")
 scatter = 16.0
 
-[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer", "clear_sound")]
+[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer", "ending_timer", "clear_sound")]
 script = ExtResource("1_director")
 campaign = ExtResource("32_campaign")
 config = ExtResource("2_config")
@@ -327,12 +327,17 @@ arena_reward = NodePath("../ArenaRewardDrops")
 chest_scene = ExtResource("22_chest")
 transition = NodePath("../Transition/TransitionAnimation")
 death_timer = NodePath("DeathTimer")
+ending_timer = NodePath("EndingTimer")
 level_music = ExtResource("29_music")
 boss_music = ExtResource("30_boss_music")
 clear_sound = NodePath("ClearSound")
 
 [node name="DeathTimer" type="Timer" parent="LevelDirector"]
 wait_time = 1.2
+one_shot = true
+
+[node name="EndingTimer" type="Timer" parent="LevelDirector"]
+wait_time = 2.0
 one_shot = true
 
 [node name="ClearSound" type="AudioStreamPlayer" parent="LevelDirector"]
@@ -362,3 +367,4 @@ libraries/ = SubResource("AnimationLibrary_transition")
 [connection signal="timeout" from="WaveSpawner/NextWaveTimer" to="WaveSpawner" method="_on_next_wave_timer_timeout"]
 [connection signal="room_cleared" from="WaveSpawner" to="LevelDirector" method="_on_wave_spawner_room_cleared"]
 [connection signal="timeout" from="LevelDirector/DeathTimer" to="LevelDirector" method="_on_death_timer_timeout"]
+[connection signal="timeout" from="LevelDirector/EndingTimer" to="LevelDirector" method="_on_ending_timer_timeout"]

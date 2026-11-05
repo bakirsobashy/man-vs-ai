@@ -5,8 +5,10 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 > A grieving war veteran hunts the robot gang that murdered his family. Every implant that makes him strong enough
 > to win replaces another piece of the man. There are three endings: stay human, become something in between, or become the machine.
 
-**Status:** M5 (content) is in progress: **all five levels are playable.** A run goes Rustline Slums → lab → Neon
-Bazaar → lab → The Foundry → lab → Skyline Spires → lab → Syndicate Core. The endings are next.
+**Status:** M5 (content) is nearly done: **the whole game is playable**, from the prologue to one of the endings.
+A run goes Rustline Slums → lab → Neon Bazaar → lab → The Foundry → lab → Skyline Spires → lab → Syndicate Core.
+Beating ZERO plays the ending for Kade's humanity band, then the credits; after that, NG+ threat levels unlock.
+The balance pass is left.
 - **Level 2, the Neon Bazaar:** holo-signs, Shotgunners, Drones, Hackers, elite robots and GLITCH.
 - **Level 3, The Foundry:** conveyor belts, molten lanes, Grenadiers, Shield-bots and FORGEMOTHER.
 - **Level 4, Skyline Spires:** laser grids, cracking glass, Snipers, EMP-bots and WARDEN, whose first kill unlocks
@@ -53,13 +55,16 @@ It passes its automated tests. Playtests on real Android phones, the art-directi
 
 ![Level 5: Syndicate Core](docs/images/m5_l5_core.png)
 
+![The endings and credits](docs/images/m5_endings.png)
+
 **The lab** (between runs):
 - **Surgery (Dr. Vorn):** spend RAM on implants for all six body slots (Heart, Legs, Eyes, Brain, Arms, Lungs),
   Mk I to Mk III. The first install in a body
   slot needs a 1.5 s hold, because implants can never be removed.
 - **Armory (Patch):** spend Crypto to unlock guns; unlocked guns start turning up in chests.
-- **Elevator or Quick Start:** start a run. Dying or beating SCRAPJAW brings you back here, keeping Crypto, RAM and
-  implants. Between levels of a run, the elevator continues to the next district; a new run starts at Level 1.
+- **Elevator or Quick Start:** start a run. Dying brings you back here, keeping Crypto, RAM and implants. Between
+  levels of a run, the elevator continues to the next district; a new run starts at Level 1. After an ending, pick
+  the next run's NG+ threat level under Quick Start.
 
 **A level** (Rustline Slums, from `data/levels/level_1.tres`):
 - **Combat rooms** lock their doors for 1–2 waves. Clearing one drops Crypto and sometimes a heart, ammo or armor.
@@ -129,6 +134,9 @@ godot --headless --path . --script res://tools/smoke_test_l4.gd
 ```
 ```bash
 godot --headless --path . --script res://tools/smoke_test_l5.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```
 
 ## Getting started

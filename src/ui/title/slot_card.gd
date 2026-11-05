@@ -28,6 +28,8 @@ func refresh() -> void:
 	var minutes := int(summary["playtime_s"]) / 60
 	info_label.text = "Best level %d · %d runs · implants %d/6 · %dh %02dm" % [
 		summary["best_level"], summary["runs"], summary["filled_slots"], minutes / 60, minutes % 60]
+	if int(summary.get("endings", 0)) > 0:
+		info_label.text += " · endings %d/4" % int(summary["endings"])
 	play_button.text = "Continue run" if summary["has_run"] else "Continue"
 
 

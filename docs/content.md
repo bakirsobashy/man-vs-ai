@@ -226,6 +226,11 @@ enemies, only the points where enemies can appear.
 - **The M2 arena** (`m2_arena_waves.tres`) uses the same robots, with Charger and Turret from wave 2, and an endless
   budget of 6 + 1.5 per wave (cap 14).
 
+**NG+ threat levels** (Q5; numbers on `data/levels/campaign.tres`): finishing the campaign at threat level T unlocks
+T + 1, up to 5. A run starts at the level picked in the lab. Each threat level adds +15% room, arena and ambush threat
+and +5% elite chance (Level 1 gets elites too), and robots drop +10% RAM. Threat 5: ×1.75 threat, +25% elites,
++50% RAM.
+
 **Odds for the second special room** (the first one is always the Memory room): Repair station 40% (50% in L1),
 Challenge arena 30%, Hacked terminal 30%.
 

@@ -25,6 +25,9 @@ extends CanvasLayer
 @onready var dialogue: DialogueBox = %Dialogue
 @onready var comic_layer: Control = %ComicLayer
 @onready var purchase_sound: AudioStreamPlayer = %PurchaseSound
+## NG+: the threat level for the next new run (shown once an ending has unlocked one).
+@onready var threat_box: Control = %ThreatBox
+@onready var threat_label: Label = %ThreatLabel
 
 var _slot := "heart"
 var _sales := 0
@@ -32,6 +35,21 @@ var _sales := 0
 
 func _ready() -> void:
 	EventBus.currency_changed.connect(_on_currency_changed)
+	refresh_threat()
+
+
+## Shows the threat selector once an ending has unlocked threat level 1.
+func refresh_threat() -> void:
+	threat_box.visible = GameState.threat_unlocked > 0
+	threat_label.text = "THREAT %d" % GameState.threat_level if GameState.threat_level > 0 else "THREAT 0 (normal)"
+
+
+## Steps the next run's threat level by `step`, within what's unlocked.
+func change_threat(step: int) -> void:
+	GameState.threat_level = clampi(GameState.threat_level + step, 0, GameState.threat_unlocked)
+	SaveManager.save_slot()
+	AudioManager.click()
+	refresh_threat()
 
 
 func open_surgery() -> void:
@@ -166,6 +184,14 @@ func _on_surgery_close_pressed() -> void:
 
 func _on_armory_close_pressed() -> void:
 	_set_panel(armory_panel, false)
+
+
+func _on_threat_down_pressed() -> void:
+	change_threat(-1)
+
+
+func _on_threat_up_pressed() -> void:
+	change_threat(1)
 
 
 func _on_quick_start_pressed() -> void:

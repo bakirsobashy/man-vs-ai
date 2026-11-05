@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EndingData" format=3]
+
+[ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="1_ending"]
+
+[resource]
+script = ExtResource("1_ending")
+id = "humanity"
+title = "Humanity"
+band = 0
+comic_scene = "res://src/ui/comic/ending_humanity.tscn"
+post_credits = "Subject declined every upgrade. Outcome: better than anything I could have made of him. Note to self: stop offering."

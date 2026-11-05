@@ -767,6 +767,18 @@ Scrapjaw (CharacterBody2D, Enemy)     exports: move_speed, is_boss … (HP 600 o
 - **Hunt:** `enrage.gd` multiplies his move speed by 1.8 once; then he strafes close, sweeps 140° and snipes with a
   0.7 s tell.
 - His Drones are in the `warden_drones` group (`clears_groups_on_death`). The arena is `rooms/skyline/boss.tscn`.
+- **The last boss:** on the campaign's last level the elevator stays hidden. The LevelDirector starts its
+  `EndingTimer` (2 s) instead; its timeout picks `Campaign.ending_for(GameState.humanity_band())`, records it
+  (unlocking the next threat level), ends the run and sends `SceneRouter` to the ending's comic. The comic
+  (`ComicPlayer` with `music` and `next_scene`) goes to `src/ui/credits/credits.tscn`: its `RollAnimation` scrolls
+  the `Roll` labels and its last key shows Vorn's line for `GameState.last_ending` (from its `endings` list). A tap
+  skips; the next goes to the lab.
+- **Endings data:** `EndingData` resources in `data/endings/` (id, title, band, comic scene, post-credits line), listed
+  on `campaign.tres`.
+- **Threat levels (NG+):** `Campaign` exports `max_threat`, `threat_step`, `elite_step` and `reward_step`. The
+  LevelDirector multiplies room, arena and ambush threat by `threat_scale()`, adds the bonus in `elite_chance()`, and
+  shows the level in the banner; `Drops` multiplies RAM by `RunState.reward_scale`. The lab's `ThreatBox` (hidden
+  until an ending unlocks threat 1) steps `GameState.threat_level` within what's unlocked.
 - **Story gun:** `LevelConfig.boss_reward_weapon` (`&"m7_line_rifle"` on Level 4) is unlocked by the LevelDirector
   on the first boss clear, with a toast.
 
@@ -932,6 +944,13 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
 - `settings.cfg` keeps the Music and SFX volumes and vibration (pause menu); `SaveManager.apply_settings()` sets the bus volumes.
 - An uncleared room restarts its fight on Continue; floor pickups in visited rooms aren't saved yet.
 
+**Added in M5:**
+- `GameState` also keeps `last_ending`, `threat_level` (picked in the lab) and `threat_unlocked`;
+  `record_ending(id, unlock)` adds the ending to `endings_seen`, counts the `endings` stat and raises the unlocked level.
+  A saved `threat_level` is clamped to what's unlocked.
+- `RunState.threat_level` is copied from the slot when a run starts and saved with the run; `RunState.reward_scale`
+  (the RAM multiplier) is set by the LevelDirector and isn't saved.
+
 Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ```json
 {
@@ -943,6 +962,9 @@ Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
   "unlocked_weapons": ["service_pistol", "scattergun", "buzz_smg", "rivet_driver"],
   "memories": [],
   "endings_seen": [],
+  "last_ending": "",
+  "threat_level": 0,
+  "threat_unlocked": 0,
   "stats": {"runs": 0, "deaths": 0, "best_level": 0}
 }
 ```
@@ -1107,6 +1129,10 @@ func restore_purchases() -> void
   - EMP fields shorting out cover, the EMP-bot pulse, and the Sniper's laser, shot, relocation and blocked laser;
   - the Swarm Launcher, Beam Cutter (damage and cover), Toaster Cannon burning ground and the M7 story entry;
   - WARDEN's three phases, the M7 unlock, Mira's Birthday, the Level 4 talk and the armory's M7 row.
+- **Endings smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_endings.gd`. It checks
+  25 results: the ending for each band, ZERO handing over to the ending, the real flow ending comic → credits → lab,
+  threat level scaling (threat, elites, RAM, banner), the lab selector, saves and the slot card. It saves to
+  `user://test_saves_endings/`.
 - **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
   results:
   - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);
