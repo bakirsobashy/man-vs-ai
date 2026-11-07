@@ -1,0 +1,224 @@
+extends Node
+## The M6 smoke test (started by tools/smoke_test_m6.gd): monetization through the desktop stub (consent gating,
+## rewarded ads, purchases and restore), Second Chance and the Salvage bonus in real levels.
+## Save files go to user://test_saves_m6/ so a player's real slots and purchases are never touched.
+
+const TEST_DIR := "user://test_saves_m6/"
+const LEVEL_PATH := "res://src/levels/level.tscn"
+
+var _failures := 0
+var _rewards: Array[String] = []
+var _purchases: Array[String] = []
+var _consents: Array[bool] = []
+
+
+func _ready() -> void:
+	_run.call_deferred()
+
+
+func _run() -> void:
+	SaveManager.save_dir = TEST_DIR
+	_clear_test_dir()
+	EventBus.rewarded_ad_finished.connect(func(placement: StringName, granted: bool) -> void: _rewards.append("%s:%s" % [placement, granted]))
+	EventBus.purchase_finished.connect(func(product: StringName, success: bool) -> void: _purchases.append("%s:%s" % [product, success]))
+	EventBus.consent_resolved.connect(func(allowed: bool) -> void: _consents.append(allowed))
+	await _test_monetization()
+	await _test_second_chance()
+	await _test_salvage()
+	await _test_no_consent()
+	await _test_final_boss()
+	_reset_stub()
+	Monetization.owned = PackedStringArray()
+	_clear_test_dir()
+	print("M6 smoke test finished: %d failure(s)" % _failures)
+	get_tree().quit(1 if _failures > 0 else 0)
+
+
+func _test_monetization() -> void:
+	_check(not Monetization.uses_store() and not Monetization.android_ads.is_available() and not Monetization.android_billing.is_available(),
+		"on the desktop the stub stands in for the AdMob and Play Billing plugins")
+	_check(Monetization.config.rewarded_ad_unit_android.begins_with("ca-app-pub-3940256099942544/") and Monetization.config.test_ads,
+		"the config ships with Google's test ad unit and test ads on")
+	_check(not Monetization.consent_gathered and not Monetization.can_show_ads(), "no ads before the consent flow has run")
+	_rewards.clear()
+	Monetization.show_rewarded(&"salvage")
+	await _frames(2)
+	_check(_rewards == ["salvage:false"], "an ad requested before consent is refused")
+	Monetization.gather_consent()
+	await _frames(2)
+	_check(_consents == [true] and Monetization.can_show_ads(), "consent allows ads (EventBus.consent_resolved)")
+	_rewards.clear()
+	Monetization.show_rewarded(&"salvage")
+	await _frames(2)
+	Monetization.stub.grant_rewards = false
+	Monetization.show_rewarded(&"salvage")
+	await _frames(2)
+	_check(_rewards == ["salvage:true", "salvage:false"], "a watched ad grants the reward; one closed early doesn't")
+	_reset_stub()
+
+	_purchases.clear()
+	Monetization.purchase(&"outfit_test")
+	await _frames(2)
+	_check(_purchases == ["outfit_test:true"] and Monetization.owns(&"outfit_test"), "a purchase makes the product owned")
+	Monetization.owned = PackedStringArray()
+	Monetization.load_owned()
+	_check(Monetization.owns(&"outfit_test"), "owned products are saved (purchases.cfg) and load back")
+	Monetization.stub.purchases_succeed = false
+	Monetization.purchase(&"outfit_cancelled")
+	await _frames(2)
+	_check(not Monetization.owns(&"outfit_cancelled") and _purchases.back() == "outfit_cancelled:false", "a cancelled purchase grants nothing")
+	_reset_stub()
+	var restored := [false]
+	EventBus.purchases_restored.connect(func() -> void: restored[0] = true, CONNECT_ONE_SHOT)
+	Monetization.restore_purchases()
+	await _frames(2)
+	_check(restored[0] and Monetization.owns(&"outfit_test"), "Restore purchases keeps what's owned")
+
+
+func _test_second_chance() -> void:
+	var level := await _load_level(1, 61)
+	var director := level.get_node(^"LevelDirector") as LevelDirector
+	var player := level.get_node(^"Player") as Player
+	var hud := level.get_node(^"HUD") as Hud
+	var emp := player.emp_charges
+	await _die(player)
+	_check(hud.second_chance_panel.visible and get_tree().paused and director.can_offer_second_chance(),
+		"after a death, Second Chance is offered and the game pauses")
+	var enemy_bullets := _pool(level, "enemy_bullet_small")
+	enemy_bullets.spawn(player.global_position + Vector2(0, -30), Vector2.DOWN)
+	hud._on_second_chance_watch_pressed()
+	await _frames(3)
+	_check(not get_tree().paused and player.state_machine.is_in(&"Stand") and player.health.hp == 2 and player.health.is_invulnerable(),
+		"watching the ad revives the hero with 1 heart, briefly invulnerable")
+	_check(player.emp_charges == emp and enemy_bullets.active_count == 0, "and a free EMP clears the bullets around him")
+	_check(RunState.second_chance_used and RunState.active and not hud.summary_panel.visible, "the run goes on; Second Chance is used up")
+	var saved := RunState.to_dict()
+	_check(bool(saved.get("second_chance_used", false)), "and a saved run remembers it")
+	await _die(player)
+	_check(not hud.second_chance_panel.visible and hud.summary_panel.visible and not get_tree().paused, "the next death goes straight to the summary")
+	level.queue_free()
+	await _wait(0.3)
+
+
+func _test_salvage() -> void:
+	var level := await _load_level(1, 62)
+	var player := level.get_node(^"Player") as Player
+	var hud := level.get_node(^"HUD") as Hud
+	RunState.second_chance_used = true
+	RunState.crypto_earned = 40
+	var crypto := GameState.crypto
+	await _die(player)
+	_check(hud.summary_panel.visible and hud.salvage_button.visible and hud.salvage_button.text.contains("+10"),
+		"the summary offers Salvage: +25% of the run's 40 Crypto")
+	hud._on_salvage_button_pressed()
+	await _frames(3)
+	_check(GameState.crypto == crypto + 10 and not hud.salvage_button.visible and hud.summary_stats.text.contains("Salvaged +10"),
+		"watching it adds 10 Crypto, once")
+	level.queue_free()
+	await _wait(0.3)
+
+
+func _test_no_consent() -> void:
+	Monetization.stub.consent_given = false
+	Monetization.gather_consent()
+	await _frames(2)
+	var level := await _load_level(1, 63)
+	var player := level.get_node(^"Player") as Player
+	var hud := level.get_node(^"HUD") as Hud
+	RunState.crypto_earned = 40
+	await _die(player)
+	_check(not hud.second_chance_panel.visible and hud.summary_panel.visible and not hud.salvage_button.visible,
+		"without consent there's no Second Chance and no Salvage")
+	level.queue_free()
+	await _wait(0.3)
+	_reset_stub()
+	Monetization.gather_consent()
+	await _frames(2)
+
+	level = await _load_level(1, 64)
+	player = level.get_node(^"Player") as Player
+	hud = level.get_node(^"HUD") as Hud
+	Monetization.stub.grant_rewards = false
+	await _die(player)
+	hud._on_second_chance_watch_pressed()
+	await _frames(3)
+	_check(not RunState.second_chance_used and hud.summary_panel.visible and not get_tree().paused,
+		"an ad closed early doesn't revive: the summary follows")
+	_reset_stub()
+	level.queue_free()
+	await _wait(0.3)
+
+
+func _test_final_boss() -> void:
+	var level := await _load_level(5, 65)
+	var director := level.get_node(^"LevelDirector") as LevelDirector
+	var player := level.get_node(^"Player") as Player
+	var hud := level.get_node(^"HUD") as Hud
+	director.enter_room(director.layout.boss_id, Vector2i.ZERO)
+	await _wait(0.6)
+	await _die(player)
+	_check(not hud.second_chance_panel.visible and hud.summary_panel.visible, "there's no Second Chance against ZERO (Q9)")
+	level.queue_free()
+	await _wait(0.3)
+
+
+# --- Helpers ---
+
+func _load_level(number: int, level_seed: int) -> Node:
+	get_tree().paused = false
+	GameState.reset_to_new()
+	RunState.start_new_run()
+	RunState.level_number = number
+	var level := (load(LEVEL_PATH) as PackedScene).instantiate()
+	var director := level.get_node(^"LevelDirector") as LevelDirector
+	director.return_to_lab = false
+	director.fixed_seed = level_seed
+	get_tree().root.add_child(level)
+	await _wait(0.5)
+	return level
+
+
+func _die(player: Player) -> void:
+	player.health.invuln_timer.stop()
+	player.health.armor = 0
+	player.health.take_hit(99)
+	await _wait(1.5)
+
+
+func _pool(level: Node, bullet_file: String) -> BulletPool:
+	for node: Node in level.get_tree().get_nodes_in_group(&"bullet_pools"):
+		var pool := node as BulletPool
+		if pool.bullet_scene.resource_path.ends_with(bullet_file + ".tscn"):
+			return pool
+	return null
+
+
+func _reset_stub() -> void:
+	Monetization.stub.consent_given = true
+	Monetization.stub.grant_rewards = true
+	Monetization.stub.purchases_succeed = true
+
+
+func _clear_test_dir() -> void:
+	var dir := DirAccess.open(TEST_DIR)
+	if dir == null:
+		return
+	for file: String in dir.get_files():
+		dir.remove(file)
+
+
+func _wait(seconds: float) -> void:
+	await get_tree().create_timer(seconds, true).timeout
+
+
+func _frames(count: int) -> void:
+	for _i: int in count:
+		await get_tree().process_frame
+
+
+func _check(condition: bool, label: String) -> void:
+	if condition:
+		print("PASS  ", label)
+	else:
+		_failures += 1
+		print("FAIL  ", label)

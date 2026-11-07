@@ -11,9 +11,7 @@
 | Q4 | Placeholder names (cast, city, gang, bosses, districts, weapons) | Keep or rename | M4 | Listed in [narrative.md](narrative.md) §12 |
 | Q6 | Should human-path players get a RAM sink? | None (pure hard mode) · RAM → Crypto exchange at a bad rate · hacked terminals only | M4 balance | The owner chose "hard mode by design"; hacked terminals already use RAM |
 | Q7 | How to handle weapon-pool dilution | Accept it · "favorite" weights · let players disable unlocked guns | M5 | Unlocking weak guns lowers the odds of good ones; Gungeon has the same problem |
-| Q9 | Is the Second Chance ad allowed during the final boss? | Yes · no | M6 | |
 | Q10 | Voice acting scope | None · barks only · key lines | M4 (budget) | Every line is subtitled regardless |
-| Q11 | Sell an "ad-free rewards" IAP? | No · yes | M6 | Could read as pay-to-win; the owner said ads are "a small help" only |
 
 ## Decided in the foundation Q&A (2026-11-03)
 | Topic | Decision |
@@ -52,6 +50,10 @@
 | Q1 Vorn's role (M5) | **Morally grey:** he saved Kade and means it, but he also wanted a test subject. Each ending shows a different side |
 | Q5 After an ending (M5) | **NG+ threat levels:** each ending unlocks the next threat level (up to 5), picked in the lab: +15% threat and +5% elite chance per level, +10% RAM per level |
 | Q8 Normal ending (M5) | **Two flavors:** Patched (1–2 slots) and Hollow (3–5) share the structure, with different closing lines and panels |
+| Q9 Second Chance vs ZERO (M6) | **No:** Second Chance works everywhere else, the other bosses included; the final fight stays earned |
+| Q11 Ad-free rewards IAP (M6) | **No:** purchases stay cosmetic only; nothing sold affects gameplay |
+| M6 ads and billing | A `Monetization` autoload with a tested desktop stub and Android bridges for the Poing Studios AdMob plugin (UMP consent included) and Godot Google Play Billing; the bridges are untested until a device build ([release/monetization_setup.md](release/monetization_setup.md)) |
+| M6 cosmetics | All four types (outfits, weapon skins, lab decorations, EMP styles) with a few placeholder items each |
 
 ## Design risks
 | ID | Risk | Mitigation |

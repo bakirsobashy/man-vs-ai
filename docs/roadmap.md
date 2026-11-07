@@ -230,6 +230,21 @@ audio layers are left.**
 - No blocker bugs.
 
 ## M6: Release
+**Status: in progress.**
+- **Owner decisions:**
+  - ads and billing get a tested stub plus Android bridges, which need a device build to test;
+  - Second Chance isn't offered against ZERO (Q9);
+  - there's no ad-free purchase (Q11);
+  - all four cosmetic types get placeholder items.
+- **Built so far: monetization.**
+  - The `Monetization` autoload with the desktop stub and the AdMob (with UMP consent) and Play Billing bridges.
+  - The consent flow at the title.
+  - Second Chance after a death (once per run) and Salvage on the run summary.
+  - The M6 smoke test passes 21/21.
+  - Owner setup steps are in [release/monetization_setup.md](release/monetization_setup.md).
+- **Next:** the cosmetics shop, then settings and accessibility, localization, performance, then the Play Console
+  material.
+
 **Scope**
 - Rewarded ads (Second Chance, Salvage bonus) with the consent flow.
 - Cosmetic IAP and the shop UI.

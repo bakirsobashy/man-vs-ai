@@ -68,6 +68,8 @@ func _ready() -> void:
 	EventBus.level_exit_requested.connect(_on_level_exit_requested)
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.summary_closed.connect(_on_summary_closed)
+	EventBus.second_chance_answered.connect(_on_second_chance_answered)
+	EventBus.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
 	if not RunState.active:
 		RunState.start_new_run()  # started straight from the editor or a test
 	use_config(campaign.config_for(RunState.level_number) if campaign != null else config)
@@ -396,8 +398,49 @@ func _on_player_died() -> void:
 		death_timer.start()
 
 
-## After the death beat: the run ends and the HUD shows Vorn's retrieval panel with the run summary.
+## After the death beat: Second Chance is offered if it can be (the game pauses while the HUD asks); otherwise
+## the run ends.
 func _on_death_timer_timeout() -> void:
+	if can_offer_second_chance():
+		get_tree().paused = true
+		EventBus.second_chance_offered.emit()
+	else:
+		_finish_death()
+
+
+## Second Chance (GDD §9): once per run, only after the consent flow allowed ads, and never against the campaign's
+## last boss (Q9: the final fight stays earned).
+func can_offer_second_chance() -> bool:
+	if RunState.second_chance_used or not Monetization.can_show_ads():
+		return false
+	var final_boss := current != null and current.type == Room.RoomType.BOSS and campaign != null \
+		and campaign.is_last(config.level_number)
+	return not final_boss
+
+
+func _on_second_chance_answered(accepted: bool) -> void:
+	if accepted:
+		Monetization.show_rewarded(&"second_chance")
+	else:
+		get_tree().paused = false
+		_finish_death()
+
+
+func _on_rewarded_ad_finished(placement: StringName, granted: bool) -> void:
+	if placement != &"second_chance":
+		return
+	get_tree().paused = false
+	if not granted:
+		_finish_death()
+		return
+	RunState.second_chance_used = true
+	player.revive_second_chance(Monetization.config.second_chance_hp)
+	EventBus.toast_requested.emit("SECOND CHANCE")
+	_autosave()
+
+
+## The run ends and the HUD shows Vorn's retrieval panel with the run summary.
+func _finish_death() -> void:
 	GameState.add_stat("deaths")
 	GameState.set_flag("just_died")
 	var summary := "Crypto +%d · RAM +%d MB\nRobots destroyed: %d · Rooms cleared: %d" % [

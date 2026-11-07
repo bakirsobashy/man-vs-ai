@@ -15,6 +15,8 @@ var level_number := 1
 var threat_level := 0
 ## RAM multiplier from the threat level (set by the LevelDirector, not saved).
 var reward_scale := 1.0
+## The Second Chance ad was used this run (it's once per run).
+var second_chance_used := false
 var level_seed := 0
 ## The room the hero is in, and the door they came through (zero = the start room's PlayerStart).
 var room_id := -1
@@ -64,6 +66,7 @@ func start_new_run(first_seed: int = 0) -> void:
 	kills = 0
 	rooms_cleared = 0
 	rooms_since_heal = 0
+	second_chance_used = false
 
 
 ## The next level of the same run (the hero keeps hearts, armor and the found gun).
@@ -110,6 +113,7 @@ func to_dict() -> Dictionary:
 		"kills": kills,
 		"rooms_cleared": rooms_cleared,
 		"rooms_since_heal": rooms_since_heal,
+		"second_chance_used": second_chance_used,
 	}
 
 
@@ -139,6 +143,7 @@ func from_dict(data: Dictionary) -> void:
 	kills = int(data.get("kills", 0))
 	rooms_cleared = int(data.get("rooms_cleared", 0))
 	rooms_since_heal = int(data.get("rooms_since_heal", 0))
+	second_chance_used = bool(data.get("second_chance_used", false))
 	resuming = true
 
 

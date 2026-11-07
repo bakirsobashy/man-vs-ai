@@ -1008,22 +1008,42 @@ Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ---
 
 ## 12. Monetization integration (M6)
-The `Monetization` autoload exposes one interface:
+The `Monetization` autoload (`src/autoload/monetization.tscn`) is the only door to ads and purchases:
 ```gdscript
-signal rewarded_completed(placement: StringName, granted: bool)
-signal purchase_completed(product_id: StringName, success: bool)
-
-func show_rewarded(placement: StringName) -> void
+func gather_consent() -> void            # UMP once per session (the title screen calls it)
+func can_show_ads() -> bool              # consent gathered and ads allowed
+func needs_privacy_options() -> bool     # show a "Privacy options" button in the settings
+func show_privacy_options() -> void
+func show_rewarded(placement: StringName) -> void    # &"second_chance", &"salvage"
 func purchase(product_id: StringName) -> void
 func owns(product_id: StringName) -> bool
 func restore_purchases() -> void
 ```
-- **Desktop and debug builds:** a stub that grants everything instantly.
-- **Android:** an AdMob plugin for Godot 4 (including Google's UMP consent) plus a Google Play Billing plugin.
-  - When M6 starts, check that both work with Godot 4.7.
-  - Keep both behind this interface so either can be swapped out.
-- **Consent first:** no ads before the consent flow has run, and no personalized ads without consent.
-- **Purchases:** cosmetics only, so client-side purchase acknowledgment is enough.
+- **Results go through EventBus:** `consent_resolved(can_request_ads)`, `rewarded_ad_finished(placement, granted)`,
+  `purchase_finished(product_id, success)` and `purchases_restored`.
+- **Providers are child nodes**, and their signals are connected in the scene:
+  - `%Stub` (`StubMonetization`) runs on the desktop, in the editor, in tests and on Android without the plugins. It
+    answers at once; its exports (`consent_given`, `grant_rewards`, `purchases_succeed`,
+    `privacy_options_required`) let tests try the failure paths.
+  - `%AndroidAds` (`AndroidAds`) bridges the Poing Studios AdMob plugin: UMP update, the consent form when it's
+    required, then `MobileAds.initialize` and one preloaded rewarded ad, reloaded after each show.
+  - `%AndroidBilling` (`AndroidBilling`) bridges Godot Google Play Billing 2.x: connect, query product details and
+    purchases, purchase, acknowledge. One-time cosmetics need no consuming and no server.
+  - The bridges call the plugin singletons through `Engine.get_singleton()`, so the game compiles without the addons.
+    Setup and device checks: [release/monetization_setup.md](release/monetization_setup.md).
+- **Config:** `data/monetization/monetization.tres` (`MonetizationConfig`) holds the rewarded ad unit (Google's test
+  unit until release), `test_ads`, the consent age tag, the reward sizes and the product IDs.
+- **Owned products** are stored in `user://purchases.cfg`, not in a save slot, because purchases belong to the Play
+  account. On Android the store's list replaces the local one whenever it's read, so refunds remove items; the stub
+  only adds.
+- **Second Chance:** after the death beat the LevelDirector asks `can_offer_second_chance()`. That's not used this
+  run (`RunState.second_chance_used`, saved with the run), `Monetization.can_show_ads()`, and not ZERO's room (Q9).
+  When it can be offered, the tree pauses and `EventBus.second_chance_offered` opens the HUD's `SecondChancePanel`.
+  Its answer (`second_chance_answered`) shows the ad. A granted reward unpauses the tree and calls
+  `Player.revive_second_chance(hp)`: 1 heart, no armor, invulnerability, and an EMP fired at once on a free charge.
+  Otherwise the run ends as before.
+- **Salvage:** the HUD's `SalvageButton` on the run summary shows when ads are allowed and the run earned Crypto. A
+  granted ad adds `ceil(crypto_earned × salvage_share)` to the slot, once.
 
 ---
 
@@ -1133,6 +1153,12 @@ func restore_purchases() -> void
   25 results: the ending for each band, ZERO handing over to the ending, the real flow ending comic → credits → lab,
   threat level scaling (threat, elites, RAM, banner), the lab selector, saves and the slot card. It saves to
   `user://test_saves_endings/`.
+- **M6 smoke test:** run `godot --headless --path . --script res://tools/smoke_test_m6.gd`. It saves to
+  `user://test_saves_m6/` and checks:
+  - the stub standing in on the desktop, consent gating, rewarded ads and purchases (owned, saved, cancelled,
+    restored);
+  - Second Chance in a real level (offer and pause, revive, EMP, once per run, saved);
+  - Salvage (+25%, once), no ads without consent, an ad closed early, and no Second Chance against ZERO.
 - **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
   results:
   - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);

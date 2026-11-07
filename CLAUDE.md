@@ -81,6 +81,9 @@ godot --headless --path . --script res://tools/smoke_test_l5.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_m6.gd
+```
 Before writing physics or tool code, read the Godot 4.7 gotchas in `docs/technical.md` §1.0:
 - `Area2D` sensors keep `monitorable` on;
 - pooled areas are parked, never toggled;

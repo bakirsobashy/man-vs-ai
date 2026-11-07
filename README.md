@@ -138,6 +138,9 @@ godot --headless --path . --script res://tools/smoke_test_l5.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_m6.gd
+```
 
 ## Getting started
 1. Install **Godot 4.7** (the standard build; the project uses GDScript only).

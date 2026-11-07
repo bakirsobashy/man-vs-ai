@@ -24,6 +24,7 @@ GameState="*res://src/autoload/game_state.gd"
 SaveManager="*res://src/autoload/save_manager.gd"
 AudioManager="*res://src/autoload/audio_manager.tscn"
 SceneRouter="*res://src/autoload/scene_router.tscn"
+Monetization="*res://src/autoload/monetization.tscn"
 
 [debug]
 

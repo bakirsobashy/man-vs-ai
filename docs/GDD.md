@@ -510,6 +510,10 @@ language · audio sliders · 30/60 fps (battery).
 - No forced or interstitial ads, no loot boxes, and no real cryptocurrency or NFTs. "Crypto" is fictional in-game money.
 - Compliance work at M6: an ad consent flow (GDPR / UMP) before any ad, the Play data-safety form, and the content-rating
   questionnaire.
+- **Decided in M6:** Second Chance is never offered against ZERO (Q9), and there's no "ad-free rewards" purchase (Q11).
+- **Built in M6:** the title screen runs the consent flow once per session; without consent, neither ad is offered.
+  After a death the game pauses on a Second Chance panel (watch, or no thanks); the Retrieved summary offers Salvage
+  once. Purchases and ads go through the `Monetization` autoload (a stub on the desktop).
 
 ---
 

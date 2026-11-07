@@ -828,10 +828,58 @@ layout_mode = 2
 autowrap_mode = 3
 text = "Crypto +0"
 
+[node name="SalvageButton" type="Button" parent="Root/SummaryPanel/VBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Watch an ad: salvage +0 Crypto"
+
 [node name="SummaryButton" type="Button" parent="Root/SummaryPanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "Back to the lab"
+
+[node name="SecondChancePanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 28.0
+offset_top = 210.0
+offset_right = -28.0
+offset_bottom = -250.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/SecondChancePanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Root/SecondChancePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "SECOND CHANCE"
+
+[node name="Info" type="Label" parent="Root/SecondChancePanel/VBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Watch a short ad to get back up with 1 heart and a free EMP. Once per run."
+
+[node name="WatchButton" type="Button" parent="Root/SecondChancePanel/VBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Watch ad"
+
+[node name="DeclineButton" type="Button" parent="Root/SecondChancePanel/VBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "No thanks"
 
 [node name="DebugPanel" type="PanelContainer" parent="Root" node_paths=PackedStringArray("hud")]
 unique_name_in_owner = true
@@ -1060,3 +1108,6 @@ libraries/ = SubResource("AnimationLibrary_toast")
 [connection signal="pressed" from="Root/PausePanel/VBox/Quit" to="." method="_on_quit_pressed"]
 [connection signal="pressed" from="Root/SummaryPanel/VBox/SummaryButton" to="." method="_on_summary_button_pressed"]
 [connection signal="toggled" from="Root/PausePanel/VBox/FlashingCheck" to="." method="_on_flashing_check_toggled"]
+[connection signal="pressed" from="Root/SummaryPanel/VBox/SalvageButton" to="." method="_on_salvage_button_pressed"]
+[connection signal="pressed" from="Root/SecondChancePanel/VBox/WatchButton" to="." method="_on_second_chance_watch_pressed"]
+[connection signal="pressed" from="Root/SecondChancePanel/VBox/DeclineButton" to="." method="_on_second_chance_decline_pressed"]

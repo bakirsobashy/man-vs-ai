@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MonetizationConfig" format=3]
+
+[ext_resource type="Script" path="res://src/monetization/monetization_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+rewarded_ad_unit_android = "ca-app-pub-3940256099942544/5224354917"
+test_ads = true
+tag_for_under_age_of_consent = false
+salvage_share = 0.25
+second_chance_hp = 2
+product_ids = PackedStringArray()
+force_stub = false

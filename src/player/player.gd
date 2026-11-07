@@ -564,6 +564,20 @@ func fire_emp() -> void:
 	EventBus.player_emp_changed.emit(emp_charges)
 
 
+## Second Chance (a rewarded ad): back on his feet with `hp` half-hearts and no armor, briefly invulnerable, and a
+## free EMP clears the bullets and stuns the robots around him.
+func revive_second_chance(hp: int) -> void:
+	health.hp = clampi(hp, 1, health.max_hp)
+	health.armor = 0
+	health.changed.emit(health.hp, health.max_hp, health.armor, false)
+	flash_animation.play(&"RESET")
+	state_machine.transition_to(&"Stand")
+	health.invuln_timer.start()
+	emp_charges += 1
+	fire_emp()
+	_announce()
+
+
 func haptic(duration_ms: int) -> void:
 	if haptics_enabled and SaveManager.haptics and duration_ms > 0:
 		Input.vibrate_handheld(duration_ms)

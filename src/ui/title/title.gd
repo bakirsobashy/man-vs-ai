@@ -11,6 +11,9 @@ func _ready() -> void:
 	get_tree().paused = false
 	GameState.slot = 0
 	RunState.end_run()
+	# Consent comes before any ad (GDD §9): UMP asks once per session, here at the title.
+	if not Monetization.consent_gathered:
+		Monetization.gather_consent()
 	for card: SlotCard in cards:
 		card.refresh()
 

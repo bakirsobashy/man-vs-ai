@@ -316,5 +316,8 @@ Pickups are magnetic within 2.5 tiles.
 ### Rewarded ads (a small help only)
 | Placement | Reward | Limit |
 |---|---|---|
-| Second Chance | Revive with 1 heart and a free EMP | Once per run |
-| Salvage bonus | +25% of the run's Crypto | Once per run summary |
+| Second Chance | Revive with 1 heart and a free EMP | Once per run; never against ZERO (Q9); only after consent |
+| Salvage bonus | +25% of the run's Crypto (rounded up) | Once per run summary; only after consent |
+
+Both rewards are on `data/monetization/monetization.tres` (`second_chance_hp`, `salvage_share`). The revive also gives
+a short invulnerability, and the free EMP fires at once (clearing bullets, stunning nearby robots).

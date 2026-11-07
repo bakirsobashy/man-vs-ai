@@ -48,7 +48,12 @@ extends CanvasLayer
 @onready var summary_panel: Control = %SummaryPanel
 @onready var summary_title: Label = %SummaryTitle
 @onready var summary_stats: Label = %SummaryStats
+## M6 rewarded ads: the Salvage bonus on the run summary, and the Second Chance offer after a death.
+@onready var salvage_button: Button = %SalvageButton
+@onready var second_chance_panel: Control = %SecondChancePanel
 
+## Crypto the Salvage ad would add to this summary (0 once it's used).
+var salvage_amount := 0
 var _weapon_text := "Pistol"
 var _ammo_text := ""
 var _station: RepairStation
@@ -68,6 +73,8 @@ func _ready() -> void:
 	EventBus.shop_opened.connect(_on_shop_opened)
 	EventBus.memory_opened.connect(_on_memory_opened)
 	EventBus.run_summary_requested.connect(_on_run_summary_requested)
+	EventBus.second_chance_offered.connect(_on_second_chance_offered)
+	EventBus.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
 	EventBus.screen_glitch_requested.connect(_on_screen_glitch_requested)
 	minimap_button.visible = show_minimap
 	set_joystick_zone_top(tuning.joystick_zone_top)
@@ -240,6 +247,43 @@ func _on_run_summary_requested(title: String, summary: String) -> void:
 	summary_title.text = title
 	summary_stats.text = summary
 	summary_panel.visible = true
+	salvage_amount = ceili(RunState.crypto_earned * Monetization.config.salvage_share)
+	salvage_button.text = "Watch an ad: salvage +%d Crypto" % salvage_amount
+	salvage_button.disabled = false
+	salvage_button.visible = salvage_amount > 0 and Monetization.can_show_ads()
+
+
+func _on_salvage_button_pressed() -> void:
+	salvage_button.disabled = true
+	Monetization.show_rewarded(&"salvage")
+
+
+func _on_second_chance_offered() -> void:
+	second_chance_panel.visible = true
+
+
+func _on_second_chance_watch_pressed() -> void:
+	second_chance_panel.visible = false
+	EventBus.second_chance_answered.emit(true)
+
+
+func _on_second_chance_decline_pressed() -> void:
+	second_chance_panel.visible = false
+	EventBus.second_chance_answered.emit(false)
+
+
+## Salvage pays out once per summary; a failed ad leaves the button for another try.
+func _on_rewarded_ad_finished(placement: StringName, granted: bool) -> void:
+	if placement != &"salvage":
+		return
+	if not granted:
+		salvage_button.disabled = false
+		return
+	GameState.add_crypto(salvage_amount)
+	SaveManager.save_slot()
+	summary_stats.text += "\nSalvaged +%d Crypto" % salvage_amount
+	salvage_amount = 0
+	salvage_button.visible = false
 
 
 func _on_shop_opened(station: Node) -> void:
