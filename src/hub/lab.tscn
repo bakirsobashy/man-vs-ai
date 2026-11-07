@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://src/settings/settings_panel.tscn" id="97_settings"]
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/hub/lab_director.gd" id="1_director"]
 [ext_resource type="TileSet" path="res://src/levels/rooms/greybox_tiles.tres" id="2_tiles"]
 [ext_resource type="PackedScene" path="res://src/player/player.tscn" id="3_player"]
@@ -522,6 +524,22 @@ first_clear_talks = Array[ExtResource("34_conversation")]([ExtResource("24_first
 idle_lines = Array[ExtResource("35_line_set")]([ExtResource("29_idle_human"), ExtResource("30_idle_patched"), ExtResource("31_idle_hollow"), ExtResource("32_idle_machine")])
 retrieval_lines = ExtResource("25_retrieval")
 
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_ui")
+base_size = 12
+
+[node name="SettingsButton" type="Button" parent="LabUI"]
+offset_left = 8.0
+offset_top = 90.0
+offset_right = 92.0
+offset_bottom = 120.0
+theme = SubResource("Theme_ui")
+text = "Settings"
+
+[node name="SettingsPanel" parent="LabUI" instance=ExtResource("97_settings")]
+unique_name_in_owner = true
+
 [connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
 [connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]
 [connection signal="lifted" from="TouchController" to="Player" method="_on_touch_lifted"]
@@ -545,3 +563,4 @@ retrieval_lines = ExtResource("25_retrieval")
 [connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabSkins" to="LabUI" method="_on_tab_skins_pressed"]
 [connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabLab" to="LabUI" method="_on_tab_lab_pressed"]
 [connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabEmp" to="LabUI" method="_on_tab_emp_pressed"]
+[connection signal="pressed" from="LabUI/SettingsButton" to="LabUI" method="_on_settings_button_pressed"]

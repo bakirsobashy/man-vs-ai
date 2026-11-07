@@ -101,6 +101,7 @@ func set_joystick_zone_top(ratio: float) -> void:
 func show_stick(center: Vector2) -> void:
 	joystick.scale = Vector2.ONE * (tuning.stick_radius / (joystick.size.x * 0.5))
 	update_stick(center, Vector2.ZERO)
+	joystick.modulate.a = SaveManager.stick_opacity
 	joystick.visible = tuning.show_joystick
 
 
@@ -385,3 +386,8 @@ func _on_weapon_card_pressed() -> void:
 
 func _on_prompt_bubble_pressed() -> void:
 	EventBus.interact_requested.emit()
+
+
+## The pause menu's "More settings": the full settings screen (shared settings_panel.tscn).
+func _on_settings_button_pressed() -> void:
+	(%SettingsPanel as SettingsPanel).open()

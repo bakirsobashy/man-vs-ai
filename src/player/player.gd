@@ -339,7 +339,7 @@ func update_aim(move_direction: Vector2) -> void:
 	if target != null:
 		gun_pivot.rotation = (target.global_position - gun_pivot.global_position).angle()
 		reticle.global_position = target.global_position
-		reticle.visible = true
+		reticle.visible = SaveManager.show_reticle
 		var enemy := target as Enemy
 		target_hp.visible = show_target_hp and enemy != null
 		if target_hp.visible:

@@ -492,10 +492,21 @@ Then Vorn introduces the surgery chair: *"When you're ready… I can make you be
 - **Impact:** 40 ms hit-stop on kills, screen shake (can be turned off), muzzle flash, damage flash.
 - **Audio cues:** reload complete, last bullet in the magazine, cover cracking, cover broken, low hearts.
 
-### 8.5 Accessibility and settings [PROPOSED]
+### 8.5 Accessibility and settings [built in M6]
 Joystick visibility, size and opacity · swipe sensitivity presets · double-tap window · haptics · reduced screen shake
 and flashing (glitch effects included) · colorblind-safe bullet palettes · text size · subtitles for all voice ·
 language · audio sliders · 30/60 fps (battery).
+
+**Built in M6:** one settings screen, opened from the title, the pause menu and the lab, and saved at once.
+- **Audio:** music and sound-effect volumes.
+- **Controls:** show the joystick, joystick size (Small, Normal, Large), joystick opacity, roll swipe sensitivity
+  (Low, Normal, High), the double-tap window for the EMP, and the aim reticle.
+- **Feedback:** vibration, screen shake and reduced flashing.
+- **Display:** bullet colors (Default, High contrast, Color-blind safe), text size (Normal, Large), frame rate
+  (60, 30), and language.
+- **Privacy options:** an ads entry that appears where the law requires it.
+
+There's no voice acting yet (Q10), so there are no subtitles to toggle.
 
 ---
 

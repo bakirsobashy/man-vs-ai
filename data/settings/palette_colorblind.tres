@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BulletPalette" format=3]
+
+[ext_resource type="Script" path="res://src/settings/bullet_palette.gd" id="1_palette"]
+[ext_resource type="Shader" path="res://src/settings/bullet_recolor.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hostile"]
+shader = ExtResource("2_shader")
+shader_parameter/tint = Color(1, 0.55, 0.1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_friendly"]
+shader = ExtResource("2_shader")
+shader_parameter/tint = Color(0.25, 0.6, 1, 1)
+
+[resource]
+script = ExtResource("1_palette")
+display_name = "Color-blind safe"
+hostile_material = SubResource("ShaderMaterial_hostile")
+friendly_material = SubResource("ShaderMaterial_friendly")

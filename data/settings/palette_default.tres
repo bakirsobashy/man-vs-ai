@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="BulletPalette" format=3]
+
+[ext_resource type="Script" path="res://src/settings/bullet_palette.gd" id="1_palette"]
+
+[resource]
+script = ExtResource("1_palette")
+display_name = "Default"

@@ -39,3 +39,8 @@ func _on_slot_delete_requested(slot: int) -> void:
 	SaveManager.delete_slot(slot)
 	for card: SlotCard in cards:
 		card.refresh()
+
+
+func _on_settings_button_pressed() -> void:
+	AudioManager.click()
+	(%SettingsPanel as SettingsPanel).open()

@@ -31,6 +31,9 @@ func _run() -> void:
 	await _test_final_boss()
 	await _test_cosmetics_shop()
 	await _test_cosmetics_in_play()
+	await _test_settings()
+	await _test_settings_panel()
+	_reset_settings()
 	_reset_stub()
 	Monetization.owned = PackedStringArray()
 	_clear_test_dir()
@@ -247,6 +250,123 @@ func _test_cosmetics_in_play() -> void:
 		"a fresh slot wears the default outfit")
 	level.queue_free()
 	await _wait(0.3)
+
+
+func _test_settings() -> void:
+	var options := SaveManager.options
+	_reset_settings()
+	_check(is_equal_approx(options.tuning.stick_radius, 48.0) and Engine.max_fps == 60 and SaveManager.palette().hostile_material == null,
+		"default settings: normal joystick, 60 fps, original bullet colors")
+	SaveManager.stick_size = 2
+	SaveManager.swipe_sensitivity = 0
+	SaveManager.double_tap_window = 0.4
+	SaveManager.fps_cap = 1
+	SaveManager.show_joystick = false
+	SaveManager.apply_settings()
+	_check(is_equal_approx(options.tuning.stick_radius, 64.0) and is_equal_approx(options.tuning.swipe_min_speed, options.swipe_presets[0].swipe_min_speed)
+		and is_equal_approx(options.tuning.double_tap_window, 0.4) and not options.tuning.show_joystick and Engine.max_fps == 30,
+		"the settings write the controls tuning (stick size, swipe preset, double-tap, joystick) and cap the frame rate")
+	SaveManager.save_settings()
+	_reset_settings()
+	SaveManager.load_settings()
+	_check(SaveManager.stick_size == 2 and SaveManager.swipe_sensitivity == 0 and SaveManager.fps_cap == 1 and not SaveManager.show_joystick,
+		"settings are saved and load back (settings.cfg)")
+	_reset_settings()
+
+	var level := await _load_level(1, 67)
+	var player := level.get_node(^"Player") as Player
+	var hud := level.get_node(^"HUD") as Hud
+	var hostile := _pool(level, "enemy_bullet_small")
+	var friendly := _pool(level, "player_bullet")
+	_check(hostile.material == null and friendly.material == null, "default bullets keep their art")
+	SaveManager.bullet_palette = 2
+	SaveManager.apply_settings()
+	var bullet := hostile.spawn(player.global_position + Vector2(0, -60), Vector2.UP)
+	_check(hostile.material == options.palettes[2].hostile_material and friendly.material == options.palettes[2].friendly_material
+		and bullet.use_parent_material and (bullet.get_node(^"Sprite") as CanvasItem).use_parent_material,
+		"the color-blind palette recolors enemy and player bullets through their pools")
+	bullet.despawn()
+	var scaler := level.get_node(^"HUD/TextScaler") as TextScaler
+	SaveManager.text_size = 1
+	SaveManager.apply_settings()
+	_check(scaler.theme.default_font_size == roundi(scaler.base_size * 1.25), "Large text scales the HUD's font (%d)" % scaler.theme.default_font_size)
+	SaveManager.screen_shake = false
+	var camera := level.get_node(^"Camera") as CameraFollow
+	EventBus.screen_shake_requested.emit(1.0)
+	await _frames(2)
+	_check(camera.offset == Vector2.ZERO, "screen shake can be turned off")
+	SaveManager.show_reticle = false
+	var target := (load("res://src/enemies/grunt/grunt.tscn") as PackedScene).instantiate() as Enemy
+	var room := (level.get_node(^"LevelDirector") as LevelDirector).current_room()
+	target.position = room.enemies.to_local(player.global_position + Vector2(0, -60))
+	room.enemies.add_child(target)
+	await _wait(0.9)
+	player.target_selector.current_target = target
+	player.update_aim(Vector2.ZERO)
+	_check(not player.reticle.visible, "the aim reticle can be hidden")
+	SaveManager.stick_opacity = 0.4
+	hud.show_stick(Vector2(180, 500))
+	_check(is_equal_approx(hud.joystick.modulate.a, 0.4), "joystick opacity follows the setting")
+	hud.hide_stick()
+	_reset_settings()
+	_check(hostile.material == null and scaler.theme.default_font_size == scaler.base_size, "back to defaults, everything re-applies")
+	level.queue_free()
+	await _wait(0.3)
+
+
+func _test_settings_panel() -> void:
+	GameState.reset_to_new()
+	GameState.flags.assign(["lab_intro_done"])
+	var lab := (load(LAB_PATH) as PackedScene).instantiate()
+	get_tree().root.add_child(lab)
+	await _wait(0.3)
+	var ui := lab.get_node(^"LabUI") as LabUI
+	var panel := lab.get_node(^"LabUI/SettingsPanel") as SettingsPanel
+	ui._on_settings_button_pressed()
+	_check(panel.visible and panel.stick_size_option.item_count == 3 and panel.palette_option.item_count == 3 and panel.fps_option.get_item_text(1) == "30 fps"
+		and not panel.privacy_button.visible, "the lab opens the settings screen with every option")
+	panel._on_text_size_option_item_selected(1)
+	panel._on_haptics_check_toggled(false)
+	_check(SaveManager.text_size == 1 and not SaveManager.haptics and FileAccess.file_exists(TEST_DIR + "settings.cfg"),
+		"changing an option applies and saves it at once")
+	panel._on_close_button_pressed()
+	Monetization.stub.privacy_options_required = true
+	panel.open()
+	_check(panel.privacy_button.visible and panel.text_size_option.selected == 1, "where the law requires it, Privacy options shows up")
+	_reset_stub()
+	Monetization.stub.privacy_options_required = false
+	panel._on_close_button_pressed()
+	lab.queue_free()
+	await _wait(0.2)
+	var title := (load("res://src/ui/title/title.tscn") as PackedScene).instantiate()
+	get_tree().root.add_child(title)
+	await _wait(0.2)
+	title.call(&"_on_settings_button_pressed")
+	var hud_scene := (load("res://src/ui/hud.tscn") as PackedScene).instantiate()
+	get_tree().root.add_child(hud_scene)
+	await _wait(0.1)
+	(hud_scene as Hud)._on_settings_button_pressed()
+	_check((title.get_node(^"SettingsPanel") as Control).visible and (hud_scene.get_node(^"Root/SettingsPanel") as Control).visible,
+		"the title and the pause menu open it too")
+	title.queue_free()
+	hud_scene.queue_free()
+	await _wait(0.2)
+
+
+func _reset_settings() -> void:
+	SaveManager.show_joystick = true
+	SaveManager.stick_size = 1
+	SaveManager.stick_opacity = 0.8
+	SaveManager.swipe_sensitivity = 1
+	SaveManager.double_tap_window = 0.3
+	SaveManager.show_reticle = true
+	SaveManager.screen_shake = true
+	SaveManager.bullet_palette = 0
+	SaveManager.text_size = 0
+	SaveManager.fps_cap = 0
+	SaveManager.haptics = true
+	SaveManager.language = ""
+	SaveManager.apply_settings()
 
 
 # --- Helpers ---

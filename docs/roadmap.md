@@ -243,8 +243,11 @@ audio layers are left.**
   - Owner setup steps are in [release/monetization_setup.md](release/monetization_setup.md).
 - **Built so far: cosmetics.** A catalog of 15 placeholder items, with free defaults for outfits, skins and EMP styles.
   The lab shop buys, equips and restores them, and the looks apply to the hero, the guns, the EMP and the lab.
-- The M6 smoke test passes 38/38.
-- **Next:** settings and accessibility, localization, performance, then the Play Console material.
+- **Built so far: settings and accessibility.** One settings screen covers audio, controls (joystick, swipe, double
+  tap, reticle), feedback (vibration, shake, flashing), display (bullet palettes, text size, 30/60 fps, language)
+  and privacy options. It opens from the title, the pause menu and the lab.
+- The M6 smoke test passes 52/52.
+- **Next:** localization, performance, then the Play Console material.
 
 **Scope**
 - Rewarded ads (Second Chance, Salvage bonus) with the consent flow.

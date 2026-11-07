@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://src/settings/settings_panel.tscn" id="97_settings"]
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://src/ui/debug_panel.gd" id="2_debug_panel"]
 [ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="3_tuning"]
@@ -1082,6 +1084,19 @@ libraries/ = SubResource("AnimationLibrary_glitch")
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_toast")
 
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_hud")
+base_size = 11
+
+[node name="SettingsButton" type="Button" parent="Root/PausePanel/VBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "More settings"
+
+[node name="SettingsPanel" parent="Root" instance=ExtResource("97_settings")]
+unique_name_in_owner = true
+
 [connection signal="toggled" from="Root/TopBand/Margin/Rows/Row1/DebugButton" to="Root/DebugPanel" method="_on_debug_button_toggled"]
 [connection signal="pressed" from="Root/TopBand/Margin/Rows/Row2/WeaponCard" to="." method="_on_weapon_card_pressed"]
 [connection signal="pressed" from="Root/PromptBubble" to="." method="_on_prompt_bubble_pressed"]
@@ -1111,3 +1126,4 @@ libraries/ = SubResource("AnimationLibrary_toast")
 [connection signal="pressed" from="Root/SummaryPanel/VBox/SalvageButton" to="." method="_on_salvage_button_pressed"]
 [connection signal="pressed" from="Root/SecondChancePanel/VBox/WatchButton" to="." method="_on_second_chance_watch_pressed"]
 [connection signal="pressed" from="Root/SecondChancePanel/VBox/DeclineButton" to="." method="_on_second_chance_decline_pressed"]
+[connection signal="pressed" from="Root/PausePanel/VBox/SettingsButton" to="." method="_on_settings_button_pressed"]

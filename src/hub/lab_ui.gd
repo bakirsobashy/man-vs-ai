@@ -322,3 +322,8 @@ func _on_quick_start_pressed() -> void:
 
 func _on_unlock_requested(entry: WeaponCatalogEntry) -> void:
 	unlock(entry)
+
+
+func _on_settings_button_pressed() -> void:
+	AudioManager.click()
+	(%SettingsPanel as SettingsPanel).open()

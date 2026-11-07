@@ -17,6 +17,8 @@ var _free: Array[Bullet] = []
 
 
 func _ready() -> void:
+	EventBus.settings_changed.connect(apply_palette)
+	apply_palette()
 	for _i: int in size:
 		var bullet := bullet_scene.instantiate() as Bullet
 		bullet.pool = self
@@ -60,3 +62,9 @@ static func find_for(tree: SceneTree, scene: PackedScene) -> BulletPool:
 		if pool != null and pool.bullet_scene == scene:
 			return pool
 	return null
+
+
+## The bullet color setting (GDD §8.5): the pool's material recolors its bullets (they use the parent material).
+func apply_palette() -> void:
+	var palette := SaveManager.palette()
+	material = null if palette == null else (palette.hostile_material if hostile else palette.friendly_material)

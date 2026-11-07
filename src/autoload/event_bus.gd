@@ -107,3 +107,6 @@ signal second_chance_answered(accepted: bool)
 ## Equipped cosmetics or visible lab decorations changed (the hero, guns, EMP and lab re-tint).
 @warning_ignore("unused_signal")
 signal cosmetics_changed
+## The player changed a setting (SaveManager.apply_settings): palettes, text size and the like re-apply.
+@warning_ignore("unused_signal")
+signal settings_changed

@@ -951,6 +951,27 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
 - `RunState.threat_level` is copied from the slot when a run starts and saved with the run; `RunState.reward_scale`
   (the RAM multiplier) is set by the LevelDirector and isn't saved.
 
+**Settings (M6):**
+- **Storage:** `SaveManager` keeps every setting in `settings.cfg` (audio, controls, feedback, accessibility,
+  display). Index fields pick from `data/settings/settings_options.tres` (`SettingsOptions`): stick radii, swipe
+  presets, bullet palettes, text scales, fps caps and languages.
+- **Applying:** `apply_settings()` writes the shared `controls_tuning.tres` (joystick shown, stick radius, swipe
+  preset, double-tap window). It also sets the bus volumes, `Engine.max_fps` and the locale, then emits
+  `EventBus.settings_changed`.
+- **Read where they're used:**
+  - the camera ignores shake requests when shake is off;
+  - the player hides the reticle;
+  - the HUD sets the stick's opacity.
+- **Bullet palettes:**
+  - every `BulletPool` sets its `material` from the palette (hostile or friendly side);
+  - bullet scenes and their `Sprite` use `use_parent_material`;
+  - `bullet_recolor.gdshader` keeps the art's brightness and replaces its hue, and the modulate (Threat Sight's
+    highlight) still applies on top.
+- **Text size:** a `TextScaler` node in each UI scene scales that scene's `Theme.default_font_size` (labels with
+  their own size keep it).
+- **The settings screen:** `src/settings/settings_panel.tscn` is instanced in the title, the HUD (the pause menu's
+  "More settings") and the lab.
+
 Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ```json
 {
@@ -1188,7 +1209,9 @@ func restore_purchases() -> void
   - Salvage (+25%, once), no ads without consent, an ad closed early, and no Second Chance against ZERO;
   - cosmetics: the catalog and product IDs, free defaults, buying in the lab shop (owned, equipped, the doll's look),
     decorations shown and hidden, a cancelled purchase, Restore, saves, and the skin and EMP tints in a level
-    (bullets never tinted).
+    (bullets never tinted);
+  - settings: tuning, frame cap, saving, palettes, text size, shake, reticle and stick opacity, and the settings
+    screen in the lab, title and pause menu (privacy options only where required).
 - **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
   results:
   - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);

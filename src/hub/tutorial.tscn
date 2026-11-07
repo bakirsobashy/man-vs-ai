@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/hub/tutorial_director.gd" id="1_director"]
 [ext_resource type="TileSet" path="res://src/levels/rooms/greybox_tiles.tres" id="2_tiles"]
 [ext_resource type="PackedScene" path="res://src/player/player.tscn" id="3_player"]
@@ -204,6 +205,11 @@ one_shot = true
 [node name="MusicCue" type="Node" parent="."]
 script = ExtResource("91_music_cue")
 stream = ExtResource("92_lab_theme")
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_ui")
+base_size = 12
 
 [connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
 [connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]

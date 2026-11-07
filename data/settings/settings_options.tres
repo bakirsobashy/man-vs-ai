@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SettingsOptions" format=3]
+
+[ext_resource type="Script" path="res://src/settings/settings_options.gd" id="1_options"]
+[ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="2_tuning"]
+[ext_resource type="Script" path="res://src/input/swipe_preset.gd" id="3_preset"]
+[ext_resource type="Resource" path="res://data/controls/swipe_low.tres" id="4_low"]
+[ext_resource type="Resource" path="res://data/controls/swipe_normal.tres" id="5_normal"]
+[ext_resource type="Resource" path="res://data/controls/swipe_high.tres" id="6_high"]
+[ext_resource type="Script" path="res://src/settings/bullet_palette.gd" id="7_palette"]
+[ext_resource type="Resource" path="res://data/settings/palette_default.tres" id="8_default"]
+[ext_resource type="Resource" path="res://data/settings/palette_high_contrast.tres" id="9_contrast"]
+[ext_resource type="Resource" path="res://data/settings/palette_colorblind.tres" id="10_colorblind"]
+
+[resource]
+script = ExtResource("1_options")
+tuning = ExtResource("2_tuning")
+swipe_presets = Array[ExtResource("3_preset")]([ExtResource("4_low"), ExtResource("5_normal"), ExtResource("6_high")])
+swipe_names = Array[String](["Low", "Normal", "High"])
+stick_radii = Array[float]([36.0, 48.0, 64.0])
+stick_size_names = Array[String](["Small", "Normal", "Large"])
+palettes = Array[ExtResource("7_palette")]([ExtResource("8_default"), ExtResource("9_contrast"), ExtResource("10_colorblind")])
+text_scales = Array[float]([1.0, 1.25])
+text_size_names = Array[String](["Normal", "Large"])
+fps_caps = Array[int]([60, 30])
+languages = Array[String](["", "en"])
+language_names = Array[String](["Device language", "English"])

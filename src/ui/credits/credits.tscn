@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/ui/credits/credits.gd" id="1_credits"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="3_music"]
 [ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="4_ending"]
@@ -244,5 +245,10 @@ horizontal_alignment = 1
 [node name="RollAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_roll")
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_credits")
+base_size = 13
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]

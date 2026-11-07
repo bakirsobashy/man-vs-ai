@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/ui/comic/comic_player.gd" id="1_comic"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/comics/implant_eyes.svg" id="2_implant_eyes"]
 
@@ -138,5 +139,10 @@ mouse_filter = 2
 theme_override_font_sizes/font_size = 11
 text = "tap to continue"
 horizontal_alignment = 1
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_comic")
+base_size = 13
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]
