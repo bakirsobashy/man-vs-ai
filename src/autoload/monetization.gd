@@ -9,6 +9,8 @@ extends Node
 ## the Play Store's list replaces it whenever it's read (refunds remove items).
 
 @export var config: MonetizationConfig
+## The cosmetics on sale: their product IDs go to the store (config.product_ids).
+@export var cosmetic_catalog: CosmeticCatalog
 
 @onready var stub: StubMonetization = %Stub
 @onready var android_ads: AndroidAds = %AndroidAds
@@ -23,6 +25,8 @@ var _billing: Node
 
 
 func _ready() -> void:
+	if cosmetic_catalog != null:
+		config.product_ids = cosmetic_catalog.product_ids()
 	var real_ads := not config.force_stub and android_ads.is_available()
 	var real_billing := not config.force_stub and android_billing.is_available()
 	_ads = android_ads if real_ads else stub

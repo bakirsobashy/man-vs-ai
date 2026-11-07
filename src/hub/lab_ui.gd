@@ -12,6 +12,11 @@ extends CanvasLayer
 @export var patch_lines: LineSet
 ## First-install comic per slot (slot name → comic scene); slots without one just get Vorn's line.
 @export var implant_comics: Dictionary[String, PackedScene] = {}
+## The cosmetics shop (M6): the catalog, one row scene per item, and the lab's Decor node (one hidden child per
+## decoration, named after its id).
+@export var cosmetic_catalog: CosmeticCatalog
+@export var cosmetic_row_scene: PackedScene
+@export var decor_root: Node2D
 
 @onready var surgery_panel: Control = %SurgeryPanel
 @onready var doll: HeroVisual = %Doll
@@ -25,6 +30,9 @@ extends CanvasLayer
 @onready var dialogue: DialogueBox = %Dialogue
 @onready var comic_layer: Control = %ComicLayer
 @onready var purchase_sound: AudioStreamPlayer = %PurchaseSound
+@onready var shop_panel: Control = %ShopPanel
+@onready var shop_list: Control = %ShopList
+@onready var shop_info: Label = %ShopInfo
 ## NG+: the threat level for the next new run (shown once an ending has unlocked one).
 @onready var threat_box: Control = %ThreatBox
 @onready var threat_label: Label = %ThreatLabel
@@ -33,9 +41,123 @@ var _slot := "heart"
 var _sales := 0
 
 
+## The kind of cosmetic the shop lists.
+var shop_kind := CosmeticData.Kind.OUTFIT
+
+
 func _ready() -> void:
 	EventBus.currency_changed.connect(_on_currency_changed)
+	EventBus.purchase_finished.connect(_on_purchase_finished)
+	EventBus.purchases_restored.connect(_on_purchases_restored)
+	EventBus.cosmetics_changed.connect(refresh_shop)
 	refresh_threat()
+	refresh_decor()
+
+
+# --- Cosmetics shop (GDD §9: looks only) ---
+
+func open_shop() -> void:
+	show_shop_kind(shop_kind)
+	shop_info.text = "Looks only. Nothing sold here changes the game."
+	_set_panel(shop_panel, true)
+
+
+## Lists the cosmetics of one kind (a cosmetic_row.tscn copy each).
+func show_shop_kind(kind: CosmeticData.Kind) -> void:
+	shop_kind = kind
+	for child: Node in shop_list.get_children():
+		shop_list.remove_child(child)
+		child.queue_free()
+	for item: CosmeticData in cosmetic_catalog.items_of(kind):
+		var row := cosmetic_row_scene.instantiate() as CosmeticRow
+		shop_list.add_child(row)
+		row.show_item(item, cosmetic_catalog)
+		row.action_requested.connect(_on_cosmetic_action)
+
+
+## Buy (through Monetization), equip, or show / hide a decoration.
+func use_cosmetic(item: CosmeticData) -> void:
+	if not cosmetic_catalog.is_owned(item):
+		shop_info.text = "Opening the store..."
+		Monetization.purchase(StringName(item.product_id))
+	elif item.kind == CosmeticData.Kind.LAB_DECOR and cosmetic_catalog.decor_visible(item):
+		cosmetic_catalog.hide_decor(item)
+		SaveManager.save_slot()
+	else:
+		cosmetic_catalog.equip(item)
+		SaveManager.save_slot()
+
+
+func refresh_shop() -> void:
+	for child: Node in shop_list.get_children():
+		var row := child as CosmeticRow
+		if row != null:
+			row.refresh()
+	refresh_decor()
+
+
+## Owned decorations stand in the lab unless hidden.
+func refresh_decor() -> void:
+	if decor_root == null or cosmetic_catalog == null:
+		return
+	for item: CosmeticData in cosmetic_catalog.items_of(CosmeticData.Kind.LAB_DECOR):
+		var node := decor_root.get_node_or_null(NodePath(item.id)) as CanvasItem
+		if node != null:
+			node.visible = cosmetic_catalog.decor_visible(item)
+
+
+func _on_cosmetic_action(item: CosmeticData) -> void:
+	AudioManager.click()
+	use_cosmetic(item)
+
+
+func _on_purchase_finished(product_id: StringName, success: bool) -> void:
+	var item := cosmetic_catalog.find_product(product_id) if cosmetic_catalog != null else null
+	if item == null:
+		return
+	if success:
+		purchase_sound.play()
+		cosmetic_catalog.equip(item)
+		SaveManager.save_slot()
+		shop_info.text = "%s is yours." % item.display_name
+	else:
+		shop_info.text = "The purchase didn't go through."
+	refresh_shop()
+
+
+func _on_purchases_restored() -> void:
+	refresh_shop()
+	if shop_panel.visible:
+		shop_info.text = "Purchases restored."
+
+
+func _on_shop_button_pressed() -> void:
+	AudioManager.click()
+	open_shop()
+
+
+func _on_shop_close_pressed() -> void:
+	_set_panel(shop_panel, false)
+
+
+func _on_restore_pressed() -> void:
+	Monetization.restore_purchases()
+
+
+func _on_tab_outfits_pressed() -> void:
+	show_shop_kind(CosmeticData.Kind.OUTFIT)
+
+
+func _on_tab_skins_pressed() -> void:
+	show_shop_kind(CosmeticData.Kind.WEAPON_SKIN)
+
+
+func _on_tab_lab_pressed() -> void:
+	show_shop_kind(CosmeticData.Kind.LAB_DECOR)
+
+
+func _on_tab_emp_pressed() -> void:
+	show_shop_kind(CosmeticData.Kind.EMP_STYLE)
 
 
 ## Shows the threat selector once an ending has unlocked threat level 1.
@@ -70,7 +192,7 @@ func open_armory() -> void:
 
 
 func any_panel_open() -> bool:
-	return surgery_panel.visible or armory_panel.visible or comic_layer.get_child_count() > 0
+	return surgery_panel.visible or armory_panel.visible or shop_panel.visible or comic_layer.get_child_count() > 0
 
 
 ## What surgery would install next in `slot_name` (null when maxed or not available yet).
@@ -158,7 +280,7 @@ func _weapon_name(entry: WeaponCatalogEntry) -> String:
 ## Panels pause the game while they're open (this layer keeps running).
 func _set_panel(panel: Control, open: bool) -> void:
 	panel.visible = open
-	get_tree().paused = surgery_panel.visible or armory_panel.visible
+	get_tree().paused = surgery_panel.visible or armory_panel.visible or shop_panel.visible
 
 
 func _on_currency_changed(_crypto: int, _ram_mb: int) -> void:

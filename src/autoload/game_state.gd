@@ -24,6 +24,10 @@ var last_ending := ""
 ## NG+ (Q5): the threat level new runs start at, and the highest one an ending has unlocked.
 var threat_level := 0
 var threat_unlocked := 0
+## Cosmetics (M6): equipped item per kind ("outfit", "weapon_skin", "emp_style" → item id) and the owned lab
+## decorations the player hid. Ownership itself is per account (Monetization).
+var equipped: Dictionary[String, String] = {}
+var hidden_decor: Array[String] = []
 ## runs, deaths, best_level, boss_kills, rooms_cleared.
 var stats: Dictionary[String, int] = {}
 ## One-time story beats: prologue_seen, tutorial_done, first-implant panels, lab talks…
@@ -53,6 +57,8 @@ func reset_to_new() -> void:
 	last_ending = ""
 	threat_level = 0
 	threat_unlocked = 0
+	equipped.clear()
+	hidden_decor.clear()
 	stats = {"runs": 0, "deaths": 0, "best_level": 0, "boss_kills": 0, "rooms_cleared": 0}
 	flags.clear()
 	playtime_s = 0.0
@@ -171,6 +177,8 @@ func to_dict() -> Dictionary:
 		"last_ending": last_ending,
 		"threat_level": threat_level,
 		"threat_unlocked": threat_unlocked,
+		"equipped": equipped.duplicate(),
+		"hidden_decor": hidden_decor.duplicate(),
 		"stats": stats.duplicate(),
 		"flags": flags.duplicate(),
 	}
@@ -192,6 +200,11 @@ func from_dict(data: Dictionary) -> void:
 	last_ending = str(data.get("last_ending", ""))
 	threat_unlocked = maxi(int(data.get("threat_unlocked", 0)), 0)
 	threat_level = clampi(int(data.get("threat_level", 0)), 0, threat_unlocked)
+	var saved_equipped: Variant = data.get("equipped", {})
+	if saved_equipped is Dictionary:
+		for key: Variant in (saved_equipped as Dictionary):
+			equipped[str(key)] = str((saved_equipped as Dictionary)[key])
+	hidden_decor = _strings(data.get("hidden_decor", []), [])
 	flags = _strings(data.get("flags", []), [])
 	var saved_stats: Variant = data.get("stats", {})
 	if saved_stats is Dictionary:

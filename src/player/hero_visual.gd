@@ -5,11 +5,16 @@ extends Node2D
 
 ## Follow GameState's implants (off for previews that show other tiers).
 @export var follow_game_state := true
+## Cosmetics (M6): the equipped outfit tints the body. Outfits never cover the implant overlays.
+@export var cosmetic_catalog: CosmeticCatalog
 
 @onready var implants_root: Node2D = %Implants
+@onready var body: CanvasItem = %Body
 
 
 func _ready() -> void:
+	EventBus.cosmetics_changed.connect(apply_outfit)
+	apply_outfit()
 	if follow_game_state:
 		EventBus.implants_changed.connect(refresh)
 		refresh()
@@ -17,6 +22,13 @@ func _ready() -> void:
 
 func refresh() -> void:
 	show_implants(GameState.implants)
+	apply_outfit()
+
+
+## The equipped outfit's look on the body (every paper doll shows it, previews included).
+func apply_outfit() -> void:
+	var outfit := cosmetic_catalog.equipped(CosmeticData.Kind.OUTFIT) if cosmetic_catalog != null else null
+	body.self_modulate = outfit.tint if outfit != null else Color.WHITE
 
 
 ## Shows the overlay for each slot's tier and hides the rest.

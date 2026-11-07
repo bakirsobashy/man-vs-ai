@@ -32,8 +32,12 @@ phone before release.
    says ads may be requested. The settings screen shows **Privacy options** where UMP requires it.
 
 ## 3. Cosmetic purchases (Play Billing)
-1. In the Play Console, create a **one-time product** for each cosmetic in the catalog, using the same product IDs
-   (`data/monetization/monetization.tres` → `product_ids`; the cosmetics catalog fills it).
+1. In the Play Console, create a **one-time product** for each paid cosmetic in `data/cosmetics/catalog.tres`, with
+   the same product ID: `outfit_night_runner`, `outfit_rain_coat`, `outfit_old_uniform`, `skin_carbon`,
+   `skin_brass`, `skin_neon`, `decor_drawings`, `decor_plant`, `decor_neon_sign`, `emp_red_alert`, `emp_static`
+   and `emp_violet`. The catalog fills `Monetization`'s product list at start.
+   The shop shows each item's placeholder `price_label`. Showing Play's localized price needs the bridge to read
+   `query_product_details_response` (not done yet).
 2. Purchases are acknowledged on the client, which is enough for cosmetics (no server). Pending purchases are only
    granted once they're paid; **Restore purchases** re-reads them.
 3. Billing only works in builds uploaded to a Play testing track. Add license testers in the Play Console to buy

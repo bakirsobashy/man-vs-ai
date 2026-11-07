@@ -5,6 +5,8 @@ extends Node
 
 const TEST_DIR := "user://test_saves_m6/"
 const LEVEL_PATH := "res://src/levels/level.tscn"
+const LAB_PATH := "res://src/hub/lab.tscn"
+const COSMETICS := "res://data/cosmetics/catalog.tres"
 
 var _failures := 0
 var _rewards: Array[String] = []
@@ -27,6 +29,8 @@ func _run() -> void:
 	await _test_salvage()
 	await _test_no_consent()
 	await _test_final_boss()
+	await _test_cosmetics_shop()
+	await _test_cosmetics_in_play()
 	_reset_stub()
 	Monetization.owned = PackedStringArray()
 	_clear_test_dir()
@@ -158,6 +162,89 @@ func _test_final_boss() -> void:
 	await _wait(0.6)
 	await _die(player)
 	_check(not hud.second_chance_panel.visible and hud.summary_panel.visible, "there's no Second Chance against ZERO (Q9)")
+	level.queue_free()
+	await _wait(0.3)
+
+
+func _test_cosmetics_shop() -> void:
+	var catalog := load(COSMETICS) as CosmeticCatalog
+	var kinds_ok := true
+	for kind: int in [CosmeticData.Kind.OUTFIT, CosmeticData.Kind.WEAPON_SKIN, CosmeticData.Kind.LAB_DECOR, CosmeticData.Kind.EMP_STYLE]:
+		kinds_ok = kinds_ok and catalog.items_of(kind).size() >= 3
+	_check(kinds_ok and catalog.product_ids().size() == 12 and Monetization.config.product_ids == catalog.product_ids(),
+		"the catalog has outfits, weapon skins, lab decorations and EMP styles; their product IDs go to the store")
+	GameState.reset_to_new()
+	_check(catalog.equipped(CosmeticData.Kind.OUTFIT).id == "outfit_field_jacket" and catalog.equipped(CosmeticData.Kind.WEAPON_SKIN).id == "skin_factory"
+		and catalog.equipped(CosmeticData.Kind.EMP_STYLE).id == "emp_blue", "a new save wears the free defaults")
+	var runner := catalog.find("outfit_night_runner")
+	_check(not catalog.equip(runner) and catalog.equipped(CosmeticData.Kind.OUTFIT).id == "outfit_field_jacket", "an item that isn't owned can't be equipped")
+
+	GameState.flags.assign(["lab_intro_done"])
+	var lab := (load(LAB_PATH) as PackedScene).instantiate()
+	get_tree().root.add_child(lab)
+	await _wait(0.3)
+	var ui := lab.get_node(^"LabUI") as LabUI
+	ui.open_shop()
+	var rows := ui.shop_list.get_children()
+	var first := rows[0] as CosmeticRow
+	var second := rows[1] as CosmeticRow
+	_check(rows.size() == 4 and first.action_button.text == "Equipped" and second.action_button.text == "$1.99" and get_tree().paused,
+		"the lab shop lists outfits: the default is equipped, the rest show a price")
+	ui.use_cosmetic(runner)
+	await _frames(3)
+	var doll := ui.doll
+	_check(Monetization.owns(&"outfit_night_runner") and catalog.equipped(CosmeticData.Kind.OUTFIT) == runner
+		and second.action_button.text == "Equipped" and ui.shop_info.text.contains("Night Runner"), "buying an outfit owns and equips it")
+	_check(doll.body.self_modulate == runner.tint, "and the hero's body takes its look")
+	var drawings := catalog.find("decor_drawings")
+	var node := lab.get_node(^"Decor/decor_drawings") as CanvasItem
+	_check(not node.visible, "lab decorations start hidden")
+	ui.show_shop_kind(CosmeticData.Kind.LAB_DECOR)
+	ui.use_cosmetic(drawings)
+	await _frames(3)
+	_check(node.visible and catalog.decor_visible(drawings), "a bought decoration appears in the lab")
+	ui.use_cosmetic(drawings)
+	_check(not node.visible and GameState.hidden_decor.has("decor_drawings"), "it can be hidden")
+	ui.use_cosmetic(drawings)
+	_check(node.visible, "and shown again")
+	Monetization.stub.purchases_succeed = false
+	ui.show_shop_kind(CosmeticData.Kind.EMP_STYLE)
+	ui.use_cosmetic(catalog.find("emp_violet"))
+	await _frames(3)
+	_check(not Monetization.owns(&"emp_violet") and ui.shop_info.text.contains("didn't go through"), "a cancelled purchase says so")
+	_reset_stub()
+	ui._on_restore_pressed()
+	await _frames(3)
+	_check(ui.shop_info.text == "Purchases restored." and Monetization.owns(&"outfit_night_runner"), "Restore purchases refreshes the shop")
+	var saved := GameState.to_dict()
+	GameState.reset_to_new()
+	GameState.from_dict(saved)
+	_check(GameState.equipped.get("outfit", "") == "outfit_night_runner" and Monetization.owns(&"decor_drawings"),
+		"the equipped look is saved on the slot; ownership stays with the account")
+	ui._on_shop_close_pressed()
+	_check(not get_tree().paused, "closing the shop unpauses")
+	lab.queue_free()
+	await _wait(0.2)
+
+
+func _test_cosmetics_in_play() -> void:
+	var catalog := load(COSMETICS) as CosmeticCatalog
+	for product: StringName in [&"skin_carbon", &"emp_red_alert"]:
+		Monetization.purchase(product)
+	await _frames(3)
+	var level := await _load_level(1, 66)
+	var player := level.get_node(^"Player") as Player
+	catalog.equip(catalog.find("skin_carbon"))
+	catalog.equip(catalog.find("emp_red_alert"))
+	await _frames(2)
+	var gun_sprite := player.weapon.get_node(^"Sprite") as CanvasItem
+	var bullet := _pool(level, "player_bullet").spawn(player.global_position, Vector2.UP)
+	_check(gun_sprite.self_modulate == catalog.find("skin_carbon").tint and bullet.self_modulate == Color.WHITE and bullet.modulate == Color.WHITE,
+		"a weapon skin tints the gun, never its bullets")
+	bullet.despawn()
+	_check(player.emp_wave.self_modulate == catalog.find("emp_red_alert").tint, "an EMP style tints the EMP wave")
+	_check(GameState.equipped.get("outfit", "") == "" and (player.get_node(^"Visual") as HeroVisual).body.self_modulate == Color.WHITE,
+		"a fresh slot wears the default outfit")
 	level.queue_free()
 	await _wait(0.3)
 

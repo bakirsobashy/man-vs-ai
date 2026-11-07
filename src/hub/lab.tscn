@@ -44,6 +44,11 @@
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/purchase.wav" id="90_purchase"]
 [ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
+[ext_resource type="Resource" path="res://data/cosmetics/catalog.tres" id="80_cosmetics"]
+[ext_resource type="PackedScene" path="res://src/hub/cosmetic_row.tscn" id="81_cosmetic_row"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/decor_drawings.svg" id="82_decor_drawings"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/decor_plant.svg" id="83_decor_plant"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/decor_neon_sign.svg" id="84_decor_neon_sign"]
 
 [sub_resource type="Theme" id="Theme_ui"]
 default_font_size = 12
@@ -132,6 +137,23 @@ texture = ExtResource("21_patch")
 position = Vector2(80, 440)
 texture = ExtResource("22_cot")
 
+[node name="Decor" type="Node2D" parent="."]
+
+[node name="decor_drawings" type="Sprite2D" parent="Decor"]
+visible = false
+position = Vector2(40, 360)
+texture = ExtResource("82_decor_drawings")
+
+[node name="decor_plant" type="Sprite2D" parent="Decor"]
+visible = false
+position = Vector2(316, 470)
+texture = ExtResource("83_decor_plant")
+
+[node name="decor_neon_sign" type="Sprite2D" parent="Decor"]
+visible = false
+position = Vector2(120, 40)
+texture = ExtResource("84_decor_neon_sign")
+
 [node name="Stations" type="Node2D" parent="."]
 
 [node name="SurgeryChair" parent="Stations" instance=ExtResource("17_chair")]
@@ -175,13 +197,16 @@ hud = NodePath("../HUD")
 [node name="HUD" parent="." instance=ExtResource("7_hud")]
 show_minimap = false
 
-[node name="LabUI" type="CanvasLayer" parent="."]
+[node name="LabUI" type="CanvasLayer" parent="." node_paths=PackedStringArray("decor_root")]
 process_mode = 3
 layer = 5
 script = ExtResource("9_lab_ui")
 implant_catalog = ExtResource("10_implants")
 weapon_catalog = ExtResource("11_weapons")
 armory_row_scene = ExtResource("12_armory_row")
+cosmetic_catalog = ExtResource("80_cosmetics")
+cosmetic_row_scene = ExtResource("81_cosmetic_row")
+decor_root = NodePath("../Decor")
 patch_lines = ExtResource("13_patch_lines")
 implant_comics = Dictionary[String, PackedScene]({
 "arms": ExtResource("38_comic_arms"),
@@ -203,6 +228,90 @@ offset_bottom = 84.0
 grow_horizontal = 0
 theme = SubResource("Theme_ui")
 text = "Quick Start"
+
+[node name="ShopButton" type="Button" parent="LabUI"]
+offset_left = 8.0
+offset_top = 52.0
+offset_right = 92.0
+offset_bottom = 84.0
+theme = SubResource("Theme_ui")
+text = "Shop"
+
+[node name="ShopPanel" type="PanelContainer" parent="LabUI"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 16.0
+offset_top = 52.0
+offset_right = -16.0
+offset_bottom = -16.0
+theme = SubResource("Theme_ui")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="LabUI/ShopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="LabUI/ShopPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+text = "SHOP · COSMETICS"
+
+[node name="ShopInfo" type="Label" parent="LabUI/ShopPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "Looks only. Nothing sold here changes the game."
+
+[node name="Tabs" type="HBoxContainer" parent="LabUI/ShopPanel/VBox"]
+layout_mode = 2
+
+[node name="TabOutfits" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Outfits"
+
+[node name="TabSkins" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skins"
+
+[node name="TabLab" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Lab"
+
+[node name="TabEmp" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "EMP"
+
+[node name="Scroll" type="ScrollContainer" parent="LabUI/ShopPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ShopList" type="VBoxContainer" parent="LabUI/ShopPanel/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Restore" type="Button" parent="LabUI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+text = "Restore purchases"
+
+[node name="ShopClose" type="Button" parent="LabUI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Close"
 
 [node name="ThreatBox" type="HBoxContainer" parent="LabUI"]
 unique_name_in_owner = true
@@ -429,3 +538,10 @@ retrieval_lines = ExtResource("25_retrieval")
 [connection signal="confirmed" from="LabUI/SurgeryPanel/VBox/InstallButton" to="LabUI" method="_on_install_button_confirmed"]
 [connection signal="pressed" from="LabUI/SurgeryPanel/VBox/SurgeryClose" to="LabUI" method="_on_surgery_close_pressed"]
 [connection signal="pressed" from="LabUI/ArmoryPanel/VBox/ArmoryClose" to="LabUI" method="_on_armory_close_pressed"]
+[connection signal="pressed" from="LabUI/ShopButton" to="LabUI" method="_on_shop_button_pressed"]
+[connection signal="pressed" from="LabUI/ShopPanel/VBox/Restore" to="LabUI" method="_on_restore_pressed"]
+[connection signal="pressed" from="LabUI/ShopPanel/VBox/ShopClose" to="LabUI" method="_on_shop_close_pressed"]
+[connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabOutfits" to="LabUI" method="_on_tab_outfits_pressed"]
+[connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabSkins" to="LabUI" method="_on_tab_skins_pressed"]
+[connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabLab" to="LabUI" method="_on_tab_lab_pressed"]
+[connection signal="pressed" from="LabUI/ShopPanel/VBox/Tabs/TabEmp" to="LabUI" method="_on_tab_emp_pressed"]

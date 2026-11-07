@@ -104,3 +104,6 @@ signal second_chance_offered
 ## The player answered the Second Chance panel.
 @warning_ignore("unused_signal")
 signal second_chance_answered(accepted: bool)
+## Equipped cosmetics or visible lab decorations changed (the hero, guns, EMP and lab re-tint).
+@warning_ignore("unused_signal")
+signal cosmetics_changed

@@ -514,6 +514,8 @@ language · audio sliders · 30/60 fps (battery).
 - **Built in M6:** the title screen runs the consent flow once per session; without consent, neither ad is offered.
   After a death the game pauses on a Second Chance panel (watch, or no thanks); the Retrieved summary offers Salvage
   once. Purchases and ads go through the `Monetization` autoload (a stub on the desktop).
+- **Built in M6:** the lab's **Shop** sells placeholder outfits, weapon skins, lab decorations and EMP styles
+  ([content.md](content.md) §8). They're equipped per save slot, and Restore purchases is in the shop.
 
 ---
 

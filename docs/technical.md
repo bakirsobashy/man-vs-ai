@@ -1045,6 +1045,33 @@ func restore_purchases() -> void
 - **Salvage:** the HUD's `SalvageButton` on the run summary shows when ads are allowed and the run earned Crypto. A
   granted ad adds `ceil(crypto_earned × salvage_share)` to the slot, once.
 
+### 12.1 Cosmetics (M6)
+- **Data:**
+  - `data/cosmetics/catalog.tres` is a `CosmeticCatalog` of `CosmeticData` items: id, Play product ID (empty means a
+    free default), kind (Outfit, Weapon skin, Lab decoration, EMP style), name, description, placeholder price label
+    and tint.
+  - `Monetization` sends the catalog's product IDs to the store.
+- **Ownership and what's equipped:**
+  - Ownership comes from `Monetization.owns()` (per account).
+  - The slot saves what's equipped: `GameState.equipped` maps "outfit", "weapon_skin" and "emp_style" to an item id,
+    and `GameState.hidden_decor` lists hidden decorations.
+  - `CosmeticCatalog.equipped(kind)` falls back to the free default when the choice isn't owned (a refund, a new
+    save).
+  - Changes emit `EventBus.cosmetics_changed`.
+- **Placeholder looks (tints on existing nodes):**
+  - every `HeroVisual` tints its unique `Body` with the outfit; implant overlays stay on top;
+  - `Weapon.apply_skin()` tints the gun's `Sprite` only, never bullets, the muzzle flash or the silhouette;
+  - the player's unique `EmpWave` takes the EMP style through `self_modulate`, so the EMP animation keeps its fade;
+  - each lab decoration is a hidden `Sprite2D` under the lab's `Decor` node, named after its id. `LabUI.refresh_decor()`
+    shows the owned ones that aren't hidden.
+  - Real art will replace these with layers and textures on the same nodes.
+- **Shop:**
+  - the lab's `ShopButton` opens `ShopPanel`, with tabs for the four kinds and a `cosmetic_row.tscn` copy per item;
+  - a row's button buys (the price), equips, says "Equipped", or shows or hides a decoration;
+  - a successful purchase equips the item;
+  - **Restore purchases** calls `Monetization.restore_purchases()`;
+  - the tree pauses while the shop is open, as it does for the other lab panels.
+
 ---
 
 ## 13. Performance budgets
@@ -1158,7 +1185,10 @@ func restore_purchases() -> void
   - the stub standing in on the desktop, consent gating, rewarded ads and purchases (owned, saved, cancelled,
     restored);
   - Second Chance in a real level (offer and pause, revive, EMP, once per run, saved);
-  - Salvage (+25%, once), no ads without consent, an ad closed early, and no Second Chance against ZERO.
+  - Salvage (+25%, once), no ads without consent, an ad closed early, and no Second Chance against ZERO;
+  - cosmetics: the catalog and product IDs, free defaults, buying in the lab shop (owned, equipped, the doll's look),
+    decorations shown and hidden, a cancelled purchase, Restore, saves, and the skin and EMP tints in a level
+    (bullets never tinted).
 - **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
   results:
   - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);

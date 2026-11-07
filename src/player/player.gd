@@ -46,6 +46,8 @@ extends CharacterBody2D
 @export_range(0.0, 1.0, 0.05) var ammo_pickup_share := 0.25
 ## Copied to put a dropped gun on the floor.
 @export var weapon_pickup_scene: PackedScene
+## Cosmetics (M6): weapon skins tint the guns, EMP styles tint the EMP wave.
+@export var cosmetic_catalog: CosmeticCatalog
 
 @export_group("Feedback")
 ## Vibrate on hits, rolls, cover and EMP (Android needs the VIBRATE permission in the export preset).
@@ -95,6 +97,7 @@ extends CharacterBody2D
 @onready var body_animation: AnimationPlayer = %BodyAnimation
 @onready var flash_animation: AnimationPlayer = %FlashAnimation
 @onready var emp_animation: AnimationPlayer = %EmpAnimation
+@onready var emp_wave: CanvasItem = %EmpWave
 @onready var roll_shockwave: Area2D = %RollShockwave
 @onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
 @onready var target_hp: ProgressBar = %TargetHp
@@ -176,7 +179,9 @@ func _ready() -> void:
 	EventBus.interact_requested.connect(interact)
 	EventBus.implants_changed.connect(apply_implants)
 	EventBus.room_cleared.connect(_on_room_cleared)
+	EventBus.cosmetics_changed.connect(apply_cosmetics)
 	apply_implants()
+	apply_cosmetics()
 	health.reset()
 	_announce.call_deferred()
 
@@ -367,6 +372,7 @@ func _off_hand() -> Weapon:
 
 ## Implant multipliers on one gun.
 func _tune(gun: Weapon) -> void:
+	gun.apply_skin(_skin_tint())
 	gun.crit_chance = crit_chance
 	gun.set_range_scale(aim_range_scale)
 	gun.spread_scale = spread_scale
@@ -562,6 +568,20 @@ func fire_emp() -> void:
 	haptic(haptic_emp_ms)
 	EventBus.screen_shake_requested.emit(0.4)
 	EventBus.player_emp_changed.emit(emp_charges)
+
+
+## Equipped cosmetics: the weapon skin on both guns and the EMP style on the EMP wave (looks only).
+func apply_cosmetics() -> void:
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.apply_skin(_skin_tint())
+	var style := cosmetic_catalog.equipped(CosmeticData.Kind.EMP_STYLE) if cosmetic_catalog != null else null
+	emp_wave.self_modulate = style.tint if style != null else Color.WHITE
+
+
+func _skin_tint() -> Color:
+	var skin := cosmetic_catalog.equipped(CosmeticData.Kind.WEAPON_SKIN) if cosmetic_catalog != null else null
+	return skin.tint if skin != null else Color.WHITE
 
 
 ## Second Chance (a rewarded ad): back on his feet with `hp` half-hearts and no armor, briefly invulnerable, and a

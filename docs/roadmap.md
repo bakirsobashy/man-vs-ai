@@ -240,10 +240,11 @@ audio layers are left.**
   - The `Monetization` autoload with the desktop stub and the AdMob (with UMP consent) and Play Billing bridges.
   - The consent flow at the title.
   - Second Chance after a death (once per run) and Salvage on the run summary.
-  - The M6 smoke test passes 21/21.
   - Owner setup steps are in [release/monetization_setup.md](release/monetization_setup.md).
-- **Next:** the cosmetics shop, then settings and accessibility, localization, performance, then the Play Console
-  material.
+- **Built so far: cosmetics.** A catalog of 15 placeholder items, with free defaults for outfits, skins and EMP styles.
+  The lab shop buys, equips and restores them, and the looks apply to the hero, the guns, the EMP and the lab.
+- The M6 smoke test passes 38/38.
+- **Next:** settings and accessibility, localization, performance, then the Play Console material.
 
 **Scope**
 - Rewarded ads (Second Chance, Salvage bonus) with the consent flow.

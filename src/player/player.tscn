@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Resource" path="res://data/cosmetics/catalog.tres" id="80_cosmetics"]
 [ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
 [ext_resource type="Resource" path="res://data/controls/controls_tuning.tres" id="2_tuning"]
 [ext_resource type="PackedScene" path="res://src/weapons/service_pistol/service_pistol.tscn" id="4_pistol"]
@@ -413,6 +414,7 @@ weapon_pickup_scene = ExtResource("16_weapon_pickup")
 implant_catalog = ExtResource("18_implants")
 tuning = ExtResource("2_tuning")
 weapon_catalog = ExtResource("19_weapons")
+cosmetic_catalog = ExtResource("80_cosmetics")
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 unique_name_in_owner = true
@@ -546,6 +548,7 @@ wait_time = 1.5
 one_shot = true
 
 [node name="EmpWave" type="Sprite2D" parent="."]
+unique_name_in_owner = true
 visible = false
 scale = Vector2(0.1, 0.1)
 texture = ExtResource("15_emp_ring")
