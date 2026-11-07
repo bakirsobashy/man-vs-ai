@@ -58,7 +58,7 @@ func _ready() -> void:
 
 func open_shop() -> void:
 	show_shop_kind(shop_kind)
-	shop_info.text = "Looks only. Nothing sold here changes the game."
+	shop_info.text = tr("lab.shop_info")
 	_set_panel(shop_panel, true)
 
 
@@ -78,7 +78,7 @@ func show_shop_kind(kind: CosmeticData.Kind) -> void:
 ## Buy (through Monetization), equip, or show / hide a decoration.
 func use_cosmetic(item: CosmeticData) -> void:
 	if not cosmetic_catalog.is_owned(item):
-		shop_info.text = "Opening the store..."
+		shop_info.text = tr("shop.opening_store")
 		Monetization.purchase(StringName(item.product_id))
 	elif item.kind == CosmeticData.Kind.LAB_DECOR and cosmetic_catalog.decor_visible(item):
 		cosmetic_catalog.hide_decor(item)
@@ -119,16 +119,16 @@ func _on_purchase_finished(product_id: StringName, success: bool) -> void:
 		purchase_sound.play()
 		cosmetic_catalog.equip(item)
 		SaveManager.save_slot()
-		shop_info.text = "%s is yours." % item.display_name
+		shop_info.text = tr("shop.yours") % tr(item.display_name)
 	else:
-		shop_info.text = "The purchase didn't go through."
+		shop_info.text = tr("shop.purchase_failed")
 	refresh_shop()
 
 
 func _on_purchases_restored() -> void:
 	refresh_shop()
 	if shop_panel.visible:
-		shop_info.text = "Purchases restored."
+		shop_info.text = tr("shop.restored")
 
 
 func _on_shop_button_pressed() -> void:
@@ -163,7 +163,7 @@ func _on_tab_emp_pressed() -> void:
 ## Shows the threat selector once an ending has unlocked threat level 1.
 func refresh_threat() -> void:
 	threat_box.visible = GameState.threat_unlocked > 0
-	threat_label.text = "THREAT %d" % GameState.threat_level if GameState.threat_level > 0 else "THREAT 0 (normal)"
+	threat_label.text = tr("lab.threat") % GameState.threat_level if GameState.threat_level > 0 else tr("lab.threat_normal")
 
 
 ## Steps the next run's threat level by `step`, within what's unlocked.
@@ -187,7 +187,7 @@ func open_armory() -> void:
 			row.show_entry(entry, _weapon_name(entry))
 			row.unlock_requested.connect(_on_unlock_requested)
 	_refresh_armory()
-	armory_info.text = "\"Everything you unlock, I stash in the districts. Check the chests.\""
+	armory_info.text = tr("lab.patch_quote") % tr("lab.armory_greeting")
 	_set_panel(armory_panel, true)
 
 
@@ -210,7 +210,7 @@ func install(slot_name: String) -> bool:
 	GameState.add_stat("implants_installed")
 	SaveManager.save_slot()
 	purchase_sound.play()
-	dialogue.say("Vorn", implant.vorn_line)
+	dialogue.say("speaker.vorn", implant.vorn_line)
 	var comic_flag := "implant_comic_" + slot_name
 	if first and implant_comics.has(slot_name) and not GameState.has_flag(comic_flag):
 		var comic := implant_comics[slot_name].instantiate() as ComicPlayer
@@ -228,7 +228,7 @@ func unlock(entry: WeaponCatalogEntry) -> bool:
 	SaveManager.save_slot()
 	purchase_sound.play()
 	_sales += 1
-	armory_info.text = "\"%s\"" % patch_lines.pick(_sales - 1) if patch_lines != null else ""
+	armory_info.text = tr("lab.patch_quote") % tr(patch_lines.pick(_sales - 1)) if patch_lines != null else ""
 	_refresh_armory()
 	return true
 
@@ -245,22 +245,22 @@ func _select_slot(slot_name: String) -> void:
 	var preview := GameState.implants.duplicate()
 	install_button.require_hold = tier == 0
 	if not implant_catalog.has_slot(slot_name):
-		implant_name.text = slot_name.capitalize()
-		implant_info.text = "Vorn is still building this one."
-		install_button.text = "Unavailable"
+		implant_name.text = tr("implant_slot." + slot_name)
+		implant_info.text = tr("surgery.not_ready")
+		install_button.text = tr("surgery.unavailable")
 		install_button.disabled = true
 	elif implant == null:
 		var installed := implant_catalog.get_tier(slot_name, tier)
-		implant_name.text = installed.display_name
-		implant_info.text = "Fully upgraded."
-		install_button.text = "Maxed"
+		implant_name.text = tr(installed.display_name)
+		implant_info.text = tr("surgery.maxed_info")
+		install_button.text = tr("surgery.maxed")
 		install_button.disabled = true
 	else:
 		preview[slot_name] = implant.tier
-		implant_name.text = implant.display_name
-		var warning := "\nIrreversible. This changes Kade for good." if tier == 0 else ""
-		implant_info.text = "%s\nCost: %d MB (you have %d MB).%s" % [implant.description, implant.cost_mb, GameState.ram_mb, warning]
-		install_button.text = ("Hold to install" if tier == 0 else "Upgrade") + " · %d MB" % implant.cost_mb
+		implant_name.text = tr(implant.display_name)
+		var warning := "\n" + tr("surgery.irreversible") if tier == 0 else ""
+		implant_info.text = tr("surgery.info") % [tr(implant.description), implant.cost_mb, GameState.ram_mb, warning]
+		install_button.text = (tr("surgery.install") if tier == 0 else tr("surgery.upgrade")) + " · " + tr("hud.ram") % implant.cost_mb
 		install_button.disabled = GameState.ram_mb < implant.cost_mb
 	doll.show_implants(preview)
 
@@ -272,7 +272,7 @@ func _refresh_armory() -> void:
 
 func _weapon_name(entry: WeaponCatalogEntry) -> String:
 	var gun := entry.scene.instantiate() as Weapon
-	var display := gun.display_name
+	var display := tr(gun.display_name)
 	gun.free()
 	return display
 

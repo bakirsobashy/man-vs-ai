@@ -12,6 +12,7 @@
 | Q6 | Should human-path players get a RAM sink? | None (pure hard mode) · RAM → Crypto exchange at a bad rate · hacked terminals only | M4 balance | The owner chose "hard mode by design"; hacked terminals already use RAM |
 | Q7 | How to handle weapon-pool dilution | Accept it · "favorite" weights · let players disable unlocked guns | M5 | Unlocking weak guns lowers the odds of good ones; Gungeon has the same problem |
 | Q10 | Voice acting scope | None · barks only · key lines | M4 (budget) | Every line is subtitled regardless |
+| Q12 | Launch languages | English only · English plus a few (e.g. ES, PT-BR, DE, FR, RU, TR) · more later | M6 (store listing) | All text is in `localization/strings.csv` (477 keys). CJK, Arabic or Hindi need a Noto font ([technical.md](technical.md) §10) |
 
 ## Decided in the foundation Q&A (2026-11-03)
 | Topic | Decision |
@@ -73,3 +74,4 @@
 | R13 | Scene-first drift: code (written by people or AI) starts building nodes again | `CLAUDE.md` rules, `tools/check_scene_first.sh`, the review checklist in [technical.md](technical.md) §14 |
 | R14 | Editor signal connections break silently when nodes or methods are renamed | `tools/check_scenes.gd` checks every connection; Godot also reports broken connections when a scene loads |
 | R15 | M2 enemies steer straight and can get stuck behind cover | **Addressed in M3:** walking robots follow a `NavigationAgent2D` path baked around each room's walls and cover (re-baked when cover breaks), in the level rooms and the M2 arena |
+| R16 | New text skips the string table, or a longer translation overflows a screen | The M6 smoke test checks that every key is in the table and every table key is used. It also lays out each screen under a pseudo-locale (+30% length) at 360 × 640 ([technical.md](technical.md) §10) |

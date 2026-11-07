@@ -13,6 +13,6 @@ shader_parameter/tint = Color(0.25, 0.6, 1, 1)
 
 [resource]
 script = ExtResource("1_palette")
-display_name = "Color-blind safe"
+display_name = "settings.palette.colorblind"
 hostile_material = SubResource("ShaderMaterial_hostile")
 friendly_material = SubResource("ShaderMaterial_friendly")

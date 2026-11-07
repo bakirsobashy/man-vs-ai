@@ -54,7 +54,7 @@ extends CanvasLayer
 
 ## Crypto the Salvage ad would add to this summary (0 once it's used).
 var salvage_amount := 0
-var _weapon_text := "Pistol"
+var _weapon_text := ""
 var _ammo_text := ""
 var _station: RepairStation
 
@@ -169,11 +169,11 @@ func _on_player_health_changed(hp: int, max_hp: int, armor: int) -> void:
 
 
 func _on_player_emp_changed(charges: int) -> void:
-	emp_label.text = "EMP %d" % charges
+	emp_label.text = tr("hud.emp") % charges
 
 
 func _on_player_weapon_changed(display_name: String, slot: int, slots: int) -> void:
-	_weapon_text = display_name if slots == 1 else "[%d/2] %s" % [slot, display_name]
+	_weapon_text = tr(display_name) if slots == 1 else "[%d/2] %s" % [slot, tr(display_name)]
 	_refresh_weapon_card()
 
 
@@ -182,17 +182,17 @@ func _on_player_ammo_changed(magazine: int, magazine_size: int, reserve: int, re
 	if reserve >= 0:
 		_ammo_text += " +%d" % reserve
 	if reloading:
-		_ammo_text += " RLD"
+		_ammo_text += " " + tr("hud.reloading")
 	_refresh_weapon_card()
 
 
 func _on_currency_changed(crypto: int, ram_mb: int) -> void:
 	crypto_label.text = str(crypto)
-	ram_label.text = "%d MB" % ram_mb
+	ram_label.text = tr("hud.ram") % ram_mb
 
 
 func _on_wave_started(wave: int, _threat: float) -> void:
-	wave_label.text = "WAVE %d" % wave
+	wave_label.text = tr("hud.wave") % wave
 	wave_animation.stop()
 	wave_animation.play(&"banner")
 
@@ -211,11 +211,11 @@ func _set_panel(panel: Control, open: bool) -> void:
 func _refresh_shop() -> void:
 	if _station == null:
 		return
-	var labels: Array[String] = ["+1/2 heart", "+1 armor", "+1 EMP", "Refill ammo"]
+	var labels: Array[String] = ["shop.heart", "shop.armor", "shop.emp", "shop.ammo"]
 	for i: int in shop_buttons.size():
-		shop_buttons[i].text = "%s — %d Crypto" % [labels[i], _station.price(i as RepairStation.Item)]
+		shop_buttons[i].text = tr("shop.item_price") % [tr(labels[i]), _station.price(i as RepairStation.Item)]
 		shop_buttons[i].disabled = _station.purchases_left <= 0
-	shop_info.text = "%d purchases left · you have %d Crypto" % [_station.purchases_left, GameState.crypto]
+	shop_info.text = tr("shop.info") % [_station.purchases_left, GameState.crypto]
 
 
 func _buy(item: RepairStation.Item) -> void:
@@ -249,7 +249,7 @@ func _on_run_summary_requested(title: String, summary: String) -> void:
 	summary_stats.text = summary
 	summary_panel.visible = true
 	salvage_amount = ceili(RunState.crypto_earned * Monetization.config.salvage_share)
-	salvage_button.text = "Watch an ad: salvage +%d Crypto" % salvage_amount
+	salvage_button.text = tr("summary.salvage") % salvage_amount
 	salvage_button.disabled = false
 	salvage_button.visible = salvage_amount > 0 and Monetization.can_show_ads()
 
@@ -282,7 +282,7 @@ func _on_rewarded_ad_finished(placement: StringName, granted: bool) -> void:
 		return
 	GameState.add_crypto(salvage_amount)
 	SaveManager.save_slot()
-	summary_stats.text += "\nSalvaged +%d Crypto" % salvage_amount
+	summary_stats.text += "\n" + tr("summary.salvaged") % salvage_amount
 	salvage_amount = 0
 	salvage_button.visible = false
 

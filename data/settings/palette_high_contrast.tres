@@ -13,6 +13,6 @@ shader_parameter/tint = Color(0.55, 0.85, 1, 1)
 
 [resource]
 script = ExtResource("1_palette")
-display_name = "High contrast"
+display_name = "settings.palette.high_contrast"
 hostile_material = SubResource("ShaderMaterial_hostile")
 friendly_material = SubResource("ShaderMaterial_friendly")

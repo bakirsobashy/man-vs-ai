@@ -39,7 +39,7 @@ func _run() -> void:
 	_player.health.reset()
 	await _wait(0.5)
 
-	_check(_director.config.level_number == 3 and _director.config.district_name == "The Foundry"
+	_check(_director.config.level_number == 3 and _director.config.district_name == "district.the_foundry"
 		and _director.current.type == Room.RoomType.START, "Level 3 of the campaign is The Foundry")
 	await _test_conveyors()
 	await _test_molten()
@@ -275,7 +275,7 @@ func _test_lungs() -> void:
 
 func _test_memories() -> void:
 	var memory := load("res://data/memories/l3_lenas_message.tres") as MemoryData
-	_check(memory.text_for(GameState.Band.HUMAN).contains("cake") and memory.text_for(GameState.Band.MACHINE).begins_with("Audio file"),
+	_check(tr(memory.text_for(GameState.Band.HUMAN)).contains("cake") and tr(memory.text_for(GameState.Band.MACHINE)).begins_with("Audio file"),
 		"Lena's Message changes with Kade's humanity band")
 
 

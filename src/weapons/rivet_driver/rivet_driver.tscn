@@ -47,7 +47,7 @@ _data = {
 
 [node name="RivetDriver" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Rivet Driver"
+display_name = "weapon.rivet_driver"
 bullet_scene = ExtResource("2_bullet")
 damage = 5
 fire_rate = 5.0

@@ -170,7 +170,7 @@ id = &"m7_line_rifle"
 scene = ExtResource("23_m7_line_rifle")
 rarity = 3
 unlock_cost = 0
-unlock_hint = "Beat WARDEN"
+unlock_hint = "weapon.m7_line_rifle.unlock_hint"
 
 [resource]
 script = ExtResource("1_catalog")

@@ -39,7 +39,7 @@ func _run() -> void:
 	_player.health.reset()
 	await _wait(0.5)
 
-	_check(_director.config.level_number == 4 and _director.config.district_name == "Skyline Spires"
+	_check(_director.config.level_number == 4 and _director.config.district_name == "district.skyline_spires"
 		and _director.current.type == Room.RoomType.START, "Level 4 of the campaign is the Skyline Spires")
 	await _test_lasers()
 	await _test_glass()
@@ -238,7 +238,7 @@ func _test_guns() -> void:
 
 func _test_memories() -> void:
 	var memory := load("res://data/memories/l4_miras_birthday.tres") as MemoryData
-	_check(memory.text_for(GameState.Band.HUMAN).contains("seven candles") and memory.text_for(GameState.Band.MACHINE).begins_with("Hologram file"),
+	_check(tr(memory.text_for(GameState.Band.HUMAN)).contains("seven candles") and tr(memory.text_for(GameState.Band.MACHINE)).begins_with("Hologram file"),
 		"Mira's Birthday changes with Kade's humanity band")
 
 

@@ -5,23 +5,23 @@
 
 [sub_resource type="Resource" id="Resource_line0"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "Scrapjaw is scrap. For tonight."
+speaker = "speaker.vorn"
+text = "talk.l1_first_clear.1"
 
 [sub_resource type="Resource" id="Resource_line1"]
 script = ExtResource("2_line")
-speaker = "Kade"
-text = "For tonight?"
+speaker = "speaker.kade"
+text = "talk.l1_first_clear.2"
 
 [sub_resource type="Resource" id="Resource_line2"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "The Syndicate keeps backups, Sergeant. Kill one and it wakes up angry by morning."
+speaker = "speaker.vorn"
+text = "talk.l1_first_clear.3"
 
 [sub_resource type="Resource" id="Resource_line3"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "All five lieutenants in one night. Then they stay dead."
+speaker = "speaker.vorn"
+text = "talk.l1_first_clear.4"
 
 [resource]
 script = ExtResource("1_conversation")

@@ -122,7 +122,7 @@ weight = 1.0
 [resource]
 script = ExtResource("1_config")
 level_number = 4
-district_name = "Skyline Spires"
+district_name = "district.skyline_spires"
 combat_min = 5
 combat_max = 6
 special_min = 2
@@ -139,7 +139,7 @@ arena_threat = 14.0
 ambush_threat = 6.0
 elite_chance = 0.2
 boss_reward_weapon = &"m7_line_rifle"
-boss_reward_name = "M7 Line Rifle"
+boss_reward_name = "weapon.m7_line_rifle"
 music = ExtResource("5_music")
 boss_music = ExtResource("6_boss_music")
 room_pool = Array[ExtResource("2_entry")]([SubResource("Resource_start"), SubResource("Resource_combat_01"), SubResource("Resource_combat_02"), SubResource("Resource_combat_03"), SubResource("Resource_combat_04"), SubResource("Resource_combat_05"), SubResource("Resource_combat_06"), SubResource("Resource_combat_07"), SubResource("Resource_combat_08"), SubResource("Resource_chest_01"), SubResource("Resource_chest_02"), SubResource("Resource_memory"), SubResource("Resource_arena"), SubResource("Resource_repair"), SubResource("Resource_terminal"), SubResource("Resource_boss")])

@@ -97,7 +97,7 @@ func _test_weapon_pickup_and_swap() -> void:
 	_check(_prompt == "Take Scattergun", "standing on a floor gun shows its prompt ('%s')" % _prompt)
 	EventBus.interact_requested.emit()
 	await _physics_frames(2)
-	_check(_player.secondary != null and _player.secondary.display_name == "Scattergun", "tapping the prompt fills slot 2")
+	_check(_player.secondary != null and _player.secondary.display_name == "weapon.scattergun", "tapping the prompt fills slot 2")
 	_check(_player.weapon == _player.secondary, "the new gun goes straight into the hero's hands")
 	EventBus.weapon_swap_requested.emit()
 	_check(_player.weapon == _player.primary, "tapping the weapon card swaps to the pistol")
@@ -107,11 +107,11 @@ func _test_weapon_pickup_and_swap() -> void:
 	await _place_player(smg_pickup.global_position + Vector2(0, 8))
 	EventBus.interact_requested.emit()
 	await _physics_frames(2)
-	_check(_player.secondary != null and _player.secondary.display_name == "Buzz SMG", "a second floor gun replaces the found gun")
+	_check(_player.secondary != null and _player.secondary.display_name == "weapon.buzz_smg", "a second floor gun replaces the found gun")
 	var dropped := false
 	for node: Node in _drop_layer.get_children():
 		var pickup := node as WeaponPickup
-		dropped = dropped or (pickup != null and pickup.weapon() != null and pickup.weapon().display_name == "Scattergun")
+		dropped = dropped or (pickup != null and pickup.weapon() != null and pickup.weapon().display_name == "weapon.scattergun")
 	_check(dropped, "the replaced gun is left on the floor")
 
 

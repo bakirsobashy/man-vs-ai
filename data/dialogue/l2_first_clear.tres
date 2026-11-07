@@ -5,23 +5,23 @@
 
 [sub_resource type="Resource" id="Resource_line0"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "Glitch. The one who faked the police call. Nobody came for your family because of that thing."
+speaker = "speaker.vorn"
+text = "talk.l2_first_clear.1"
 
 [sub_resource type="Resource" id="Resource_line1"]
 script = ExtResource("2_line")
-speaker = "Kade"
-text = "It came apart like a cheap sign."
+speaker = "speaker.kade"
+text = "talk.l2_first_clear.2"
 
 [sub_resource type="Resource" id="Resource_line2"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "Holograms do. The Foundry builds the real bodies. That is where this goes next."
+speaker = "speaker.vorn"
+text = "talk.l2_first_clear.3"
 
 [sub_resource type="Resource" id="Resource_line3"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "You're adapting faster than any patient I've had. I'm proud of that. Is that strange?"
+speaker = "speaker.vorn"
+text = "talk.l2_first_clear.4"
 
 [resource]
 script = ExtResource("1_conversation")

@@ -5,3 +5,6 @@
 # Android signing keys — never commit
 *.keystore
 *.jks
+
+# Translations are imported from localization/strings.csv
+localization/*.translation

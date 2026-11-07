@@ -11,7 +11,7 @@ collision_layer = 128
 collision_mask = 0
 monitoring = false
 script = ExtResource("1_station")
-prompt = "Armory (Patch)"
+prompt = "station.armory"
 action = &"armory"
 
 [node name="Shape" type="CollisionShape2D" parent="."]

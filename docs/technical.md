@@ -1006,14 +1006,82 @@ Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ---
 
 ## 10. Localization
-- **Text typed in the editor:** type translation keys directly into the text of Labels and Buttons (for example `ui.play`),
-  and Godot translates them automatically.
-- **Text built in code:** use `tr()` only here (counters, numbers). Data Resources store keys, never text.
-- The source table is `localization/strings.csv` (columns `keys,en`). Godot imports it as translations, and it's registered under Project
-  Settings → Localization.
-- Comic panels are Control scenes: art without text, with `Label` or `RichTextLabel` bubbles placed in the editor.
-- Pick a font family with wide script coverage (Noto, for example) so new languages don't force a font change.
-- Keep layouts tolerant of text that's 30% longer, and avoid hard-coded left/right positions so right-to-left languages stay possible.
+**Built in M6.** Every player-facing string lives in one table, `localization/strings.csv` (columns `keys,en`; 477
+keys at M6). Godot imports it as a translation, registered under Project Settings → Localization → Translations
+(`internationalization/locale/translations`). The imported `strings.<locale>.translation` files are build output and
+are gitignored; the editor's import recreates them. Missing translations fall back to English.
+
+**Where keys go**
+- **Scene text:** Labels and Buttons hold a key as their text (for example `hud.pause_panel_title`). Godot
+  auto-translates it, and switches language at once when the locale changes. OptionButton items are keys too.
+- **Data:** Resources store keys, never text.
+
+  | Data | Fields |
+  |---|---|
+  | Memories | title, text, band texts |
+  | Dialogue | speaker, lines |
+  | Implants | name, description, Vorn's line |
+  | Endings | title, post-credits line |
+  | Levels | district, boss reward |
+  | Cosmetics | name, description |
+  | Weapon catalog | unlock hints |
+  | Settings choices | names |
+  | Palettes | names |
+  | Scene exports | weapon `display_name`, boss name and phase names, station prompts, surgery slot labels, tutorial instructions |
+
+  Code calls `tr()` where it displays them.
+- **Code:** display text is `tr("key")`, and formats are `tr("hud.ram") % mb`. EventBus text signals (`banner_requested`,
+  `toast_requested`, `memory_opened`, `run_summary_requested`, `interact_prompt_changed`) carry already-translated
+  text. The dialogue box `tr()`s the speaker and line keys it is given.
+- **Placeholders:** some labels are always filled in by code, like the HUD counters, row labels and slot cards.
+  Their scene text is only an editor preview and stays as it is.
+- **Not translated:** the debug panel, the debug button and the version number. Their `auto_translate_mode` is
+  Disabled.
+
+**Key names:** `<scene>.<node>` for scene text (`lab.shop_panel_title`, `comic.prologue.panel1_caption`,
+`room.rustline.start.sign1`). Data and code keys follow these patterns:
+
+| Content | Key |
+|---|---|
+| Memories | `memory.<id>.title`, `.text`, `.patched`, `.hollow`, `.machine` |
+| Dialogue lines | `talk.<file>.<n>` |
+| Speakers | `speaker.<name>` |
+| Implants | `implant.<file>.name`, `.desc`, `.vorn` |
+| Endings | `ending.<id>.*` |
+| Districts | `district.*` |
+| Weapons | `weapon.<folder>` |
+| Bosses | `boss.<name>.name`, `.phase<n>` |
+| Code strings | grouped by screen: `banner.*`, `toast.*`, `prompt.*`, `shop.*`, `slot.*`, `surgery.*`, `summary.*` |
+
+**Adding a language**
+1. Add a column named after the locale (`de`, `pt_BR`) to `strings.csv`.
+2. Add the code to `SettingsOptions.languages` and its name to `language_names`. Write the name as an endonym
+   ("Deutsch"); only "Device language" is translated.
+3. Check the font. The default font (Open Sans) covers Latin, Greek, Cyrillic and Vietnamese. CJK, Arabic or Hindi
+   need a Noto font set as the theme font or a fallback.
+
+**Pseudo-localization test.** The M6 smoke test reads the table and builds a pseudo-locale (`en_XA`) from it at
+runtime: brackets around each text, accented look-alike letters, and vowels doubled, which makes text about 30%
+longer. The test then lays out every screen at 360 × 640 and checks three things:
+- no plain ASCII letters show, which would mean English skipped the table;
+- the font has every character;
+- nothing sticks out of the screen.
+
+| Area | Screens checked |
+|---|---|
+| Title | title, save slots, settings |
+| Lab | the lab, a talk, the shop tabs, surgery, armory |
+| Level | HUD, pause menu, repair shop, memory, Second Chance, summary |
+| Other | credits, every comic, the rehab tutorial |
+
+It also checks that every key the scenes, data and code use is in the table, that every key in the table is used,
+and that room signs use keys. For a manual look in the editor, turn on Godot's own pseudolocalization (Project Settings → Internationalization →
+Pseudolocalization).
+
+**Layout rules:** layouts must hold text 30% longer than English. Labels in rows and panels autowrap
+(`autowrap_mode` Word (Smart)) instead of widening their container, and screens keep the 16 px side margins. Avoid
+hard-coded left/right positions so right-to-left languages stay possible. Comic panels are Control scenes: art
+without text, with `Label` caption and bubble nodes.
 
 ---
 
@@ -1127,6 +1195,7 @@ func restore_purchases() -> void
 4. Tuning values are `@export`s with `##` doc comments, `@export_range` where useful.
 5. Same-scene signals are connected in the editor. Code connects only to `EventBus` and to runtime copies.
 6. Every scene loads and its connections are valid (`tools/check_scenes.gd` passes).
+7. Player-facing text is a translation key in `localization/strings.csv` (§10): keys in scene text and data, `tr()` in code.
 
 ## 15. Testing
 - **Scene-first check:** run `tools/check_scene_first.sh` from the repo root.
@@ -1212,6 +1281,10 @@ func restore_purchases() -> void
     (bullets never tinted);
   - settings: tuning, frame cap, saving, palettes, text size, shake, reticle and stick opacity, and the settings
     screen in the lab, title and pause menu (privacy options only where required).
+  - localization (§10): the string table (unique keys, English for each, the import up to date, every used key
+    present, every key used, room signs as keys), then the pseudo-locale on the title, lab, HUD, credits, comics
+    and tutorial (no English, every glyph in the font, nothing off the 360 px screen), and back to English.
+  - 63 results in all.
 - **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
   results:
   - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);

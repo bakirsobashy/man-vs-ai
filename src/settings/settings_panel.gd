@@ -35,7 +35,7 @@ func _ready() -> void:
 	_fill(text_size_option, options.text_size_names)
 	var fps_names: Array[String] = []
 	for cap: int in options.fps_caps:
-		fps_names.append("%d fps" % cap)
+		fps_names.append(tr("settings.fps") % cap)
 	_fill(fps_option, fps_names)
 	_fill(language_option, options.language_names)
 

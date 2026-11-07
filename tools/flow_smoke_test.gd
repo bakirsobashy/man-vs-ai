@@ -214,7 +214,7 @@ func _test_boss_elevator() -> void:
 	await _wait(1.0)
 	director = get_tree().current_scene.get_node(^"LevelDirector") as LevelDirector
 	player = get_tree().current_scene.get_node(^"Player") as Player
-	_check(_scene_name() == "Level" and director.config.level_number == 2 and director.config.district_name == "Neon Bazaar",
+	_check(_scene_name() == "Level" and director.config.level_number == 2 and director.config.district_name == "district.neon_bazaar",
 		"the elevator starts Level 2")
 	_check(player.health.hp == hp, "the hero keeps the hearts from Level 1 (%d)" % player.health.hp)
 	player.health.invuln_timer.stop()

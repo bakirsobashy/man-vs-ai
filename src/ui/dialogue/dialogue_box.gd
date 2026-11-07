@@ -19,7 +19,7 @@ func play(conversation: Conversation) -> void:
 		_next()
 
 
-## One line, queued after anything already showing.
+## One line, queued after anything already showing. `speaker` and `text` are translation keys (or plain text).
 func say(speaker: String, text: String) -> void:
 	var line := DialogueLine.new()
 	line.speaker = speaker
@@ -39,8 +39,8 @@ func _next() -> void:
 		finished.emit()
 		return
 	var line: DialogueLine = _queue.pop_front()
-	speaker_label.text = line.speaker.to_upper()
-	line_label.text = line.text
+	speaker_label.text = tr(line.speaker).to_upper()
+	line_label.text = tr(line.text)
 	visible = true
 
 

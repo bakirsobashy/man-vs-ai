@@ -47,7 +47,7 @@ _data = {
 
 [node name="RailSpike" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Rail Spike"
+display_name = "weapon.rail_spike"
 bullet_scene = ExtResource("2_bullet")
 damage = 60
 fire_rate = 1.0

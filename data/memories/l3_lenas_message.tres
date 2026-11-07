@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_memory")
 id = "l3_lenas_message"
-title = "Lena's Message"
-text = "A voice message, the last one on his old phone. Lena, laughing, Mira shouting in the background: \"Come home safe. We saved you cake.\""
-band_texts = Array[String](["A voice message, the last one on his old phone. Lena, laughing, Mira shouting in the background: \"Come home safe. We saved you cake.\"", "A voice message. \"Come home safe. We saved you...\" The rest is noise. He plays it again anyway.", "Audio file. A woman's voice. \"Come home safe.\" He knows it was meant for him. He replays it to make sure.", "Audio file: msg_0412.ogg. Duration: 0:07. Speaker: Lena. Content: request for safe return. ...Archive."])
+title = "memory.l3_lenas_message.title"
+text = "memory.l3_lenas_message.text"
+band_texts = Array[String](["memory.l3_lenas_message.text", "memory.l3_lenas_message.patched", "memory.l3_lenas_message.hollow", "memory.l3_lenas_message.machine"])
 heal = 1

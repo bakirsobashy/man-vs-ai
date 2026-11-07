@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_ending")
 id = "normal_patched"
-title = "Normal (Patched)"
+title = "ending.normal_patched.title"
 band = 1
 comic_scene = "res://src/ui/comic/ending_normal_patched.tscn"
-post_credits = "He kept most of himself. I kept my notes. I am still not sure which of us got the better deal."
+post_credits = "ending.normal_patched.post_credits"

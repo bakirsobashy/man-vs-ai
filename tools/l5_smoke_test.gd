@@ -38,7 +38,7 @@ func _run() -> void:
 	_player.health.reset()
 	await _wait(0.5)
 
-	_check(_director.config.level_number == 5 and _director.config.district_name == "Syndicate Core"
+	_check(_director.config.level_number == 5 and _director.config.district_name == "district.syndicate_core"
 		and _director.current.type == Room.RoomType.START and _director.campaign.is_last(5), "Level 5, the Syndicate Core, is the last level")
 	await _test_coolant()
 	await _test_firewalls()
@@ -200,7 +200,7 @@ func _test_guns() -> void:
 
 func _test_memory() -> void:
 	var memory := load("res://data/memories/l5_the_night.tres") as MemoryData
-	_check(memory.text_for(GameState.Band.HUMAN).contains("Live with it, Sergeant.") and memory.text_for(GameState.Band.MACHINE).begins_with("Recording:"),
+	_check(tr(memory.text_for(GameState.Band.HUMAN)).contains("Live with it, Sergeant.") and tr(memory.text_for(GameState.Band.MACHINE)).begins_with("Recording:"),
 		"The Night (the Warden's recording) changes with Kade's humanity band")
 
 

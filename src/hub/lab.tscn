@@ -89,7 +89,7 @@ offset_right = 276.0
 offset_bottom = 71.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
-text = "ELEVATOR"
+text = "lab.elevator_sign"
 horizontal_alignment = 1
 
 [node name="SurgerySign" type="Label" parent="Signs"]
@@ -100,7 +100,7 @@ offset_right = 158.0
 offset_bottom = 215.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
-text = "SURGERY"
+text = "lab.surgery_sign"
 horizontal_alignment = 1
 
 [node name="ArmorySign" type="Label" parent="Signs"]
@@ -111,7 +111,7 @@ offset_right = 334.0
 offset_bottom = 215.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
-text = "ARMORY"
+text = "lab.armory_sign"
 horizontal_alignment = 1
 
 [node name="LabSign" type="Label" parent="Signs"]
@@ -122,7 +122,7 @@ offset_right = 326.0
 offset_bottom = 544.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 16
-text = "DR. VORN'S LAB"
+text = "lab.lab_sign"
 horizontal_alignment = 1
 
 [node name="Props" type="Node2D" parent="."]
@@ -229,7 +229,7 @@ offset_right = -8.0
 offset_bottom = 84.0
 grow_horizontal = 0
 theme = SubResource("Theme_ui")
-text = "Quick Start"
+text = "lab.quick_start"
 
 [node name="ShopButton" type="Button" parent="LabUI"]
 offset_left = 8.0
@@ -237,83 +237,7 @@ offset_top = 52.0
 offset_right = 92.0
 offset_bottom = 84.0
 theme = SubResource("Theme_ui")
-text = "Shop"
-
-[node name="ShopPanel" type="PanelContainer" parent="LabUI"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-offset_left = 16.0
-offset_top = 52.0
-offset_right = -16.0
-offset_bottom = -16.0
-theme = SubResource("Theme_ui")
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
-
-[node name="VBox" type="VBoxContainer" parent="LabUI/ShopPanel"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Title" type="Label" parent="LabUI/ShopPanel/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-horizontal_alignment = 1
-text = "SHOP · COSMETICS"
-
-[node name="ShopInfo" type="Label" parent="LabUI/ShopPanel/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-autowrap_mode = 3
-text = "Looks only. Nothing sold here changes the game."
-
-[node name="Tabs" type="HBoxContainer" parent="LabUI/ShopPanel/VBox"]
-layout_mode = 2
-
-[node name="TabOutfits" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Outfits"
-
-[node name="TabSkins" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Skins"
-
-[node name="TabLab" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Lab"
-
-[node name="TabEmp" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "EMP"
-
-[node name="Scroll" type="ScrollContainer" parent="LabUI/ShopPanel/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="ShopList" type="VBoxContainer" parent="LabUI/ShopPanel/VBox/Scroll"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
-
-[node name="Restore" type="Button" parent="LabUI/ShopPanel/VBox"]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-text = "Restore purchases"
-
-[node name="ShopClose" type="Button" parent="LabUI/ShopPanel/VBox"]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "Close"
+text = "lab.shop_button"
 
 [node name="ThreatBox" type="HBoxContainer" parent="LabUI"]
 unique_name_in_owner = true
@@ -343,6 +267,90 @@ vertical_alignment = 1
 layout_mode = 2
 text = ">"
 
+[node name="SettingsButton" type="Button" parent="LabUI"]
+offset_left = 8.0
+offset_top = 90.0
+offset_right = 92.0
+offset_bottom = 120.0
+theme = SubResource("Theme_ui")
+text = "lab.settings_button"
+
+[node name="ShopPanel" type="PanelContainer" parent="LabUI"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 16.0
+offset_top = 52.0
+offset_right = -16.0
+offset_bottom = -16.0
+theme = SubResource("Theme_ui")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="LabUI/ShopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="LabUI/ShopPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+text = "lab.shop_panel_title"
+
+[node name="ShopInfo" type="Label" parent="LabUI/ShopPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "lab.shop_info"
+
+[node name="Tabs" type="HBoxContainer" parent="LabUI/ShopPanel/VBox"]
+layout_mode = 2
+
+[node name="TabOutfits" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "lab.tab_outfits"
+
+[node name="TabSkins" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "lab.tab_skins"
+
+[node name="TabLab" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "lab.tab_lab"
+
+[node name="TabEmp" type="Button" parent="LabUI/ShopPanel/VBox/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "lab.tab_emp"
+
+[node name="Scroll" type="ScrollContainer" parent="LabUI/ShopPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ShopList" type="VBoxContainer" parent="LabUI/ShopPanel/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Restore" type="Button" parent="LabUI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+text = "lab.restore"
+
+[node name="ShopClose" type="Button" parent="LabUI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "lab.shop_close"
+
 [node name="SurgeryPanel" type="PanelContainer" parent="LabUI"]
 unique_name_in_owner = true
 visible = false
@@ -366,7 +374,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
-text = "SURGERY · DR. VORN"
+text = "lab.surgery_panel_title"
 
 [node name="Preview" type="Control" parent="LabUI/SurgeryPanel/VBox"]
 custom_minimum_size = Vector2(0, 76)
@@ -388,37 +396,37 @@ columns = 3
 layout_mode = 2
 size_flags_horizontal = 3
 slot_name = "eyes"
-slot_label = "Eyes"
+slot_label = "implant_slot.eyes"
 
 [node name="SlotBrain" parent="LabUI/SurgeryPanel/VBox/SlotRows" instance=ExtResource("8_surgery_row")]
 layout_mode = 2
 size_flags_horizontal = 3
 slot_name = "brain"
-slot_label = "Brain"
+slot_label = "implant_slot.brain"
 
 [node name="SlotArms" parent="LabUI/SurgeryPanel/VBox/SlotRows" instance=ExtResource("8_surgery_row")]
 layout_mode = 2
 size_flags_horizontal = 3
 slot_name = "arms"
-slot_label = "Arms"
+slot_label = "implant_slot.arms"
 
 [node name="SlotHeart" parent="LabUI/SurgeryPanel/VBox/SlotRows" instance=ExtResource("8_surgery_row")]
 layout_mode = 2
 size_flags_horizontal = 3
 slot_name = "heart"
-slot_label = "Heart"
+slot_label = "implant_slot.heart"
 
 [node name="SlotLungs" parent="LabUI/SurgeryPanel/VBox/SlotRows" instance=ExtResource("8_surgery_row")]
 layout_mode = 2
 size_flags_horizontal = 3
 slot_name = "lungs"
-slot_label = "Lungs"
+slot_label = "implant_slot.lungs"
 
 [node name="SlotLegs" parent="LabUI/SurgeryPanel/VBox/SlotRows" instance=ExtResource("8_surgery_row")]
 layout_mode = 2
 size_flags_horizontal = 3
 slot_name = "legs"
-slot_label = "Legs"
+slot_label = "implant_slot.legs"
 
 [node name="ImplantName" type="Label" parent="LabUI/SurgeryPanel/VBox"]
 unique_name_in_owner = true
@@ -442,7 +450,7 @@ text = "Hold to install"
 [node name="SurgeryClose" type="Button" parent="LabUI/SurgeryPanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Close"
+text = "lab.surgery_close"
 
 [node name="ArmoryPanel" type="PanelContainer" parent="LabUI"]
 unique_name_in_owner = true
@@ -467,7 +475,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
-text = "ARMORY · PATCH"
+text = "lab.armory_panel_title"
 
 [node name="ArmoryInfo" type="Label" parent="LabUI/ArmoryPanel/VBox"]
 unique_name_in_owner = true
@@ -488,7 +496,7 @@ size_flags_horizontal = 3
 [node name="ArmoryClose" type="Button" parent="LabUI/ArmoryPanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Close"
+text = "lab.armory_close"
 
 [node name="Dialogue" parent="LabUI" instance=ExtResource("16_dialogue")]
 unique_name_in_owner = true
@@ -528,14 +536,6 @@ retrieval_lines = ExtResource("25_retrieval")
 script = ExtResource("96_text_scaler")
 theme = SubResource("Theme_ui")
 base_size = 12
-
-[node name="SettingsButton" type="Button" parent="LabUI"]
-offset_left = 8.0
-offset_top = 90.0
-offset_right = 92.0
-offset_bottom = 120.0
-theme = SubResource("Theme_ui")
-text = "Settings"
 
 [node name="SettingsPanel" parent="LabUI" instance=ExtResource("97_settings")]
 unique_name_in_owner = true

@@ -471,7 +471,7 @@ func fall_to(spot: Vector2, amount: int) -> void:
 	if state_machine.is_in(&"Dead"):
 		return
 	global_position = spot
-	EventBus.toast_requested.emit("The glass gives way")
+	EventBus.toast_requested.emit(tr("toast.glass"))
 	if not health.is_invulnerable():
 		_hurt(amount)
 	if not state_machine.is_in(&"Dead"):
@@ -516,7 +516,7 @@ func _trigger_second_wind() -> void:
 	for gun: Weapon in [primary, secondary]:
 		if gun != null:
 			gun.damage_scale = 1.2
-	EventBus.toast_requested.emit("SECOND WIND")
+	EventBus.toast_requested.emit(tr("toast.second_wind"))
 
 
 func _on_slow_mo_timer_timeout() -> void:
@@ -541,7 +541,7 @@ func _hurt(amount: int) -> void:
 		failsafe_ready = false
 		emp_charges += 1
 		fire_emp()
-		EventBus.toast_requested.emit("FAILSAFE: lethal hit negated")
+		EventBus.toast_requested.emit(tr("toast.failsafe"))
 		return
 	health.take_hit(amount)
 

@@ -16,8 +16,8 @@ var catalog: CosmeticCatalog
 func show_item(cosmetic: CosmeticData, from: CosmeticCatalog) -> void:
 	item = cosmetic
 	catalog = from
-	name_label.text = cosmetic.display_name
-	detail_label.text = cosmetic.description
+	name_label.text = tr(cosmetic.display_name)
+	detail_label.text = tr(cosmetic.description)
 	refresh()
 
 
@@ -26,12 +26,12 @@ func refresh() -> void:
 	if not catalog.is_owned(item):
 		action_button.text = item.price_label
 	elif item.kind == CosmeticData.Kind.LAB_DECOR:
-		action_button.text = "Hide" if catalog.decor_visible(item) else "Show"
+		action_button.text = tr("shop.hide") if catalog.decor_visible(item) else tr("shop.show")
 	elif catalog.equipped(item.kind) == item:
-		action_button.text = "Equipped"
+		action_button.text = tr("shop.equipped")
 		action_button.disabled = true
 	else:
-		action_button.text = "Equip"
+		action_button.text = tr("shop.equip")
 
 
 func _on_action_button_pressed() -> void:

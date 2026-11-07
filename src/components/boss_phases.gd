@@ -8,7 +8,7 @@ extends Node
 signal phase_changed(phase: int)
 
 @export var state_machine: StateMachine
-@export var boss_name := "SCRAPJAW"
+@export var boss_name := "boss.scrapjaw.name"
 ## HP shares where the next phase starts, highest first (0.6 → phase 2, 0.25 → phase 3).
 @export var thresholds: Array[float] = [0.6, 0.25]
 ## The state each phase's loop starts from (phase 1 first).
@@ -38,7 +38,7 @@ func _on_health_changed(hp: int, max_hp: int, _armor: int, _damaged: bool) -> vo
 	if target <= phase:
 		return
 	phase = target
-	EventBus.banner_requested.emit("%s · %s" % [boss_name, phase_names[phase] if phase < phase_names.size() else ""])
+	EventBus.banner_requested.emit("%s · %s" % [tr(boss_name), tr(phase_names[phase]) if phase < phase_names.size() else ""])
 	EventBus.screen_shake_requested.emit(0.5)
 	if roar != null:
 		roar.play()

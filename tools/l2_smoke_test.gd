@@ -40,7 +40,7 @@ func _run() -> void:
 	EventBus.screen_glitch_requested.connect(func() -> void: _glitches += 1)
 	await _wait(0.5)
 
-	_check(_director.config.level_number == 2 and _director.config.district_name == "Neon Bazaar"
+	_check(_director.config.level_number == 2 and _director.config.district_name == "district.neon_bazaar"
 		and _director.current.type == Room.RoomType.START, "Level 2 of the campaign is the Neon Bazaar")
 	await _test_holo_signs()
 	await _test_drone()
@@ -263,7 +263,7 @@ func _test_eyes_and_brain() -> void:
 
 func _test_memories() -> void:
 	var memory := load("res://data/memories/l2_miras_drawing.tres") as MemoryData
-	_check(memory.text_for(GameState.Band.HUMAN).contains("bigger than the house") and memory.text_for(GameState.Band.MACHINE).begins_with("Image file"),
+	_check(tr(memory.text_for(GameState.Band.HUMAN)).contains("bigger than the house") and tr(memory.text_for(GameState.Band.MACHINE)).begins_with("Image file"),
 		"memories change with Kade's humanity band")
 
 

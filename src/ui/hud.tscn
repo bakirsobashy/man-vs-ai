@@ -454,9 +454,10 @@ text = "EMP 2"
 [node name="PauseButton" type="Button" parent="Root/TopBand/Margin/Rows/Row1"]
 layout_mode = 2
 focus_mode = 0
-text = "II"
+text = "hud.pause_button"
 
 [node name="DebugButton" type="Button" parent="Root/TopBand/Margin/Rows/Row1"]
+auto_translate_mode = 2
 layout_mode = 2
 focus_mode = 0
 toggle_mode = true
@@ -610,7 +611,7 @@ theme_override_constants/separation = 8
 [node name="Title" type="Label" parent="Root/FullMap/VBox"]
 layout_mode = 2
 horizontal_alignment = 1
-text = "MAP"
+text = "hud.full_map_title"
 
 [node name="FullMapView" parent="Root/FullMap/VBox" instance=ExtResource("18_map_view")]
 layout_mode = 2
@@ -621,7 +622,7 @@ cell_scale = 2.0
 [node name="FullMapClose" type="Button" parent="Root/FullMap/VBox"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-text = "Close"
+text = "hud.full_map_close"
 
 [node name="ShopPanel" type="PanelContainer" parent="Root"]
 unique_name_in_owner = true
@@ -645,7 +646,7 @@ theme_override_constants/separation = 8
 [node name="Title" type="Label" parent="Root/ShopPanel/VBox"]
 layout_mode = 2
 horizontal_alignment = 1
-text = "REPAIR STATION"
+text = "hud.shop_panel_title"
 
 [node name="ShopInfo" type="Label" parent="Root/ShopPanel/VBox"]
 unique_name_in_owner = true
@@ -680,7 +681,7 @@ text = "Refill ammo"
 [node name="ShopClose" type="Button" parent="Root/ShopPanel/VBox"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-text = "Leave"
+text = "hud.shop_close"
 
 [node name="MemoryPanel" type="PanelContainer" parent="Root"]
 unique_name_in_owner = true
@@ -720,7 +721,7 @@ text = "..."
 [node name="MemoryClose" type="Button" parent="Root/MemoryPanel/VBox"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-text = "Close"
+text = "hud.memory_close"
 
 [node name="PausePanel" type="PanelContainer" parent="Root"]
 unique_name_in_owner = true
@@ -745,11 +746,11 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
-text = "PAUSED"
+text = "hud.pause_panel_title"
 
 [node name="MusicCaption" type="Label" parent="Root/PausePanel/VBox"]
 layout_mode = 2
-text = "Music"
+text = "hud.music_caption"
 
 [node name="MusicSlider" type="HSlider" parent="Root/PausePanel/VBox"]
 unique_name_in_owner = true
@@ -761,7 +762,7 @@ value = 1.0
 
 [node name="SfxCaption" type="Label" parent="Root/PausePanel/VBox"]
 layout_mode = 2
-text = "Sound effects"
+text = "hud.sfx_caption"
 
 [node name="SfxSlider" type="HSlider" parent="Root/PausePanel/VBox"]
 unique_name_in_owner = true
@@ -775,22 +776,22 @@ value = 1.0
 unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
-text = "Vibration"
+text = "hud.haptics_check"
 
 [node name="FlashingCheck" type="CheckButton" parent="Root/PausePanel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Reduced flashing"
+text = "hud.flashing_check"
 
 [node name="Resume" type="Button" parent="Root/PausePanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Resume"
+text = "hud.resume"
 
 [node name="Quit" type="Button" parent="Root/PausePanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Save and quit to title"
+text = "hud.quit"
 
 [node name="SummaryPanel" type="PanelContainer" parent="Root"]
 unique_name_in_owner = true
@@ -822,7 +823,7 @@ text = "RETRIEVED"
 [node name="SummaryLine" type="Label" parent="Root/SummaryPanel/VBox"]
 layout_mode = 2
 autowrap_mode = 3
-text = "Dr. Vorn's drone dragged you out of the scrap. The run is over; your Crypto, RAM and implants are kept."
+text = "hud.summary_line"
 
 [node name="SummaryStats" type="Label" parent="Root/SummaryPanel/VBox"]
 unique_name_in_owner = true
@@ -840,7 +841,7 @@ text = "Watch an ad: salvage +0 Crypto"
 [node name="SummaryButton" type="Button" parent="Root/SummaryPanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Back to the lab"
+text = "hud.summary_button"
 
 [node name="SecondChancePanel" type="PanelContainer" parent="Root"]
 unique_name_in_owner = true
@@ -866,24 +867,25 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 1, 0.7, 1)
 theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
-text = "SECOND CHANCE"
+text = "hud.second_chance_panel_title"
 
 [node name="Info" type="Label" parent="Root/SecondChancePanel/VBox"]
 layout_mode = 2
 autowrap_mode = 3
-text = "Watch a short ad to get back up with 1 heart and a free EMP. Once per run."
+text = "hud.second_chance_panel_info"
 
 [node name="WatchButton" type="Button" parent="Root/SecondChancePanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Watch ad"
+text = "hud.watch_button"
 
 [node name="DeclineButton" type="Button" parent="Root/SecondChancePanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "No thanks"
+text = "hud.decline_button"
 
 [node name="DebugPanel" type="PanelContainer" parent="Root" node_paths=PackedStringArray("hud")]
+auto_translate_mode = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -1092,7 +1094,7 @@ base_size = 11
 [node name="SettingsButton" type="Button" parent="Root/PausePanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "More settings"
+text = "hud.settings_button"
 
 [node name="SettingsPanel" parent="Root" instance=ExtResource("97_settings")]
 unique_name_in_owner = true

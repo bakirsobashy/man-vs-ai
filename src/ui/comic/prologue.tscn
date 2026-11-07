@@ -100,7 +100,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel1/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "Halcyon. A city where the machines keep the peace, and one family keeps a music box."
+text = "comic.prologue.panel1_caption"
 autowrap_mode = 3
 
 [node name="Bubble" type="PanelContainer" parent="Panels/Panel1"]
@@ -121,7 +121,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 [node name="Text" type="Label" parent="Panels/Panel1/Bubble"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
-text = "Mira: Again! Play it again, Dad!"
+text = "comic.prologue.panel1_bubble"
 autowrap_mode = 3
 
 [node name="Panel2" type="Control" parent="Panels"]
@@ -164,7 +164,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel2/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "Then the wall came in. Then the lights died."
+text = "comic.prologue.panel2_caption"
 autowrap_mode = 3
 
 [node name="Panel3" type="Control" parent="Panels"]
@@ -207,7 +207,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel3/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "Kade fought with his bare hands. It wasn't enough."
+text = "comic.prologue.panel3_caption"
 autowrap_mode = 3
 
 [node name="Bubble" type="PanelContainer" parent="Panels/Panel3"]
@@ -228,7 +228,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 [node name="Text" type="Label" parent="Panels/Panel3/Bubble"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
-text = "???: Live with it, Sergeant."
+text = "comic.prologue.panel3_bubble"
 autowrap_mode = 3
 
 [node name="Panel4" type="Control" parent="Panels"]
@@ -271,7 +271,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel4/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "Nine days later. Somewhere under the city."
+text = "comic.prologue.panel4_caption"
 autowrap_mode = 3
 
 [node name="Bubble" type="PanelContainer" parent="Panels/Panel4"]
@@ -292,7 +292,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 [node name="Text" type="Label" parent="Panels/Panel4/Bubble"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
-text = "Vorn: You're alive. They're not. I'm sorry."
+text = "comic.prologue.panel4_bubble"
 autowrap_mode = 3
 
 [node name="Hint" type="Label" parent="."]
@@ -311,7 +311,7 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
-text = "tap to continue"
+text = "comic.prologue.hint"
 horizontal_alignment = 1
 
 [node name="TextScaler" type="Node" parent="."]

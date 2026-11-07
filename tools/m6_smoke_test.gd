@@ -1,17 +1,28 @@
 extends Node
 ## The M6 smoke test (started by tools/smoke_test_m6.gd): monetization through the desktop stub (consent gating,
-## rewarded ads, purchases and restore), Second Chance and the Salvage bonus in real levels.
+## rewarded ads, purchases and restore), Second Chance and the Salvage bonus in real levels, cosmetics, settings, and
+## localization (the string table, then every screen under a pseudo-locale built from it).
 ## Save files go to user://test_saves_m6/ so a player's real slots and purchases are never touched.
 
 const TEST_DIR := "user://test_saves_m6/"
 const LEVEL_PATH := "res://src/levels/level.tscn"
 const LAB_PATH := "res://src/hub/lab.tscn"
 const COSMETICS := "res://data/cosmetics/catalog.tres"
+const STRINGS_CSV := "res://localization/strings.csv"
+## The pseudo-locale's letters (all in the default font). Every ASCII letter becomes an accented look-alike, so any
+## English that skipped the string table still shows plain ASCII letters.
+const PSEUDO_FROM := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const PSEUDO_TO := "áбçđéƒĝĥîĵķļḿñöþǫŕšţûνŵχýžÁΒÇĐÉҒĜĤÎĴĶĻḾÑÖÞǪŔŠŢÛѴŴΧÝŽ"
+## Quoted names with these endings are files, not translation keys.
+const FILE_EXTENSIONS: Array[String] = ["cfg", "json", "tres", "tscn", "gd", "png", "svg", "wav", "ogg", "csv", "translation"]
 
 var _failures := 0
 var _rewards: Array[String] = []
 var _purchases: Array[String] = []
 var _consents: Array[bool] = []
+## The string table: key -> English.
+var _strings := {}
+var _format_spec := RegEx.create_from_string("%[-+ 0#]*[0-9]*(\\.[0-9]+)?[a-zA-Z%]")
 
 
 func _ready() -> void:
@@ -33,6 +44,8 @@ func _run() -> void:
 	await _test_cosmetics_in_play()
 	await _test_settings()
 	await _test_settings_panel()
+	_test_string_table()
+	await _test_pseudo_localization()
 	_reset_settings()
 	_reset_stub()
 	Monetization.owned = PackedStringArray()
@@ -351,6 +364,269 @@ func _test_settings_panel() -> void:
 	title.queue_free()
 	hud_scene.queue_free()
 	await _wait(0.2)
+
+
+func _test_string_table() -> void:
+	var file := FileAccess.open(STRINGS_CSV, FileAccess.READ)
+	var header := file.get_csv_line()
+	var key_pattern := RegEx.create_from_string("^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$")
+	var bad: Array[String] = []
+	while not file.eof_reached():
+		var row := file.get_csv_line()
+		if row.size() == 1 and row[0] == "":
+			continue
+		if row.size() != 2 or key_pattern.search(row[0]) == null or _strings.has(row[0]) or row[1] == "":
+			bad.append(",".join(row))
+			continue
+		_strings[row[0]] = row[1].c_unescape()
+	_check(header == PackedStringArray(["keys", "en"]) and _strings.size() > 400 and bad.is_empty(),
+		"localization/strings.csv holds %d unique keys with English text (bad rows: %s)" % [_strings.size(), bad.slice(0, 3)])
+	var stale: Array[String] = []
+	for key: String in _strings:
+		if tr(key) != _strings[key]:
+			stale.append(key)
+	_check(stale.is_empty(), "the imported translation matches the table (stale: %s)" % [stale.slice(0, 3)])
+
+	var quoted := RegEx.create_from_string("\"([a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+)\"")
+	var prefixes := {}
+	for key: String in _strings:
+		prefixes[key.get_slice(".", 0)] = true
+	var missing: Array[String] = []
+	var used := {}
+	var sources := _files("res://src", ["gd", "tscn"])
+	sources.append_array(_files("res://data", ["tres"]))
+	for path: String in sources:
+		for found: RegExMatch in quoted.search_all(FileAccess.get_file_as_string(path)):
+			var key := found.get_string(1)
+			if not prefixes.has(key.get_slice(".", 0)) or FILE_EXTENSIONS.has(key.get_extension()):
+				continue
+			used[key] = true
+			if not _strings.has(key):
+				missing.append("%s: %s" % [path.get_file(), key])
+	_check(missing.is_empty(), "every key used by the scenes, data and code is in the table (missing: %s)" % [missing.slice(0, 3)])
+	var unused: Array[String] = []
+	for key: String in _strings:
+		if not used.has(key):
+			unused.append(key)
+	_check(unused.is_empty(), "every key in the table is used somewhere (unused: %s)" % [unused.slice(0, 3)])
+	var signs: Array[String] = []
+	for path: String in _files("res://src/levels/rooms", ["tscn"]):
+		for line: String in FileAccess.get_file_as_string(path).split("\n"):
+			if line.begins_with("text = \"") and key_pattern.search(line.trim_prefix("text = \"").trim_suffix("\"")) == null:
+				signs.append("%s: %s" % [path.get_file(), line])
+	_check(signs.is_empty(), "room signs store translation keys (%s)" % [signs.slice(0, 2)])
+
+
+func _test_pseudo_localization() -> void:
+	var pseudo := Translation.new()
+	pseudo.locale = "en_XA"
+	for key: String in _strings:
+		pseudo.add_message(key, _pseudo(_strings[key]))
+	TranslationServer.add_translation(pseudo)
+	var locale := TranslationServer.get_locale()
+	TranslationServer.set_locale("en_XA")
+	# Headless runs have no window: lay the screens out at the phone's 360 x 640 like the game does.
+	var window_size := get_tree().root.size
+	get_tree().root.size = Vector2i(360, 640)
+	_check(tr("banner.boss") == _pseudo("BOSS") and tr("summary.stats") % [1, 2, 3, 4] == _pseudo(_strings["summary.stats"]) % [1, 2, 3, 4],
+		"a pseudo-locale (en_XA) built from the table: \"%s\"" % tr("shop.item_price") % [tr("shop.heart"), 30])
+
+	var title := (load("res://src/ui/title/title.tscn") as PackedScene).instantiate() as TitleScreen
+	get_tree().root.add_child(title)
+	await _wait(0.2)
+	var problems := _l10n_problems(title)
+	title._on_play_pressed()
+	await _frames(2)
+	problems.append_array(_l10n_problems(title))
+	title._on_settings_button_pressed()
+	await _frames(2)
+	problems.append_array(_l10n_problems(title))
+	_check(problems.is_empty(), "pseudo-locale: the title, save slots and settings are fully translated and fit %s" % [problems.slice(0, 4)])
+	title.queue_free()
+	await _wait(0.2)
+
+	GameState.reset_to_new()
+	GameState.flags.assign(["lab_intro_done"])
+	GameState.threat_unlocked = 1
+	var lab := (load(LAB_PATH) as PackedScene).instantiate()
+	get_tree().root.add_child(lab)
+	await _wait(0.3)
+	var ui := lab.get_node(^"LabUI") as LabUI
+	ui.refresh_threat()
+	ui.dialogue.say("speaker.vorn", "talk.retrieval_lines.1")
+	await _frames(2)
+	problems = _l10n_problems(lab)
+	for kind: CosmeticData.Kind in [CosmeticData.Kind.OUTFIT, CosmeticData.Kind.WEAPON_SKIN, CosmeticData.Kind.LAB_DECOR, CosmeticData.Kind.EMP_STYLE]:
+		ui.open_shop()
+		ui.show_shop_kind(kind)
+		await _frames(2)
+		problems.append_array(_l10n_problems(ui))
+	ui._on_shop_close_pressed()
+	ui.open_surgery()
+	await _frames(2)
+	problems.append_array(_l10n_problems(ui))
+	ui._on_surgery_close_pressed()
+	ui.open_armory()
+	await _frames(2)
+	problems.append_array(_l10n_problems(ui))
+	ui._on_armory_close_pressed()
+	ui._on_settings_button_pressed()
+	await _frames(2)
+	problems.append_array(_l10n_problems(ui))
+	_check(problems.is_empty(), "pseudo-locale: the lab, its talk, shop, surgery, armory and settings are translated and fit %s" % [problems.slice(0, 4)])
+	lab.queue_free()
+	await _wait(0.2)
+
+	var level := await _load_level(1, 63)
+	var player := level.get_node(^"Player") as Player
+	var hud := level.get_node(^"HUD") as Hud
+	problems = _l10n_problems(hud)
+	hud._on_pause_button_pressed()
+	await _frames(2)
+	problems.append_array(_l10n_problems(hud))
+	hud._on_resume_pressed()
+	var station := (load("res://src/levels/features/repair_station.tscn") as PackedScene).instantiate() as RepairStation
+	level.add_child(station)
+	EventBus.interact_prompt_changed.emit(station.prompt_text())
+	EventBus.shop_opened.emit(station)
+	EventBus.toast_requested.emit(station.buy(RepairStation.Item.HALF_HEART, player))
+	await _frames(2)
+	problems.append_array(_l10n_problems(hud))
+	hud._on_shop_close_pressed()
+	var shrine := (load("res://src/levels/features/memory_shrine.tscn") as PackedScene).instantiate() as MemoryShrine
+	shrine.memory = load("res://data/memories/l1_the_wedding.tres") as MemoryData
+	level.add_child(shrine)
+	shrine.interact(player)
+	await _frames(2)
+	problems.append_array(_l10n_problems(hud))
+	hud._on_memory_close_pressed()
+	RunState.second_chance_used = false
+	await _die(player)
+	problems.append_array(_l10n_problems(hud))
+	hud._on_second_chance_decline_pressed()
+	await _frames(3)
+	problems.append_array(_l10n_problems(hud))
+	_check(hud.summary_panel.visible and problems.is_empty(),
+		"pseudo-locale: the HUD, pause menu, repair shop, memory, Second Chance and summary are translated and fit %s" % [problems.slice(0, 4)])
+	level.queue_free()
+	await _wait(0.3)
+
+	GameState.last_ending = "humanity"
+	var credits := (load("res://src/ui/credits/credits.tscn") as PackedScene).instantiate() as Credits
+	get_tree().root.add_child(credits)
+	await _wait(0.2)
+	problems = _l10n_problems(credits)
+	credits._on_roll_finished()
+	await _frames(2)
+	problems.append_array(_l10n_problems(credits))
+	credits.queue_free()
+	for file: String in DirAccess.get_files_at("res://src/ui/comic"):
+		if file.get_extension() != "tscn":
+			continue
+		var comic := (load("res://src/ui/comic".path_join(file)) as PackedScene).instantiate()
+		get_tree().root.add_child(comic)
+		await _frames(2)
+		problems.append_array(_l10n_problems(comic, true))
+		comic.queue_free()
+	var tutorial := (load("res://src/hub/tutorial.tscn") as PackedScene).instantiate()
+	get_tree().root.add_child(tutorial)
+	await _wait(0.2)
+	problems.append_array(_l10n_problems(tutorial))
+	tutorial.queue_free()
+	_check(problems.is_empty(), "pseudo-locale: credits, every comic and the rehab tutorial are translated and fit %s" % [problems.slice(0, 4)])
+	await _wait(0.2)
+
+	get_tree().root.size = window_size
+	TranslationServer.set_locale(locale)
+	TranslationServer.remove_translation(pseudo)
+	_check(tr("banner.boss") == "BOSS", "switching back shows English again")
+
+
+## The pseudo-locale's version of an English text: brackets around it, accented letters, vowels doubled (about 30%
+## longer). Format specifiers (%d, %s, %02d) stay as they are.
+func _pseudo(text: String) -> String:
+	var out := "["
+	var i := 0
+	while i < text.length():
+		if text[i] == "%":
+			var spec := _format_spec.search(text, i)
+			if spec != null and spec.get_start() == i:
+				out += spec.get_string()
+				i = spec.get_end()
+				continue
+		var at := PSEUDO_FROM.find(text[i])
+		if at < 0:
+			out += text[i]
+		else:
+			out += PSEUDO_TO[at].repeat(2 if "aeiouAEIOU".contains(text[i]) else 1)
+		i += 1
+	return out + "]"
+
+
+## Problems with the text nodes under `root`: English showing (plain ASCII letters), characters the font can't draw,
+## and controls that stick out of the screen. Nodes with auto-translation off (debug tools, the version number)
+## are skipped, as are hidden ones unless `hidden_too`.
+func _l10n_problems(root: Node, hidden_too := false) -> Array[String]:
+	var problems: Array[String] = []
+	var ascii := RegEx.create_from_string("[A-Za-z]")
+	var width := get_viewport().get_visible_rect().size.x
+	var nodes: Array[Node] = [root]
+	while not nodes.is_empty():
+		var node: Node = nodes.pop_back()
+		nodes.append_array(node.get_children())
+		var control := node as Control
+		if control == null or not (control is Label or control is Button or control is RichTextLabel):
+			continue
+		if (not hidden_too and not _shown(control)) or not control.can_auto_translate():
+			continue
+		var shown := control.atr(String(control.get(&"text")))
+		var where := String(root.get_path_to(control))
+		if ascii.search(shown) != null:
+			problems.append("%s shows \"%s\"" % [where, shown.left(32)])
+		var font := control.get_theme_font(&"normal_font" if control is RichTextLabel else &"font")
+		for character: String in shown:
+			if character != "\n" and not font.has_char(character.unicode_at(0)):
+				problems.append("%s: the font has no '%s'" % [where, character])
+				break
+		if _shown(control) and not _in_world(control):
+			var rect := control.get_global_rect()
+			if rect.position.x < -1.0 or rect.end.x > width + 1.0:
+				problems.append("%s sticks out of the screen (x %d to %d)" % [where, int(rect.position.x), int(rect.end.x)])
+	return problems
+
+
+## Visible and not faded out (the toast and banner labels sit at alpha 0 between animations).
+func _shown(control: Control) -> bool:
+	if not control.is_visible_in_tree():
+		return false
+	var alpha := 1.0
+	var item: Node = control
+	while item is CanvasItem:
+		alpha *= (item as CanvasItem).modulate.a * (item as CanvasItem).self_modulate.a if item == control else (item as CanvasItem).modulate.a
+		item = item.get_parent()
+	return alpha > 0.01
+
+
+## True for controls placed in the world (room and lab signs) rather than on the screen.
+func _in_world(control: Control) -> bool:
+	var node := control.get_parent()
+	while node != null:
+		if node is Node2D:
+			return true
+		if node is CanvasLayer:
+			return false
+		node = node.get_parent()
+	return false
+
+
+func _files(dir: String, extensions: Array[String]) -> Array[String]:
+	var out: Array[String] = []
+	for sub: String in DirAccess.get_directories_at(dir):
+		out.append_array(_files(dir.path_join(sub), extensions))
+	for file: String in DirAccess.get_files_at(dir):
+		if extensions.has(file.get_extension()):
+			out.append(dir.path_join(file))
+	return out
 
 
 func _reset_settings() -> void:

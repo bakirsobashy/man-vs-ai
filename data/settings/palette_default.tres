@@ -4,4 +4,4 @@
 
 [resource]
 script = ExtResource("1_palette")
-display_name = "Default"
+display_name = "settings.palette.default"

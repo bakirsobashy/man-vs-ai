@@ -47,7 +47,7 @@ _data = {
 
 [node name="Longshot" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Longshot"
+display_name = "weapon.longshot"
 bullet_scene = ExtResource("2_bullet")
 damage = 28
 fire_rate = 1.0

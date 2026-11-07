@@ -47,7 +47,7 @@ _data = {
 
 [node name="ToasterCannon" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Toaster Cannon"
+display_name = "weapon.toaster_cannon"
 bullet_scene = ExtResource("2_bullet")
 damage = 10
 fire_rate = 2.0

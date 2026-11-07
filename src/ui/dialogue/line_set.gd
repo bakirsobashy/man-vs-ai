@@ -2,7 +2,7 @@ class_name LineSet
 extends Resource
 ## Alternative lines for the same moment (death retrievals, Patch's sales talk). pick() cycles through them.
 
-@export var speaker := "Vorn"
+@export var speaker := "speaker.vorn"
 @export_multiline var lines: Array[String] = []
 
 

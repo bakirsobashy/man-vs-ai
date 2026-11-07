@@ -17,20 +17,20 @@ signal delete_requested(slot: int)
 
 func refresh() -> void:
 	var summary := SaveManager.slot_summary(slot)
-	title_label.text = "SLOT %d" % slot
+	title_label.text = tr("slot.title") % slot
 	delete_button.visible = not summary.is_empty()
-	delete_button.text = "Delete"
+	delete_button.text = tr("slot.delete")
 	confirm_timer.stop()
 	if summary.is_empty():
-		info_label.text = "Empty"
-		play_button.text = "New story"
+		info_label.text = tr("slot.empty")
+		play_button.text = tr("slot.new_story")
 		return
 	var minutes := int(summary["playtime_s"]) / 60
-	info_label.text = "Best level %d · %d runs · implants %d/6 · %dh %02dm" % [
+	info_label.text = tr("slot.info") % [
 		summary["best_level"], summary["runs"], summary["filled_slots"], minutes / 60, minutes % 60]
 	if int(summary.get("endings", 0)) > 0:
-		info_label.text += " · endings %d/4" % int(summary["endings"])
-	play_button.text = "Continue run" if summary["has_run"] else "Continue"
+		info_label.text += " · " + tr("slot.endings") % int(summary["endings"])
+	play_button.text = tr("slot.continue_run") if summary["has_run"] else tr("slot.continue")
 
 
 func _on_play_button_pressed() -> void:
@@ -39,11 +39,11 @@ func _on_play_button_pressed() -> void:
 
 func _on_delete_button_pressed() -> void:
 	if confirm_timer.is_stopped():
-		delete_button.text = "Tap again to delete"
+		delete_button.text = tr("slot.confirm_delete")
 		confirm_timer.start()
 		return
 	delete_requested.emit(slot)
 
 
 func _on_confirm_timer_timeout() -> void:
-	delete_button.text = "Delete"
+	delete_button.text = tr("slot.delete")

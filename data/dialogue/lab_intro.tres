@@ -5,28 +5,28 @@
 
 [sub_resource type="Resource" id="Resource_line0"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "Welcome back to the land of the living, Sergeant. Mostly living."
+speaker = "speaker.vorn"
+text = "talk.lab_intro.1"
 
 [sub_resource type="Resource" id="Resource_line1"]
 script = ExtResource("2_line")
-speaker = "Kade"
-text = "The machines that did this. Where are they?"
+speaker = "speaker.kade"
+text = "talk.lab_intro.2"
 
 [sub_resource type="Resource" id="Resource_line2"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "The Null Syndicate. Their first lieutenant, Scrapjaw, holds the Rustline. The elevator goes there."
+speaker = "speaker.vorn"
+text = "talk.lab_intro.3"
 
 [sub_resource type="Resource" id="Resource_line3"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "When you're ready... I can make you better. The chair is right here."
+speaker = "speaker.vorn"
+text = "talk.lab_intro.4"
 
 [sub_resource type="Resource" id="Resource_line4"]
 script = ExtResource("2_line")
-speaker = "Patch"
-text = "And when you're done being noble, I sell guns. Meat's honest, and so are my prices."
+speaker = "speaker.patch"
+text = "talk.lab_intro.5"
 
 [resource]
 script = ExtResource("1_conversation")

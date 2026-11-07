@@ -6,7 +6,7 @@ var used := false
 
 
 func prompt_text() -> String:
-	return "Start the challenge"
+	return tr("prompt.challenge")
 
 
 func can_interact(_player: Player) -> bool:

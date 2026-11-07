@@ -9,11 +9,11 @@ var used := false
 
 
 func prompt_text() -> String:
-	return "Remember" if not used else "Remember again"
+	return tr("prompt.remember") if not used else tr("prompt.remember_again")
 
 
 func interact(player: Player) -> void:
-	EventBus.memory_opened.emit(memory.title, memory.text_for(GameState.humanity_band()))
+	EventBus.memory_opened.emit(tr(memory.title), tr(memory.text_for(GameState.humanity_band())))
 	if not used:
 		used = true
 		player.health.heal(memory.heal)

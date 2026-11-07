@@ -246,8 +246,15 @@ audio layers are left.**
 - **Built so far: settings and accessibility.** One settings screen covers audio, controls (joystick, swipe, double
   tap, reticle), feedback (vibration, shake, flashing), display (bullet palettes, text size, 30/60 fps, language)
   and privacy options. It opens from the title, the pause menu and the lab.
-- The M6 smoke test passes 52/52.
-- **Next:** localization, performance, then the Play Console material.
+- **Built so far: localization.**
+  - All 477 player-facing strings are in `localization/strings.csv`. Scenes and data hold keys; code uses `tr()`.
+  - A pseudo-locale test lays out every screen at 360 × 640 and checks for English leaks, missing glyphs and
+    overflow.
+  - The test caught three layout problems, now fixed: the armory rows were too wide; the lab's buttons drew over its
+    panels; the title tagline had no side margins.
+  - The title shows the app version (0.6.0).
+- The M6 smoke test passes 63/63.
+- **Next:** performance, then the Play Console material.
 
 **Scope**
 - Rewarded ads (Second Chance, Salvage bonus) with the consent flow.

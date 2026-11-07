@@ -5,12 +5,15 @@ extends Control
 
 @onready var slot_panel: Control = %SlotPanel
 @onready var cards: Array[SlotCard] = [%Slot1, %Slot2, %Slot3]
+## Shows Project Settings → Application → Config → Version (not translated).
+@onready var version_label: Label = %Version
 
 
 func _ready() -> void:
 	get_tree().paused = false
 	GameState.slot = 0
 	RunState.end_run()
+	version_label.text = "v%s" % ProjectSettings.get_setting("application/config/version", "")
 	# Consent comes before any ad (GDD §9): UMP asks once per session, here at the title.
 	if not Monetization.consent_gathered:
 		Monetization.gather_consent()

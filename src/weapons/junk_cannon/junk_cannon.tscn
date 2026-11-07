@@ -47,7 +47,7 @@ _data = {
 
 [node name="JunkCannon" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Junk Cannon"
+display_name = "weapon.junk_cannon"
 bullet_scene = ExtResource("2_bullet")
 damage = 8
 damage_max = 20
