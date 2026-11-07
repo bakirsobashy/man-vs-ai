@@ -43,6 +43,12 @@ radius = 40.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_shockwave"]
 radius = 24.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_target_bg"]
+bg_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_target_fill"]
+bg_color = Color(1, 0.3, 0.25, 1)
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
 radius = 18.0
 
@@ -429,6 +435,18 @@ top_level = true
 z_index = 10
 texture = ExtResource("5_reticle")
 
+[node name="TargetHp" type="ProgressBar" parent="Reticle"]
+unique_name_in_owner = true
+visible = false
+offset_left = -10.0
+offset_top = 10.0
+offset_right = 10.0
+offset_bottom = 13.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_target_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_target_fill")
+show_percentage = false
+
 [node name="Hurtbox" type="Area2D" parent="."]
 unique_name_in_owner = true
 collision_layer = 0
@@ -472,7 +490,7 @@ shape = SubResource("CircleShape2D_interact")
 [node name="LineOfSight" type="RayCast2D" parent="."]
 enabled = false
 target_position = Vector2(0, 0)
-collision_mask = 3
+collision_mask = 515
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 unique_name_in_owner = true
@@ -551,6 +569,17 @@ texture = ExtResource("15_emp_ring")
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_shockwave")
 
+[node name="SlowMoTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.4
+one_shot = true
+ignore_time_scale = true
+
+[node name="DamageBoostTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 3.0
+one_shot = true
+
 [node name="BodyAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_body")
@@ -605,3 +634,5 @@ bus = &"SFX"
 [connection signal="timeout" from="RetargetTimer" to="TargetSelector" method="_on_retarget_timer_timeout"]
 [connection signal="timeout" from="PartialReloadTimer" to="." method="_on_partial_reload_timer_timeout"]
 [connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]
+[connection signal="timeout" from="SlowMoTimer" to="." method="_on_slow_mo_timer_timeout"]
+[connection signal="timeout" from="DamageBoostTimer" to="." method="_on_damage_boost_timer_timeout"]

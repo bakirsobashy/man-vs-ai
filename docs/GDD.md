@@ -369,6 +369,8 @@ The number of **filled slots** sets the hero's humanity band; tiers don't count.
   lab visit locks it in.
 - There's no humanity meter in the HUD [LOCKED]; the sprite and the voice show the change.
 - The human path is **hard mode by design**: weapons and skill only. [LOCKED]
+- The Normal ending has two flavors, Patched (1–2 slots) and Hollow (3–5). After an ending, NG+ threat levels unlock
+  (decided in M5; [open-questions.md](open-questions.md)).
 
 ### 5.6 Economy pacing targets [PROPOSED; tune in M4/M5]
 | Target | Value |
@@ -384,7 +386,8 @@ Detailed tables are in [content.md](content.md) §8.
 - Power accumulates every run through implants and unlocks, so the game gets easier for implant users and stays hard for
   human players. That moral pressure is intended.
 - Each level adds new enemy types, denser patterns and a bigger threat budget per room ([content.md](content.md) §6).
-- Difficulty after an ending (NG+ or threat levels) is [OPEN] (Q5).
+- After an ending, NG+ **threat levels** unlock one at a time (up to 5): more threat and elites per room for more
+  RAM. The player picks the level in the lab ([content.md](content.md) §6).
 
 ---
 
@@ -470,7 +473,10 @@ The premise, cast and endings are in [narrative.md](narrative.md). The story is 
   ad) → Lab.
 - **Built in M4:** title → three save slots → (new slot: prologue comic → rehab tutorial) → lab → Level 1 → lab. Death
   shows one "Retrieved" panel with the run summary (no ads until M6); Vorn's retrieval line plays back in the lab. A run
-  in progress shows **Continue run** on its slot card. The ending and credits arrive in M5.
+  in progress shows **Continue run** on its slot card.
+- **Built in M5:** two seconds after ZERO falls, the ending for Kade's band plays as a comic, then the credits roll and
+  close on Vorn's post-credits line, then the lab. The slot card counts the endings seen; the endings gallery is still
+  [PROPOSED].
 
 ### 8.3 Onboarding [PROPOSED; built in M4]
 A rehab session in the lab's training room teaches one skill per step (each step can be skipped):

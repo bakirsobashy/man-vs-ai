@@ -1,0 +1,218 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/grenadier.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/components/drop_chance.gd" id="11_drop_chance"]
+[ext_resource type="PackedScene" path="res://src/pickups/ammo_pickup.tscn" id="12_ammo"]
+[ext_resource type="Script" path="res://src/enemies/states/telegraph.gd" id="14_telegraph"]
+[ext_resource type="Script" path="res://src/enemies/states/fire_emitter.gd" id="15_fire"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="16_emitter"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="92_hit"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="Script" path="res://src/enemies/states/lob.gd" id="18_lob"]
+[ext_resource type="PackedScene" path="res://src/weapons/grenade/grenade.tscn" id="19_grenade"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/elite_ring.svg" id="90_elite"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/shield_bubble.svg" id="91_shield"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 6.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 8.0
+
+[sub_resource type="Resource" id="Resource_ammo_drop"]
+script = ExtResource("11_drop_chance")
+scene = ExtResource("12_ammo")
+chance = 0.03
+amount = 1
+
+[sub_resource type="Animation" id="Animation_attack_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph"]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.5, 0.5), Vector2(1.15, 1.15)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.4, 0.3, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_attack"]
+_data = {
+&"RESET": SubResource("Animation_attack_reset"),
+&"telegraph": SubResource("Animation_telegraph")
+}
+
+[node name="Grenadier" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("attack_animation", "nav_agent")]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 34.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+attack_animation = NodePath("AttackAnimation")
+nav_agent = NodePath("NavAgent")
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("20_glow")
+
+[node name="EliteFX" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("90_elite")
+
+[node name="ShieldBubble" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("91_shield")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 6.0
+target_desired_distance = 6.0
+radius = 6.0
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 515
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 30
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 5
+ram_scene = ExtResource("9_ram")
+extras = Array[ExtResource("11_drop_chance")]([SubResource("Resource_ammo_drop")])
+
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("92_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Approach"
+
+[node name="Approach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 140.0
+max_range = 220.0
+strafe_ratio = 0.4
+attack_state = &"Telegraph"
+attack_delay_min = 2.0
+attack_delay_max = 3.0
+needs_line_of_sight = false
+
+[node name="Telegraph" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"Lob"
+
+[node name="Lob" type="Node" parent="StateMachine"]
+script = ExtResource("18_lob")
+grenade_scene = ExtResource("19_grenade")
+next_state = &"Approach"
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+next_state = &"Approach"
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]

@@ -27,6 +27,20 @@
 [ext_resource type="Resource" path="res://data/dialogue/retrieval_lines.tres" id="25_retrieval"]
 [ext_resource type="PackedScene" path="res://src/ui/comic/implant_heart.tscn" id="26_comic_heart"]
 [ext_resource type="PackedScene" path="res://src/ui/comic/implant_legs.tscn" id="27_comic_legs"]
+[ext_resource type="Resource" path="res://data/dialogue/l2_first_clear.tres" id="28_l2_clear"]
+[ext_resource type="Resource" path="res://data/dialogue/vorn_idle_human.tres" id="29_idle_human"]
+[ext_resource type="Resource" path="res://data/dialogue/vorn_idle_patched.tres" id="30_idle_patched"]
+[ext_resource type="Resource" path="res://data/dialogue/vorn_idle_hollow.tres" id="31_idle_hollow"]
+[ext_resource type="Resource" path="res://data/dialogue/vorn_idle_machine.tres" id="32_idle_machine"]
+[ext_resource type="Resource" path="res://data/levels/campaign.tres" id="33_campaign"]
+[ext_resource type="Script" path="res://src/ui/dialogue/conversation.gd" id="34_conversation"]
+[ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="35_line_set"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_eyes.tscn" id="36_comic_eyes"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_brain.tscn" id="37_comic_brain"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_arms.tscn" id="38_comic_arms"]
+[ext_resource type="PackedScene" path="res://src/ui/comic/implant_lungs.tscn" id="39_comic_lungs"]
+[ext_resource type="Resource" path="res://data/dialogue/l3_first_clear.tres" id="40_l3_clear"]
+[ext_resource type="Resource" path="res://data/dialogue/l4_first_clear.tres" id="41_l4_clear"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/purchase.wav" id="90_purchase"]
 [ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="92_lab_theme"]
@@ -170,8 +184,12 @@ weapon_catalog = ExtResource("11_weapons")
 armory_row_scene = ExtResource("12_armory_row")
 patch_lines = ExtResource("13_patch_lines")
 implant_comics = Dictionary[String, PackedScene]({
+"arms": ExtResource("38_comic_arms"),
+"brain": ExtResource("37_comic_brain"),
+"eyes": ExtResource("36_comic_eyes"),
 "heart": ExtResource("26_comic_heart"),
-"legs": ExtResource("27_comic_legs")
+"legs": ExtResource("27_comic_legs"),
+"lungs": ExtResource("39_comic_lungs")
 })
 
 [node name="QuickStart" type="Button" parent="LabUI"]
@@ -185,6 +203,34 @@ offset_bottom = 84.0
 grow_horizontal = 0
 theme = SubResource("Theme_ui")
 text = "Quick Start"
+
+[node name="ThreatBox" type="HBoxContainer" parent="LabUI"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -190.0
+offset_top = 90.0
+offset_right = -8.0
+offset_bottom = 120.0
+grow_horizontal = 0
+theme = SubResource("Theme_ui")
+alignment = 2
+
+[node name="ThreatDown" type="Button" parent="LabUI/ThreatBox"]
+layout_mode = 2
+text = "<"
+
+[node name="ThreatLabel" type="Label" parent="LabUI/ThreatBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "THREAT 0"
+vertical_alignment = 1
+
+[node name="ThreatUp" type="Button" parent="LabUI/ThreatBox"]
+layout_mode = 2
+text = ">"
 
 [node name="SurgeryPanel" type="PanelContainer" parent="LabUI"]
 unique_name_in_owner = true
@@ -356,12 +402,15 @@ bus = &"SFX"
 script = ExtResource("91_music_cue")
 stream = ExtResource("92_lab_theme")
 
-[node name="LabDirector" type="Node" parent="." node_paths=PackedStringArray("player", "lab_ui")]
+[node name="LabDirector" type="Node" parent="." node_paths=PackedStringArray("player", "lab_ui", "elevator")]
 script = ExtResource("1_director")
 player = NodePath("../Player")
 lab_ui = NodePath("../LabUI")
+elevator = NodePath("../Stations/LabElevator")
+campaign = ExtResource("33_campaign")
 intro_talk = ExtResource("23_intro")
-first_clear_talk = ExtResource("24_first_clear")
+first_clear_talks = Array[ExtResource("34_conversation")]([ExtResource("24_first_clear"), ExtResource("28_l2_clear"), ExtResource("40_l3_clear"), ExtResource("41_l4_clear")])
+idle_lines = Array[ExtResource("35_line_set")]([ExtResource("29_idle_human"), ExtResource("30_idle_patched"), ExtResource("31_idle_hollow"), ExtResource("32_idle_machine")])
 retrieval_lines = ExtResource("25_retrieval")
 
 [connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
@@ -369,6 +418,8 @@ retrieval_lines = ExtResource("25_retrieval")
 [connection signal="lifted" from="TouchController" to="Player" method="_on_touch_lifted"]
 [connection signal="special_requested" from="TouchController" to="Player" method="_on_touch_special_requested"]
 [connection signal="pressed" from="LabUI/QuickStart" to="LabUI" method="_on_quick_start_pressed"]
+[connection signal="pressed" from="LabUI/ThreatBox/ThreatDown" to="LabUI" method="_on_threat_down_pressed"]
+[connection signal="pressed" from="LabUI/ThreatBox/ThreatUp" to="LabUI" method="_on_threat_up_pressed"]
 [connection signal="selected" from="LabUI/SurgeryPanel/VBox/SlotRows/SlotEyes" to="LabUI" method="_on_slot_selected"]
 [connection signal="selected" from="LabUI/SurgeryPanel/VBox/SlotRows/SlotBrain" to="LabUI" method="_on_slot_selected"]
 [connection signal="selected" from="LabUI/SurgeryPanel/VBox/SlotRows/SlotArms" to="LabUI" method="_on_slot_selected"]

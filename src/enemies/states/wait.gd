@@ -10,7 +10,7 @@ var _left := 0.0
 
 func enter(_msg: Dictionary) -> void:
 	enemy.velocity = Vector2.ZERO
-	_left = randf_range(duration_min, duration_max)
+	_left = randf_range(duration_min, duration_max) / enemy.attack_rate
 
 
 func physics_update(delta: float) -> void:

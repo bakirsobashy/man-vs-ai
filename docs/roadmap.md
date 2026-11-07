@@ -161,6 +161,58 @@ If the gate fails, iterate on M1 before moving on.
 - An external playtest with 10+ people, including a "would you play again?" question.
 
 ## M5: Content production
+**Status: content complete. All five levels, every boss and the endings are playable; the balance pass and adaptive
+audio layers are left.**
+- **The campaign:** runs go L1 → lab → L2 → lab → L3 → lab → L4 → lab → L5. Hearts, armor and the found gun carry
+  between levels, and death restarts at Level 1. Beating ZERO plays the ending for Kade's band.
+- **Level 2, Neon Bazaar:**
+  - 16 rooms with holo-signs (they block sight, not bullets) and the Shotgunner, Drone and Hacker.
+  - **Elite modifiers** (Overclocked, Armored, Splitter, Shielded), from Level 2 at 10%.
+  - **GLITCH**, with decoys, holo-wall cages and the Static Storm.
+  - **Guns:** the Junk Cannon, Arc Caster and Overclock Pistol.
+  - **Implants:** Hawk Optics and Neural Coprocessor.
+  - **Story:** memory band variants, Mira's Drawing, the Level 2 lab talk, and Vorn's band-aware idle lines.
+- **Level 3, The Foundry:**
+  - 16 rooms with conveyor belts (they carry the hero and walking robots) and molten lanes (rolling crosses them).
+  - The **Grenadier** (lobbed grenades with a landing circle) and the **Shield-bot** (a turning front shield that
+    drops when it attacks). Elites at 15%.
+  - **FORGEMOTHER**: Assembly (builds Swarmers, rivet fans), Overtime (belts reverse at double speed, crates ride
+    in, grenade volleys) and Meltdown (core takes double damage, molten floods with a 1 s warning).
+  - **Guns:** the Cryo Sprayer, Rail Spike and Scrap Minigun.
+  - **Implants:** Servo Arms and Filter Lungs (all 6 body slots now have implants).
+  - **Story:** Lena's Message and the Level 3 lab talk.
+- **Level 4, Skyline Spires:**
+  - 16 rooms with timed laser grids (off, a warning blink, then ½ heart; rolls pass through) and cracking glass
+    floors (they break 0.9 s after you step on them; falling costs a heart, and a roll carries you over a hole).
+  - The **Sniper** (a laser sight that cover blocks, a 1-heart shot, then it relocates) and the **EMP-bot** (an EMP
+    field that shorts out cover, and a pulse that knocks the hero out of it). Elites at 20%.
+  - **WARDEN**: Overwatch (2 flanking Drones, perched snipes), Suppression (EMP fields on the hero, sweeping fire)
+    and Hunt (drops down 80% faster, sweeps and snipes). The first kill unlocks the M7 Line Rifle.
+  - **Guns:** the Swarm Launcher, Beam Cutter and Toaster Cannon, plus the M7 Line Rifle story gun (19 of 21 guns).
+  - **Story:** Mira's Birthday and the Level 4 lab talk (the Warden's recording is in the Syndicate Core).
+- **Level 5, Syndicate Core:**
+  - 16 rooms with coolant channels (they flood on a cycle and halve the hero's speed) and sweeping firewalls (roll
+    through them).
+  - The **Null Knight** mirrors the hero: it rolls through bullets, takes cover and chains bursts with grenades.
+    Elites at 25%.
+  - **ZERO**: Duel (rolls, cover, bursts), Syndicate (Glitch's decoys, Scrapjaw's charge, Forgemother's minions,
+    Warden's laser) and Zero Hour (overclocked spirals while the arena's edge firewalls close in).
+  - **Guns:** the Peacekeeper (ignores enemy shields) and the Black Box (an orb that eats enemy bullets and bursts
+    them back). All 21 guns exist.
+  - **Story:** The Night, the Warden's recording, in four band variants.
+- **Endings and post-game:**
+  - Four ending comics (Humanity, Normal Patched, Normal Hollow, Transformation) by implant count, then the credits
+    and Vorn's post-credits line, then the lab.
+  - NG+ threat levels (Q5): each ending unlocks the next (up to 5), picked in the lab: +15% threat and +5% elite
+    chance per level for +10% RAM.
+- **Owner decisions:** Vorn is morally grey (Q1), the Normal ending has Patched and Hollow flavors (Q8), and
+  post-game is NG+ threat levels (Q5).
+- **Tests:**
+  - every earlier suite still passes;
+  - the Level 2 smoke test passes 44/44, Level 3 49/49, Level 4 43/43, Level 5 33/33 and the endings test 25/25;
+  - the generator validates 10,000 layouts for each campaign level.
+- **Left in M5:** the balance pass (it needs the M5 playtests' data) and adaptive audio layers.
+
 **Scope**
 - Districts 2–5: templates, hazards and tilesets.
 - The remaining 8 enemy types and the elite modifiers.

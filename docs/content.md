@@ -15,6 +15,18 @@
 | 4 | Skyline Spires | Glass, wind, searchlights | Timed laser grids, cracking glass floors | Sniper, EMP-bot | WARDEN | Cold, sparse, high synths |
 | 5 | Syndicate Core | Servers, cables, coolant | Coolant floods (slow), firewall lasers | Null Knight, plus elite variants | ZERO | Every motif combined |
 
+**Built hazard numbers** (exports on each hazard scene in `src/levels/hazards/`):
+| Hazard | Numbers |
+|---|---|
+| Holo-sign (L2) | Blocks line of sight only |
+| Conveyor (L3) | Carries the hero and walking robots at 40 px/s along the belt |
+| Molten lane (L3) | ½ heart on contact and every 1 s while standing in it; rolls cross it; Filter Lungs Mk II make the hero immune |
+| Laser grid (L4) | Off 2 s, warning blink 0.6 s, on 1.4 s; ½ heart on contact and every 0.5 s while on; rolls pass; Filter Lungs don't help |
+| Glass floor (L4) | 2×2 tiles; breaks 0.9 s after the hero steps on it and grows back after 4 s; falling costs 1 heart and puts him back where he stepped on; a roll carries him over a hole |
+| EMP field (L4) | 3-tile radius: cover gives no protection inside it (EMP-bots carry one; WARDEN's warn for 0.6 s, then last 3 s) |
+| Coolant flood (L5) | Dry 3 s, warning 0.8 s, flooded 3 s; the hero moves at half speed while wading through it (rolls aren't slowed) |
+| Firewall (L5) | A wall of light across the room sweeping out and back; ½ heart on contact and every 0.5 s; rolls pass through |
+
 ---
 
 ## 2. Enemies (robots only)
@@ -31,7 +43,7 @@
 | Shield-bot | L3 | Blocker | Frontal shield blocks player bullets; turns slowly | 6-bullet wave every 2.5 s, lowering the shield (the attack window) | 45 | 3 | 8 | ground |
 | Sniper | L4 | Long range | Stays at max range, relocates after each shot | Laser sight for 1.0 s, then a fast shot (1 heart). Cover blocks the laser | 25 | 2 | 6 | ground |
 | EMP-bot | L4 | **Flusher** | Slow; projects a 3-tile EMP field | The field shorts out cover (no protection inside it); a pulse knocks the hero back | 35 | 2.5 | 6 | ground |
-| Null Knight | L5 | Elite guard | Mirrors the hero: rolls through bullets, uses cover | Burst, roll and grenade combos | 80 | 5 | 16 | ground |
+| Null Knight | L5 | Elite guard | Mirrors the hero: rolls through bullets (60%, 1.6 s cooldown), uses cover | Burst, roll and grenade combos | 80 | 5 | 16 | ground |
 
 **Elite modifiers** (from L2; chance by level in §6). Elites cost 2× threat and drop 3× RAM.
 | Modifier | Effect | Visual |
@@ -67,7 +79,7 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 | 9 | Volt Shotgun | Shotgun | Rare | 150 | 3×6 | 1.2 | 5 | 1.8 | 50 | Pellets stun for 0.3 s |
 | 10 | Longshot | Marksman | Rare | 150 | 28 | 1 | 5 | 1.8 | 60 | Pierces every enemy; very fast bullet |
 | 11 | Firecracker | Burst rifle | Rare | 150 | 4×3 | 2 bursts | 9 | 1.6 | 135 | Each bullet pops in a tiny blast |
-| 12 | Cryo Sprayer | Sprayer | Rare | 150 | 1/tick | 15 | 60 | 1.6 | 400 | Short range; freezes after a buildup |
+| 12 | Cryo Sprayer | Sprayer | Rare | 150 | 1/tick | 15 | 60 | 1.6 | 400 | Short range (80 px); each hit adds 8% chill, and full chill freezes a robot for 1.5 s (not bosses) |
 | 13 | Overclock Pistol | Pistol | Rare | 150 | 4 | 3→9 | 24 | 1.4 | 240 | Fire rate ramps up the longer you keep firing (rewards staying exposed) |
 | 14 | Rail Spike | Railgun | Epic | 250 | 60 | 1.2 s charge | 3 | 2.0 | 30 | Auto-fires when charged; pierces cover and enemies |
 | 15 | Scrap Minigun | Minigun | Epic | 250 | 2 | 20 | 120 | 2.5 | 600 | 0.6 s spin-up; −20% move speed while firing |
@@ -80,7 +92,16 @@ level's `LevelConfig` enemy pool. A `SpawnPoint` only accepts the spawn kinds ti
 
 - **New-save pool:** #0–#3.
 - **Built in M4:** #0–#3 plus the armory's first six unlocks: #4 Bolt Revolver, #6 Ricochet Carbine, #8 Magnet Coil,
-  #9 Volt Shotgun, #10 Longshot and #11 Firecracker. The others arrive in M5.
+  #9 Volt Shotgun, #10 Longshot and #11 Firecracker.
+- **Built in M5 so far:** #5 Junk Cannon (big chunks of 15+ damage knock robots back 18 px), #7 Arc Caster (chains
+  within 72 px) and #13 Overclock Pistol (reaches 9 shots/s after 2 s of fire; a 0.5 s pause resets it) for Level 2;
+  #12 Cryo Sprayer, #14 Rail Spike (charges while the finger stays down and stops at walls) and #15 Scrap Minigun
+  for Level 3; #16 Swarm Launcher (4 missiles homing at 360°/s within 140 px), #17 Beam Cutter (10 ticks/s of 3
+  damage, 6 to cover, 170 px beam), #18 Toaster Cannon (burning ground: 3 damage every 0.5 s for 3 s, also where a
+  toast lands) and #21 M7 Line Rifle for Level 4. The M7 can't be bought: the armory shows "Beat WARDEN" until the
+  first WARDEN kill unlocks it. Level 5 adds #19 Peacekeeper (ignores Shield-bot plates, Hacker shields and Shielded
+  elites) and #20 Black Box (the orb eats enemy bullets and pops into 4 shards plus one per bullet eaten, up to 20,
+  6 damage each). All 21 guns are built.
 - **Total Crypto to unlock everything:** 3×60 + 7×150 + 5×250 + 2×400 = **3,280 ◈**.
 - **Where the numbers live:** combat stats are exported on each weapon scene, and its range is the circle of its `Range` area.
   Rarity and unlock cost are in `data/weapons/weapon_catalog.tres`.
@@ -106,6 +127,11 @@ Arena: a scrapyard full of light cover.
 - Contact damage is 1 heart; drops are 64 MB, 50 Crypto and an ammo pickup.
 
 ### GLITCH† (L2, The Liar). Teaches reading bullets and beating auto-aim. HP 700
+**Built in M5** (`src/bosses/glitch/`):
+- Decoys keep 2 (then 4) copies alive at 8 hand-placed teleport spots.
+- Fan bursts: 5 bullets over 45°.
+- The holo-wall cage lasts 3 s.
+- Drops 80 MB and 60 Crypto.
 | Phase | HP | Attacks |
 |---|---|---|
 | 1 · Decoys | 100–65% | 2 decoys (no shadow, slight flicker). The real Glitch fires aimed fan bursts; decoys fire hollow, outline-only bullets that do no damage. Auto-aim may pick a decoy, and shooting one pops it |
@@ -113,11 +139,15 @@ Arena: a scrapyard full of light cover.
 | 3 · Static Storm | < 30% | 4 decoys, faster teleports, brief screen glitches (toned down by the reduced-flashing setting) |
 
 ### FORGEMOTHER† (L3, The Maker). Teaches target priority and moving floors. HP 850
+**Built in M5** (`src/bosses/forgemother/`):
+- The arena has 4 factory spots, 3 crate spots and 4 flood spots, and two conveyor belts running opposite ways.
+- Rivet fans: aimed bursts of 5 volleys, 3 rivets over 24° each.
+- Drops 96 MB and 70 Crypto.
 | Phase | HP | Attacks |
 |---|---|---|
-| 1 · Assembly | 100–60% | Builds 2 Swarmers every 6 s; fires lines of molten rivets. Conveyors move both the hero and the cover |
-| 2 · Overtime | 60–30% | Conveyors speed up and reverse; crates ride in as new cover; grenade arcs |
-| 3 · Meltdown | < 30% | Core exposed (takes ×2 damage); floods molten lanes (1.0 s tell) |
+| 1 · Assembly | 100–60% | Builds 2 Swarmers about every 6 s (at most 6 alive); fires fans of molten rivets. Conveyors carry the hero and walking robots |
+| 2 · Overtime | 60–30% | Conveyors reverse at double speed; 2 crates ride in as new cover on free crate spots; volleys of 3 grenades |
+| 3 · Meltdown | < 30% | Core exposed (takes ×2 damage); floods 3 molten lanes (1.0 s tell, 4 s long), then 2 more every cycle; 2-grenade volleys |
 
 ### WARDEN† (L4, The Watcher). Teaches directional cover and flanks. HP 1,000
 | Phase | HP | Attacks |
@@ -128,12 +158,26 @@ Arena: a scrapyard full of light cover.
 
 The first kill unlocks the M7 Line Rifle.
 
+**Built in M5** (`src/bosses/warden/`):
+- Overwatch keeps 2 Drones alive on 4 hand-placed drone spots and snipes from the perch every 2.3–2.7 s.
+- Suppression drops 3 EMP fields (then 2 per cycle) on and around the hero and sweeps 16 volleys across 100°.
+- Hunt raises his speed ×1.8, sweeps 140° and snipes with a 0.7 s tell.
+- Drops 112 MB and 80 Crypto.
+
 ### ZERO† (L5, The Leader). The final exam. HP 1,400
 | Phase | HP | Attacks |
 |---|---|---|
 | 1 · Duel | 100–65% | Mirrors the hero: rolls through bullets, takes cover, fires bursts |
 | 2 · Syndicate | 65–30% | Echoes earlier bosses: Scrapjaw's charge, Glitch's decoys, Forgemother's minions, Warden's laser |
 | 3 · Zero Hour | < 30% | Overclocked bullet-hell as the arena edges close in. At 0 HP, the ending scene for the hero's band plays |
+
+**Built in M5** (`src/bosses/zero/`):
+- Duel: he rolls through half of the bullets that come at him (1.6 s cooldown), takes cover and fires 4-volley bursts.
+- Syndicate: 2 decoys on 8 teleport spots, a cover-plowing charge (1 heart on contact), 2 Swarmers (at most 4) and a
+  1 s laser snipe.
+- Zero Hour: attacks 50% faster; spirals of 6 bullets over 24 volleys; the top and bottom edge firewalls sweep
+  200 px inward and back.
+- Drops 160 MB and 120 Crypto.
 
 ---
 
@@ -152,8 +196,14 @@ The first kill unlocks the M7 Line Rifle.
 
 Art budget: 6 slots × 3 tiers = **18 overlay sets**, each covering every hero animation and direction.
 
-**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. The other four slots show in surgery as
-"arrives in M5".
+**Built in M4:** Heart and Legs, all three tiers, from `data/implants/*.tres`. **M5:** Eyes and Brain (Level 2), then
+Arms and Lungs (Level 3), all three tiers.
+Implementation notes:
+- Threat Sight lengthens every enemy tell by 0.2 s and tints bullets heading at the hero.
+- Failsafe refills itself at the start of each level.
+- Dual Wield fires the holstered gun from the off hand while it has ammo; an empty one stays holstered.
+- Filter Lungs Mk II immunity covers every floor hazard (molten lanes and FORGEMOTHER's floods today).
+- Second Wind triggers once per roll; its 0.4 s of slow motion is real time (time scale 0.4).
 
 ---
 
@@ -175,6 +225,11 @@ enemies, only the points where enemies can appear.
   of 4–6, all from a room's first wave. Spawn points closer than 4 tiles to the hero are skipped.
 - **The M2 arena** (`m2_arena_waves.tres`) uses the same robots, with Charger and Turret from wave 2, and an endless
   budget of 6 + 1.5 per wave (cap 14).
+
+**NG+ threat levels** (Q5; numbers on `data/levels/campaign.tres`): finishing the campaign at threat level T unlocks
+T + 1, up to 5. A run starts at the level picked in the lab. Each threat level adds +15% room, arena and ambush threat
+and +5% elite chance (Level 1 gets elites too), and robots drop +10% RAM. Threat 5: ×1.75 threat, +25% elites,
++50% RAM.
 
 **Odds for the second special room** (the first one is always the Memory room): Repair station 40% (50% in L1),
 Challenge arena 30%, Hacked terminal 30%.
@@ -199,7 +254,7 @@ Medium cover outright and deals 150 to Heavy. Player bullets deal 50% of their d
 | Rare-or-better chest | 30% |
 | Crypto jackpot (40×L ◈) | 20% |
 | Full ammo + 1 armor | 15% |
-| Elite ambush (one elite, 3× RAM; until elites arrive in M5, one wave of 3 threat) | 15% |
+| Elite ambush (one elite, 3× RAM; Level 1 has no elites, so there it's one wave of 3 threat) | 15% |
 | Virus: −1 EMP charge this level | 10% |
 | "ERROR 404": nothing happens | 10% |
 

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Campaign" format=3]
+
+[ext_resource type="Script" path="res://src/levels/generation/campaign.gd" id="1_campaign"]
+[ext_resource type="Script" path="res://src/levels/generation/level_config.gd" id="2_config"]
+[ext_resource type="Resource" path="res://data/levels/level_1.tres" id="3_level_1"]
+[ext_resource type="Resource" path="res://data/levels/level_2.tres" id="4_level_2"]
+[ext_resource type="Resource" path="res://data/levels/level_3.tres" id="5_level_3"]
+[ext_resource type="Resource" path="res://data/levels/level_4.tres" id="6_level_4"]
+[ext_resource type="Resource" path="res://data/levels/level_5.tres" id="7_level_5"]
+[ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="8_ending"]
+[ext_resource type="Resource" path="res://data/endings/humanity.tres" id="9_humanity"]
+[ext_resource type="Resource" path="res://data/endings/normal_patched.tres" id="10_normal_patched"]
+[ext_resource type="Resource" path="res://data/endings/normal_hollow.tres" id="11_normal_hollow"]
+[ext_resource type="Resource" path="res://data/endings/transformation.tres" id="12_transformation"]
+
+[resource]
+script = ExtResource("1_campaign")
+levels = Array[ExtResource("2_config")]([ExtResource("3_level_1"), ExtResource("4_level_2"), ExtResource("5_level_3"), ExtResource("6_level_4"), ExtResource("7_level_5")])
+endings = Array[ExtResource("8_ending")]([ExtResource("9_humanity"), ExtResource("10_normal_patched"), ExtResource("11_normal_hollow"), ExtResource("12_transformation")])

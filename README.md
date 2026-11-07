@@ -5,7 +5,20 @@ A one-finger, top-down roguelite shooter for Android (portrait), made with Godot
 > A grieving war veteran hunts the robot gang that murdered his family. Every implant that makes him strong enough
 > to win replaces another piece of the man. There are three endings: stay human, become something in between, or become the machine.
 
-**Status:** M4, the vertical slice, is built on placeholder art. It has:
+**Status:** M5 (content) is nearly done: **the whole game is playable**, from the prologue to one of the endings.
+A run goes Rustline Slums → lab → Neon Bazaar → lab → The Foundry → lab → Skyline Spires → lab → Syndicate Core.
+Beating ZERO plays the ending for Kade's humanity band, then the credits; after that, NG+ threat levels unlock.
+The balance pass is left.
+- **Level 2, the Neon Bazaar:** holo-signs, Shotgunners, Drones, Hackers, elite robots and GLITCH.
+- **Level 3, The Foundry:** conveyor belts, molten lanes, Grenadiers, Shield-bots and FORGEMOTHER.
+- **Level 4, Skyline Spires:** laser grids, cracking glass, Snipers, EMP-bots and WARDEN, whose first kill unlocks
+  Kade's old M7 Line Rifle.
+- **Level 5, Syndicate Core:** coolant floods, firewalls, Null Knights and ZERO, who fights like the hero and then
+  like every boss before him.
+- Twelve more guns (all 21 now) and four more implants (Hawk Optics, Neural Coprocessor, Servo Arms, Filter Lungs): every body slot
+  now has implants.
+
+On top of the M4 vertical slice, on placeholder art:
 - the full loop: three save slots, the prologue comic, a rehab tutorial, Dr. Vorn's lab, and Level 1 ending with SCRAPJAW;
 - surgery with the Heart and Legs implants, and Patch's armory with six unlockable guns;
 - auto-saving runs you can continue;
@@ -28,18 +41,30 @@ It passes its automated tests. Playtests on real Android phones, the art-directi
    - **Tap the weapon card (top right):** swap between the pistol and the found gun.
    - **Walk into an open door:** go to the next room.
    - **Tap the minimap:** open the full map.
-   - **Tap II (top right):** pause, change the volumes and vibration, or save and quit.
+   - **Tap II (top right):** pause, change the volumes, vibration and reduced flashing, or save and quit.
 4. Tap **DBG** (top right) for the tuning panel: live gesture readout, A/B switches, threshold sliders and a
    300-bullet storm for performance checks.
 
 ![M4 vertical slice](docs/images/m4_vertical_slice.png)
 
+![Level 2: Neon Bazaar](docs/images/m5_l2_neon_bazaar.png)
+
+![Level 3: The Foundry](docs/images/m5_l3_foundry.png)
+
+![Level 4: Skyline Spires](docs/images/m5_l4_skyline.png)
+
+![Level 5: Syndicate Core](docs/images/m5_l5_core.png)
+
+![The endings and credits](docs/images/m5_endings.png)
+
 **The lab** (between runs):
-- **Surgery (Dr. Vorn):** spend RAM on Fusion Heart and Hydraulic Legs, Mk I to Mk III. The first install in a body
+- **Surgery (Dr. Vorn):** spend RAM on implants for all six body slots (Heart, Legs, Eyes, Brain, Arms, Lungs),
+  Mk I to Mk III. The first install in a body
   slot needs a 1.5 s hold, because implants can never be removed.
 - **Armory (Patch):** spend Crypto to unlock guns; unlocked guns start turning up in chests.
-- **Elevator or Quick Start:** start a run. Dying or beating SCRAPJAW brings you back here, keeping Crypto, RAM and
-  implants. In this slice every run starts at Level 1.
+- **Elevator or Quick Start:** start a run. Dying brings you back here, keeping Crypto, RAM and implants. Between
+  levels of a run, the elevator continues to the next district; a new run starts at Level 1. After an ending, pick
+  the next run's NG+ threat level under Quick Start.
 
 **A level** (Rustline Slums, from `data/levels/level_1.tres`):
 - **Combat rooms** lock their doors for 1–2 waves. Clearing one drops Crypto and sometimes a heart, ammo or armor.
@@ -49,7 +74,7 @@ It passes its automated tests. Playtests on real Android phones, the art-directi
 - **Hacked terminals** take RAM for a gamble.
 - **The challenge arena** runs 3 waves for a Rare-or-better chest.
 - **The boss room** holds SCRAPJAW: charges that plow through cover, a magnet that streams scrap and builds new cover,
-  and a spinning grind. Beating him reveals the elevator back to the lab.
+  and a spinning grind. Beating him reveals the elevator back to the lab, and on to the Neon Bazaar.
 - Robots drop RAM. Dying shows Dr. Vorn's Retrieved summary and returns you to the lab.
 
 **The M2 arena** (`combat_test.tscn`) runs endless, harder waves with three guns near the start. **The M1 controls
@@ -97,6 +122,21 @@ godot --headless --path . --script res://tools/smoke_test_m4.gd
 ```
 ```bash
 godot --headless --path . --script res://tools/smoke_test_flow.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_l2.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_l3.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_l4.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_l5.gd
+```
+```bash
+godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```
 
 ## Getting started

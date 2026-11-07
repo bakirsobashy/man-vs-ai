@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LineSet" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+speaker = "Vorn"
+lines = Array[String](["How does it feel? Don't answer like a soldier. Answer like a patient.", "Every part I give you is a part you chose. Remember that when it matters.", "You walk differently now. Lighter. Your daughter would have noticed."])

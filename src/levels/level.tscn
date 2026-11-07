@@ -28,6 +28,20 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_longshot.tscn" id="26_longshot"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/player_firecracker.tscn" id="27_firecracker"]
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_scrap.tscn" id="28_scrap"]
+[ext_resource type="Resource" path="res://data/levels/campaign.tres" id="32_campaign"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_aerial.tscn" id="33_aerial"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_hollow.tscn" id="34_hollow"]
+[ext_resource type="PackedScene" path="res://src/enemies/swarmer/swarmer.tscn" id="35_swarmer"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_scrap.tscn" id="36_scrap_shot"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_arc.tscn" id="37_arc"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_cryo.tscn" id="38_cryo"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_rail.tscn" id="39_rail"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_rivet.tscn" id="40_rivet"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_missile.tscn" id="41_missile"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_toast.tscn" id="42_toast"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_sniper.tscn" id="43_sniper"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_peacekeeper.tscn" id="44_peacekeeper"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_blackbox.tscn" id="45_blackbox"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/rustline.wav" id="29_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/boss.wav" id="30_boss_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/room_clear.wav" id="31_clear"]
@@ -182,10 +196,74 @@ script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("27_firecracker")
 size = 64
 
+[node name="PlayerScrap" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("36_scrap_shot")
+size = 24
+
+[node name="PlayerArcs" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("37_arc")
+size = 40
+
+[node name="PlayerCryo" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("38_cryo")
+size = 80
+
+[node name="PlayerRails" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("39_rail")
+size = 8
+
+[node name="PlayerMissiles" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("41_missile")
+size = 48
+
+[node name="PlayerToast" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("42_toast")
+size = 24
+
+[node name="PlayerPeacekeeper" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("44_peacekeeper")
+size = 64
+
+[node name="PlayerBlackBox" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("45_blackbox")
+size = 6
+
+[node name="EnemySniper" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("43_sniper")
+size = 24
+hostile = true
+
+[node name="EnemyRivets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("40_rivet")
+size = 120
+hostile = true
+
 [node name="EnemyBulletsSmall" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("8_enemy_bullet")
 size = 300
+hostile = true
+
+[node name="EnemyAerial" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("33_aerial")
+size = 80
+hostile = true
+
+[node name="EnemyHollow" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+script = ExtResource("4_bullet_pool")
+bullet_scene = ExtResource("34_hollow")
+size = 120
 hostile = true
 
 [node name="EnemyScrap" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
@@ -213,6 +291,7 @@ hud = NodePath("../HUD")
 script = ExtResource("13_wave_spawner")
 settings = ExtResource("14_waves")
 next_wave_timer = NodePath("NextWaveTimer")
+splitter_scene = ExtResource("35_swarmer")
 
 [node name="NextWaveTimer" type="Timer" parent="WaveSpawner"]
 wait_time = 1.2
@@ -235,8 +314,9 @@ crypto_max = 30
 crypto_scene = ExtResource("16_crypto")
 scatter = 16.0
 
-[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer", "clear_sound")]
+[node name="LevelDirector" type="Node" parent="." node_paths=PackedStringArray("room_holder", "player", "camera", "wave_spawner", "room_reward", "arena_reward", "transition", "death_timer", "ending_timer", "clear_sound")]
 script = ExtResource("1_director")
+campaign = ExtResource("32_campaign")
 config = ExtResource("2_config")
 room_holder = NodePath("../RoomHolder")
 player = NodePath("../Player")
@@ -247,12 +327,17 @@ arena_reward = NodePath("../ArenaRewardDrops")
 chest_scene = ExtResource("22_chest")
 transition = NodePath("../Transition/TransitionAnimation")
 death_timer = NodePath("DeathTimer")
+ending_timer = NodePath("EndingTimer")
 level_music = ExtResource("29_music")
 boss_music = ExtResource("30_boss_music")
 clear_sound = NodePath("ClearSound")
 
 [node name="DeathTimer" type="Timer" parent="LevelDirector"]
 wait_time = 1.2
+one_shot = true
+
+[node name="EndingTimer" type="Timer" parent="LevelDirector"]
+wait_time = 2.0
 one_shot = true
 
 [node name="ClearSound" type="AudioStreamPlayer" parent="LevelDirector"]
@@ -282,3 +367,4 @@ libraries/ = SubResource("AnimationLibrary_transition")
 [connection signal="timeout" from="WaveSpawner/NextWaveTimer" to="WaveSpawner" method="_on_next_wave_timer_timeout"]
 [connection signal="room_cleared" from="WaveSpawner" to="LevelDirector" method="_on_wave_spawner_room_cleared"]
 [connection signal="timeout" from="LevelDirector/DeathTimer" to="LevelDirector" method="_on_death_timer_timeout"]
+[connection signal="timeout" from="LevelDirector/EndingTimer" to="LevelDirector" method="_on_ending_timer_timeout"]

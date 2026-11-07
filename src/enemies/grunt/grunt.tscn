@@ -19,6 +19,8 @@
 [ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="17_bullet"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="90_hit"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/elite_ring.svg" id="90_elite"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/shield_bubble.svg" id="91_shield"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 6.0
@@ -114,6 +116,14 @@ texture = ExtResource("7_sprite")
 visible = false
 texture = ExtResource("20_glow")
 
+[node name="EliteFX" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("90_elite")
+
+[node name="ShieldBubble" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("91_shield")
+
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 0
 collision_mask = 16
@@ -130,7 +140,7 @@ radius = 6.0
 unique_name_in_owner = true
 enabled = false
 target_position = Vector2(0, 0)
-collision_mask = 3
+collision_mask = 515
 
 [node name="Health" type="Node" parent="."]
 unique_name_in_owner = true

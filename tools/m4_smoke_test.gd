@@ -249,8 +249,8 @@ func _test_lab() -> void:
 	ui._select_slot("heart")
 	_check(not ui.install_button.require_hold, "upgrades don't need the hold")
 	_check(ui.install("heart") and ui.install("heart") and not ui.install("heart"), "Heart goes to Mk III and no further")
-	ui._select_slot("eyes")
-	_check(ui.install_button.disabled and not ui.install("eyes"), "slots without implants yet can't be installed")
+	var all_slots := GameState.IMPLANT_SLOTS.all(func(slot: String) -> bool: return ui.implant_catalog.has_slot(slot))
+	_check(all_slots, "every body slot has implants (Eyes, Brain, Arms, Heart, Lungs, Legs)")
 	GameState.ram_mb = 100
 	_check(not ui.install("legs") and GameState.implant_tier("legs") == 0, "surgery needs enough RAM")
 	ui._on_surgery_close_pressed()

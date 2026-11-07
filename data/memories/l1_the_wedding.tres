@@ -4,6 +4,8 @@
 
 [resource]
 script = ExtResource("1_memory")
+id = "l1_the_wedding"
 title = "The Wedding"
 text = "A photo, curled at the corners. Kade and Lena in the rain outside the registry office, soaked to the skin and laughing. She painted the umbrella herself. It leaked."
+band_texts = Array[String](["A photo, curled at the corners. Kade and Lena in the rain outside the registry office, soaked to the skin and laughing. She painted the umbrella herself. It leaked.", "A photo. Lena in the rain, laughing at something. I was laughing too. I think the umbrella leaked.", "A photo of two people in the rain. One of them is me. She's laughing. I know her name. Lena. I know it.", "Image file: wedding_01.jpg. Subjects: 2. Weather: rain. Classification: personal. ...Do not delete."])
 heal = 1

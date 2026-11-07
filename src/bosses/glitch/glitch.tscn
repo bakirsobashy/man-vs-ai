@@ -1,0 +1,411 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/glitch.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="Script" path="res://src/enemies/states/telegraph.gd" id="14_telegraph"]
+[ext_resource type="Script" path="res://src/enemies/states/fire_emitter.gd" id="15_fire"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="16_emitter"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="17_bullet"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="21_crypto"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/drone_shadow.svg" id="22_shadow"]
+[ext_resource type="Script" path="res://src/components/boss_phases.gd" id="29_phases"]
+[ext_resource type="Script" path="res://src/enemies/states/phase_resume.gd" id="30_resume"]
+[ext_resource type="Script" path="res://src/enemies/states/summon_decoys.gd" id="31_summon"]
+[ext_resource type="Script" path="res://src/enemies/states/teleport.gd" id="32_teleport"]
+[ext_resource type="Script" path="res://src/enemies/states/cage.gd" id="33_cage"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="36_hit"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/boss_roar.wav" id="37_roar"]
+[ext_resource type="PackedScene" path="res://src/bosses/glitch/glitch_decoy.tscn" id="40_decoy"]
+[ext_resource type="PackedScene" path="res://src/levels/hazards/holo_cage.tscn" id="41_cage"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 10.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 12.0
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Shadow:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph"]
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(1.6, 1.6)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.4, 0.9, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph_fast"]
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.6, 0.6), Vector2(1.6, 1.6)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.4, 0.9, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_blink_out"]
+length = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Shadow:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_blink_in"]
+length = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Shadow:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_attack"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"blink_in": SubResource("Animation_blink_in"),
+&"blink_out": SubResource("Animation_blink_out"),
+&"telegraph": SubResource("Animation_telegraph"),
+&"telegraph_fast": SubResource("Animation_telegraph_fast")
+}
+
+[node name="Glitch" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("attack_animation")]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 40.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+attack_animation = NodePath("AttackAnimation")
+is_boss = true
+clears_groups_on_death = Array[StringName]([&"glitch_decoys"])
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+position = Vector2(0, 12)
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("22_shadow")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("20_glow")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 515
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 700
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 80
+ram_scene = ExtResource("9_ram")
+crypto_min = 60
+crypto_max = 60
+crypto_scene = ExtResource("21_crypto")
+
+[node name="FanEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_bullet")
+count = 5
+spread_deg = 45.0
+burst = 3
+burst_interval = 0.25
+aimed = true
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("36_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="RoarSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("37_roar")
+pitch_scale = 1.7
+bus = &"SFX"
+
+[node name="Phases" type="Node" parent="." node_paths=PackedStringArray("state_machine", "roar")]
+script = ExtResource("29_phases")
+state_machine = NodePath("../StateMachine")
+boss_name = "GLITCH"
+thresholds = Array[float]([0.65, 0.3])
+phase_states = Array[StringName]([&"DecoySummon", &"Blink", &"StormSummon"])
+phase_names = Array[String](["DECOYS", "HOLO-WALLS", "STATIC STORM"])
+roar = NodePath("../RoarSound")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Resume"
+
+[node name="Resume" type="Node" parent="StateMachine" node_paths=PackedStringArray("phases")]
+script = ExtResource("30_resume")
+phases = NodePath("../../Phases")
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+next_state = &"Resume"
+
+[node name="DecoySummon" type="Node" parent="StateMachine"]
+script = ExtResource("31_summon")
+decoy_scene = ExtResource("40_decoy")
+count = 2
+next_state = &"DecoyApproach"
+
+[node name="DecoyApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 90.0
+max_range = 170.0
+attack_state = &"FanTell"
+attack_delay_min = 1.0
+attack_delay_max = 1.6
+needs_line_of_sight = false
+
+[node name="FanTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"Fan"
+
+[node name="Fan" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../FanEmitter")
+recover_time = 0.5
+next_state = &"DecoySummon"
+
+[node name="Blink" type="Node" parent="StateMachine"]
+script = ExtResource("32_teleport")
+next_state = &"CageTell"
+
+[node name="CageTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"Cage"
+
+[node name="Cage" type="Node" parent="StateMachine"]
+script = ExtResource("33_cage")
+cage_scene = ExtResource("41_cage")
+next_state = &"CageFan"
+
+[node name="CageFan" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../FanEmitter")
+recover_time = 0.8
+next_state = &"Blink"
+
+[node name="StormSummon" type="Node" parent="StateMachine"]
+script = ExtResource("31_summon")
+decoy_scene = ExtResource("40_decoy")
+count = 4
+screen_glitch = true
+next_state = &"StormBlink"
+
+[node name="StormBlink" type="Node" parent="StateMachine"]
+script = ExtResource("32_teleport")
+min_distance = 100.0
+next_state = &"StormTell"
+
+[node name="StormTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+animation_name = &"telegraph_fast"
+next_state = &"StormFan"
+
+[node name="StormFan" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../FanEmitter")
+recover_time = 0.3
+next_state = &"StormBlink2"
+
+[node name="StormBlink2" type="Node" parent="StateMachine"]
+script = ExtResource("32_teleport")
+min_distance = 100.0
+next_state = &"StormTell2"
+
+[node name="StormTell2" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+animation_name = &"telegraph_fast"
+next_state = &"StormFan2"
+
+[node name="StormFan2" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("15_fire")
+emitter = NodePath("../../FanEmitter")
+recover_time = 0.3
+next_state = &"StormSummon"
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="changed" from="Health" to="Phases" method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]

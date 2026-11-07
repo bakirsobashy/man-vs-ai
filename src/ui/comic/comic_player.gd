@@ -10,6 +10,8 @@ signal finished
 @export var flag := ""
 ## Where to go afterwards; empty when the comic is an overlay (the first-implant panels).
 @export_file("*.tscn") var next_scene := ""
+## Music for a full-screen comic (the endings); empty keeps whatever is playing.
+@export var music: AudioStream
 
 @onready var panels: Control = %Panels
 
@@ -17,6 +19,8 @@ var _index := -1
 
 
 func _ready() -> void:
+	if music != null:
+		AudioManager.play_music(music)
 	for child: Node in panels.get_children():
 		(child as CanvasItem).visible = false
 	_advance()

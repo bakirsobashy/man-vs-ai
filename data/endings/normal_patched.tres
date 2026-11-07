@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EndingData" format=3]
+
+[ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="1_ending"]
+
+[resource]
+script = ExtResource("1_ending")
+id = "normal_patched"
+title = "Normal (Patched)"
+band = 1
+comic_scene = "res://src/ui/comic/ending_normal_patched.tscn"
+post_credits = "He kept most of himself. I kept my notes. I am still not sure which of us got the better deal."

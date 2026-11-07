@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/hazards/molten_lane.gd" id="1_lane"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/molten.svg" id="2_sprite"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lane"]
+size = Vector2(64, 24)
+
+[sub_resource type="Animation" id="Animation_glow"]
+length = 1.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.85), Color(1, 1, 1, 1), Color(1, 1, 1, 0.85)]
+}
+
+[sub_resource type="Animation" id="Animation_warn"]
+length = 0.25
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.12),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [Color(1, 1, 1, 0.15), Color(1, 1, 1, 0.55)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_lane"]
+_data = {
+&"glow": SubResource("Animation_glow"),
+&"warn": SubResource("Animation_warn")
+}
+
+[node name="MoltenLane" type="Area2D"]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("1_lane")
+starts_warming = false
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_lane")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_sprite")
+
+[node name="TickTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+autostart = true
+
+[node name="WarmupTimer" type="Timer" parent="."]
+one_shot = true
+autostart = false
+
+[node name="LifeTimer" type="Timer" parent="."]
+wait_time = 4.0
+one_shot = true
+autostart = false
+
+[node name="LaneAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_lane")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="TickTimer" to="." method="_on_tick_timer_timeout"]
+[connection signal="timeout" from="WarmupTimer" to="." method="_on_warmup_timer_timeout"]
+[connection signal="timeout" from="LifeTimer" to="." method="_on_life_timer_timeout"]

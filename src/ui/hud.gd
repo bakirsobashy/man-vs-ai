@@ -43,6 +43,8 @@ extends CanvasLayer
 @onready var music_slider: Range = %MusicSlider
 @onready var sfx_slider: Range = %SfxSlider
 @onready var haptics_check: CheckButton = %HapticsCheck
+@onready var flashing_check: CheckButton = %FlashingCheck
+@onready var glitch_animation: AnimationPlayer = %GlitchAnimation
 @onready var summary_panel: Control = %SummaryPanel
 @onready var summary_title: Label = %SummaryTitle
 @onready var summary_stats: Label = %SummaryStats
@@ -66,6 +68,7 @@ func _ready() -> void:
 	EventBus.shop_opened.connect(_on_shop_opened)
 	EventBus.memory_opened.connect(_on_memory_opened)
 	EventBus.run_summary_requested.connect(_on_run_summary_requested)
+	EventBus.screen_glitch_requested.connect(_on_screen_glitch_requested)
 	minimap_button.visible = show_minimap
 	set_joystick_zone_top(tuning.joystick_zone_top)
 	hide_stick()
@@ -73,6 +76,7 @@ func _ready() -> void:
 	music_slider.set_value_no_signal(SaveManager.music_volume)
 	sfx_slider.set_value_no_signal(SaveManager.sfx_volume)
 	haptics_check.set_pressed_no_signal(SaveManager.haptics)
+	flashing_check.set_pressed_no_signal(SaveManager.reduced_flashing)
 
 
 func _process(_delta: float) -> void:
@@ -303,6 +307,16 @@ func _on_sfx_slider_value_changed(value: float) -> void:
 	SaveManager.sfx_volume = value
 	SaveManager.apply_settings()
 	SaveManager.save_settings()
+
+
+func _on_flashing_check_toggled(on: bool) -> void:
+	SaveManager.reduced_flashing = on
+	SaveManager.save_settings()
+
+
+func _on_screen_glitch_requested() -> void:
+	glitch_animation.stop()
+	glitch_animation.play(&"glitch_soft" if SaveManager.reduced_flashing else &"glitch")
 
 
 func _on_haptics_check_toggled(on: bool) -> void:

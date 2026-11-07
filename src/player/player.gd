@@ -97,6 +97,9 @@ extends CharacterBody2D
 @onready var emp_animation: AnimationPlayer = %EmpAnimation
 @onready var roll_shockwave: Area2D = %RollShockwave
 @onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
+@onready var target_hp: ProgressBar = %TargetHp
+@onready var slow_mo_timer: Timer = %SlowMoTimer
+@onready var damage_boost_timer: Timer = %DamageBoostTimer
 @onready var hurt_sound: AudioStreamPlayer = %HurtSound
 @onready var roll_sound: AudioStreamPlayer = %RollSound
 @onready var emp_sound: AudioStreamPlayer = %EmpSound
@@ -112,6 +115,10 @@ var secondary: Weapon
 var weapon: Weapon
 var emp_charges := 0
 var rolling_invulnerable := false
+## True while a roll is still moving (the hero is off the floor: glass holes can't drop him).
+var airborne := false
+## Active slows by source instance id (coolant).
+var _slows: Dictionary[int, float] = {}
 var cover: Cover
 var cover_normal := Vector2.ZERO
 var _reload_multiplier := 1.0
@@ -121,9 +128,33 @@ var _prompt_text := ""
 var start_armor_bonus := 0
 var heal_every_rooms := 0
 var shockwave_damage := 0
+var aim_range_scale := 1.0
+var crit_chance := 0.0
+var show_target_hp := false
+var has_failsafe := false
+var failsafe_ready := false
 var _base_move_speed := 0.0
 var _base_roll_distance := 0.0
 var _base_max_hp := 0
+var _base_emp_per_level := 0
+var _base_emp_stun := 0.0
+var _base_emp_radius := 64.0
+var _base_recovery := 0.0
+var _base_iframe_ratio := 0.0
+## Servo Arms / Filter Lungs results.
+var reload_bonus := 1.0
+var spread_scale := 1.0
+var fire_rate_scale := 1.0
+var dual_wield := false
+var hazard_immune := false
+var second_wind := false
+var _second_wind_used := false
+
+## Hawk Optics Mk III (Threat Sight), read by enemy telegraphs and hostile bullets.
+static var telegraph_bonus := 0.0
+static var highlight_aimed := false
+## The hero's position this physics frame (for bullets checking whether they're aimed at it).
+static var hero_position := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -134,6 +165,12 @@ func _ready() -> void:
 	_base_move_speed = move_speed
 	_base_roll_distance = roll_distance
 	_base_max_hp = health.max_hp
+	_base_recovery = recovery_time
+	_base_iframe_ratio = iframe_ratio
+	_base_emp_per_level = emp_charges_per_level
+	_base_emp_stun = emp_stun_time
+	var emp_circle := (emp_range.get_child(0) as CollisionShape2D).shape as CircleShape2D
+	_base_emp_radius = emp_circle.radius if emp_circle != null else 64.0
 	EventBus.cover_destroyed.connect(_on_cover_destroyed)
 	EventBus.weapon_swap_requested.connect(swap_weapon)
 	EventBus.interact_requested.connect(interact)
@@ -157,6 +194,28 @@ func apply_implants() -> void:
 	heal_every_rooms = int(implant_catalog.total(StatModifier.Stat.HEAL_EVERY_ROOMS, installed))
 	shockwave_damage = int(implant_catalog.total(StatModifier.Stat.ROLL_SHOCKWAVE, installed))
 	health.max_armor = maxi(health.max_armor, start_armor_bonus)
+	aim_range_scale = 1.0 + implant_catalog.total(StatModifier.Stat.AIM_RANGE, installed)
+	show_target_hp = implant_catalog.total(StatModifier.Stat.TARGET_HP, installed) > 0.0
+	crit_chance = implant_catalog.total(StatModifier.Stat.CRIT_CHANCE, installed)
+	Player.telegraph_bonus = implant_catalog.total(StatModifier.Stat.THREAT_SIGHT, installed)
+	Player.highlight_aimed = Player.telegraph_bonus > 0.0
+	emp_charges_per_level = _base_emp_per_level + int(implant_catalog.total(StatModifier.Stat.EMP_CHARGES, installed))
+	emp_stun_time = _base_emp_stun + implant_catalog.total(StatModifier.Stat.EMP_STUN, installed)
+	emp_range.scale = Vector2.ONE * ((_base_emp_radius + implant_catalog.total(StatModifier.Stat.EMP_RADIUS, installed)) / _base_emp_radius)
+	has_failsafe = implant_catalog.total(StatModifier.Stat.FAILSAFE, installed) > 0.0
+	reload_bonus = 1.0 + implant_catalog.total(StatModifier.Stat.RELOAD_SPEED, installed)
+	spread_scale = maxf(1.0 + implant_catalog.total(StatModifier.Stat.SPREAD, installed), 0.0)
+	fire_rate_scale = 1.0 + implant_catalog.total(StatModifier.Stat.FIRE_RATE, installed)
+	dual_wield = implant_catalog.total(StatModifier.Stat.DUAL_WIELD, installed) > 0.0
+	recovery_time = _base_recovery * maxf(1.0 + implant_catalog.total(StatModifier.Stat.ROLL_RECOVERY, installed), 0.0)
+	iframe_ratio = minf(_base_iframe_ratio + implant_catalog.total(StatModifier.Stat.IFRAME_RATIO, installed), 1.0)
+	hazard_immune = implant_catalog.total(StatModifier.Stat.HAZARD_IMMUNE, installed) > 0.0
+	second_wind = implant_catalog.total(StatModifier.Stat.SECOND_WIND, installed) > 0.0
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			_tune(gun)
+	if weapon != null:
+		_activate(weapon)
 	if full:
 		health.hp = health.max_hp
 	health.hp = mini(health.hp, health.max_hp)
@@ -166,6 +225,7 @@ func apply_implants() -> void:
 ## A new level: refill EMP charges and add the Fusion Heart's starting armor.
 func begin_level() -> void:
 	emp_charges = emp_charges_per_level
+	failsafe_ready = has_failsafe
 	if start_armor_bonus > 0:
 		health.armor = maxi(health.armor, mini(start_armor_bonus, health.max_armor))
 	_announce()
@@ -218,6 +278,7 @@ func roll_finished() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	Player.hero_position = global_position
 	if state_machine.is_in(&"Dead"):
 		return
 	_check_contact_damage()
@@ -274,6 +335,11 @@ func update_aim(move_direction: Vector2) -> void:
 		gun_pivot.rotation = (target.global_position - gun_pivot.global_position).angle()
 		reticle.global_position = target.global_position
 		reticle.visible = true
+		var enemy := target as Enemy
+		target_hp.visible = show_target_hp and enemy != null
+		if target_hp.visible:
+			target_hp.max_value = enemy.health.max_hp
+			target_hp.value = enemy.health.hp
 		return
 	reticle.visible = false
 	if move_direction != Vector2.ZERO:
@@ -286,11 +352,34 @@ func try_fire() -> void:
 	var target := target_selector.current_target
 	if target != null:
 		weapon.try_fire(target.global_position)
+		var off_hand := _off_hand()
+		if off_hand != null:
+			off_hand.try_fire(target.global_position)
+
+
+## Servo Arms Mk III: the holstered gun fires too (when it has ammo).
+func _off_hand() -> Weapon:
+	if not dual_wield or secondary == null:
+		return null
+	var other := primary if weapon == secondary else secondary
+	return other if not other.is_empty() else null
+
+
+## Implant multipliers on one gun.
+func _tune(gun: Weapon) -> void:
+	gun.crit_chance = crit_chance
+	gun.set_range_scale(aim_range_scale)
+	gun.spread_scale = spread_scale
+	gun.fire_rate_scale = fire_rate_scale
+	gun.reload_speed = _reload_multiplier * reload_bonus
 
 
 func set_reload_speed(multiplier: float) -> void:
 	_reload_multiplier = multiplier
-	weapon.reload_speed = multiplier
+	weapon.reload_speed = multiplier * reload_bonus
+	var off_hand := _off_hand()
+	if off_hand != null:
+		off_hand.reload_speed = multiplier * reload_bonus
 
 
 ## Switch between the starter pistol and the found gun (the HUD weapon card).
@@ -359,6 +448,95 @@ func apply_repair(item: RepairStation.Item) -> bool:
 func take_explosion_hit(amount: int) -> void:
 	if state_machine.is_in(&"Dead") or rolling_invulnerable:
 		return
+	_hurt(amount)
+
+
+## Molten floors, laser grids and other hazards: rolling crosses them. Filter Lungs Mk II make the hero immune to
+## floor hazards (`floor_hazard`), not to lasers.
+func take_hazard_hit(amount: int, floor_hazard := true) -> void:
+	if state_machine.is_in(&"Dead") or rolling_invulnerable or health.is_invulnerable() or (floor_hazard and hazard_immune):
+		return
+	_hurt(amount)
+
+
+## Cracked glass gives way (Skyline Spires): the hero is put back at `spot` and loses `amount` (unless he's still
+## invulnerable from a recent hit).
+func fall_to(spot: Vector2, amount: int) -> void:
+	if state_machine.is_in(&"Dead"):
+		return
+	global_position = spot
+	EventBus.toast_requested.emit("The glass gives way")
+	if not health.is_invulnerable():
+		_hurt(amount)
+	if not state_machine.is_in(&"Dead"):
+		state_machine.transition_to(&"Run" if touch.touching else &"Stand")
+
+
+## Coolant (Syndicate Core) slows the hero while he wades through it. Each source sets its own factor.
+func set_slow(source: Node, factor: float) -> void:
+	_slows[source.get_instance_id()] = factor
+
+
+func clear_slow(source: Node) -> void:
+	_slows.erase(source.get_instance_id())
+
+
+## The strongest slow on the hero right now (1 = none). Rolls ignore it.
+func slow_scale() -> float:
+	var scale := 1.0
+	for factor: float in _slows.values():
+		scale = minf(scale, factor)
+	return scale
+
+
+## EMP-bot pulses: shove the hero (out of cover). Rolling dodges it. Returns true when he was shoved.
+func knock_back(offset: Vector2) -> bool:
+	if state_machine.is_in(&"Dead") or rolling_invulnerable:
+		return false
+	if not state_machine.is_in(&"Run"):
+		state_machine.transition_to(&"Stand")
+	move_and_collide(offset)
+	return true
+
+
+## Filter Lungs Mk III: a bullet passing through a roll's i-frames slows time briefly and boosts damage.
+func _trigger_second_wind() -> void:
+	if not second_wind or _second_wind_used:
+		return
+	_second_wind_used = true
+	Engine.time_scale = 0.4
+	slow_mo_timer.start()
+	damage_boost_timer.start()
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.damage_scale = 1.2
+	EventBus.toast_requested.emit("SECOND WIND")
+
+
+func _on_slow_mo_timer_timeout() -> void:
+	Engine.time_scale = 1.0
+
+
+func _on_damage_boost_timer_timeout() -> void:
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.damage_scale = 1.0
+
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0
+
+
+## Every hit on the hero goes through here: Neural Coprocessor Mk III's Failsafe turns the first lethal hit of a level
+## into a free EMP.
+func _hurt(amount: int) -> void:
+	var lethal := health.armor == 0 and amount >= health.hp and not health.is_invulnerable()
+	if lethal and failsafe_ready:
+		failsafe_ready = false
+		emp_charges += 1
+		fire_emp()
+		EventBus.toast_requested.emit("FAILSAFE: lethal hit negated")
+		return
 	health.take_hit(amount)
 
 
@@ -404,11 +582,22 @@ func respawn() -> void:
 
 
 func _activate(gun: Weapon) -> void:
+	_tune(gun)
 	if weapon != null and weapon != gun:
 		weapon.set_active(false)
+		weapon.position = Vector2.ZERO
 	weapon = gun
 	weapon.set_active(true)
-	weapon.reload_speed = _reload_multiplier
+	weapon.position = Vector2.ZERO
+	var off_hand := _off_hand()
+	var holstered := primary if gun == secondary else secondary
+	if off_hand != null:
+		_tune(off_hand)
+		off_hand.set_active(true)
+		off_hand.position = Vector2(-2, 5)
+	elif holstered != null and holstered != gun:
+		holstered.set_active(false)
+		holstered.position = Vector2.ZERO
 	target_selector.range_area = weapon.range_area
 	target_selector.current_target = null
 	EventBus.player_weapon_changed.emit(weapon.display_name, 1 if weapon == primary else 2, 1 if secondary == null else 2)
@@ -442,8 +631,9 @@ func _state() -> PlayerState:
 
 
 func _is_protected_from(bullet: Bullet) -> bool:
-	return state_machine.is_in(&"InCover") and cover != null and cover.is_intact() \
-		and not bullet.explosive and not bullet.aerial and bullet.direction.dot(cover_normal) > 0.0
+	return state_machine.is_in(&"InCover") and is_instance_valid(cover) and cover.is_intact() \
+		and not bullet.explosive and not bullet.aerial and bullet.direction.dot(cover_normal) > 0.0 \
+		and not EmpField.shorts_out(self)
 
 
 func _away_from_threats() -> Vector2:
@@ -464,7 +654,7 @@ func _check_contact_damage() -> void:
 	for area: Area2D in hurtbox.get_overlapping_areas():
 		var contact := area as ContactHitbox
 		if contact != null and contact.is_active():
-			health.take_hit(contact.damage)
+			_hurt(contact.damage)
 			return
 
 
@@ -548,15 +738,19 @@ func _on_touch_special_requested() -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var bullet := area as Bullet
-	if bullet == null or not bullet.active or state_machine.is_in(&"Dead"):
+	# Zero-damage bullets (GLITCH's decoys fire hollow ones) pass through.
+	if bullet == null or not bullet.active or bullet.hit_damage <= 0 or state_machine.is_in(&"Dead"):
 		return
 	if _is_protected_from(bullet):
 		cover.take_damage(bullet.cover_damage)
 		bullet.despawn()
 		return
-	if rolling_invulnerable or health.is_invulnerable():
+	if rolling_invulnerable:
+		_trigger_second_wind()
 		return
-	health.take_hit(bullet.hit_damage)
+	if health.is_invulnerable():
+		return
+	_hurt(bullet.hit_damage)
 	bullet.despawn()
 
 

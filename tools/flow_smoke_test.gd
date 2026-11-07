@@ -197,10 +197,30 @@ func _test_boss_elevator() -> void:
 	EventBus.station_used.emit(&"elevator")
 	await _wait(0.9)
 	var director := get_tree().current_scene.get_node(^"LevelDirector") as LevelDirector
+	var player := get_tree().current_scene.get_node(^"Player") as Player
+	player.health.invuln_timer.stop()
+	player.health.take_hit(1)
+	var hp := player.health.hp
 	director._on_level_exit_requested()
 	await _wait(0.9)
-	_check(_scene_name() == "Lab" and not RunState.active and not SaveManager.has_run(1) and GameState.stat("best_level") >= 1,
-		"the boss room's elevator ends the run in the lab")
+	_check(_scene_name() == "Lab" and RunState.active and RunState.in_lab and RunState.level_number == 2 and SaveManager.has_run(1),
+		"after Level 1's boss the run continues: back in the lab, Level 2 next")
+	var lab_director := get_tree().current_scene.get_node(^"LabDirector") as LabDirector
+	_check(lab_director.elevator.prompt.contains("Neon Bazaar"), "the lab's elevator now goes to the Neon Bazaar (%s)" % lab_director.elevator.prompt)
+	EventBus.station_used.emit(&"elevator")
+	await _wait(1.0)
+	director = get_tree().current_scene.get_node(^"LevelDirector") as LevelDirector
+	player = get_tree().current_scene.get_node(^"Player") as Player
+	_check(_scene_name() == "Level" and director.config.level_number == 2 and director.config.district_name == "Neon Bazaar",
+		"the elevator starts Level 2")
+	_check(player.health.hp == hp, "the hero keeps the hearts from Level 1 (%d)" % player.health.hp)
+	player.health.invuln_timer.stop()
+	player.health.take_hit(99)
+	await _wait(1.6)
+	(get_tree().current_scene.get_node(^"HUD") as Hud)._on_summary_button_pressed()
+	await _wait(1.0)
+	_check(_scene_name() == "Lab" and not RunState.active and (get_tree().current_scene.get_node(^"LabDirector") as LabDirector).elevator.prompt.contains("Level 1"),
+		"dying in Level 2 ends the run: the next one starts at Level 1")
 
 
 # --- Helpers ---

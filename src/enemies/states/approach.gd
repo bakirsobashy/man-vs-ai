@@ -21,7 +21,7 @@ var _strafe := 1.0
 
 
 func enter(_msg: Dictionary) -> void:
-	_wait = randf_range(attack_delay_min, attack_delay_max)
+	_wait = randf_range(attack_delay_min, attack_delay_max) / enemy.attack_rate
 	_strafe = 1.0 if randf() < 0.5 else -1.0
 
 

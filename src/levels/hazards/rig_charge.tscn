@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/hazards/rig_charge.gd" id="1_rig"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/rig_charge.svg" id="2_sprite"]
+[ext_resource type="PackedScene" path="res://src/weapons/explosion/explosion.tscn" id="3_explosion"]
+
+[sub_resource type="Animation" id="Animation_blink"]
+length = 0.3
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0.2)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_rig"]
+_data = {
+&"blink": SubResource("Animation_blink")
+}
+
+[node name="RigCharge" type="Node2D"]
+script = ExtResource("1_rig")
+explosion_scene = ExtResource("3_explosion")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_sprite")
+
+[node name="FuseTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+autostart = true
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_rig")
+autoplay = &"blink"
+
+[connection signal="timeout" from="FuseTimer" to="." method="_on_fuse_timer_timeout"]

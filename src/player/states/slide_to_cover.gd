@@ -14,7 +14,7 @@ func physics_update(delta: float) -> void:
 	_elapsed += delta
 	var to_spot := _spot.position - player.global_position
 	var distance := to_spot.length()
-	if not _spot.cover.is_intact() or _elapsed >= player.max_slide_time:
+	if not is_instance_valid(_spot.cover) or not _spot.cover.is_intact() or _elapsed >= player.max_slide_time:
 		machine.transition_to(&"Stand")
 		return
 	if distance <= player.cover_arrive_distance:

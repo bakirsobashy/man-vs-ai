@@ -72,6 +72,9 @@ signal summary_closed
 signal station_used(action: StringName)
 @warning_ignore("unused_signal")
 signal boss_health_changed(hp: int, max_hp: int)
+## GLITCH's Static Storm: a short screen glitch (skipped with reduced flashing).
+@warning_ignore("unused_signal")
+signal screen_glitch_requested
 @warning_ignore("unused_signal")
 signal memory_opened(title: String, text: String)
 ## A repair station's prompt was tapped (the HUD opens its shop panel).

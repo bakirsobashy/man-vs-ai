@@ -11,6 +11,18 @@
 [ext_resource type="PackedScene" path="res://src/weapons/volt_shotgun/volt_shotgun.tscn" id="9_volt_shotgun"]
 [ext_resource type="PackedScene" path="res://src/weapons/longshot/longshot.tscn" id="10_longshot"]
 [ext_resource type="PackedScene" path="res://src/weapons/firecracker/firecracker.tscn" id="11_firecracker"]
+[ext_resource type="PackedScene" path="res://src/weapons/junk_cannon/junk_cannon.tscn" id="12_junk_cannon"]
+[ext_resource type="PackedScene" path="res://src/weapons/arc_caster/arc_caster.tscn" id="13_arc_caster"]
+[ext_resource type="PackedScene" path="res://src/weapons/overclock_pistol/overclock_pistol.tscn" id="14_overclock_pistol"]
+[ext_resource type="PackedScene" path="res://src/weapons/cryo_sprayer/cryo_sprayer.tscn" id="15_cryo_sprayer"]
+[ext_resource type="PackedScene" path="res://src/weapons/rail_spike/rail_spike.tscn" id="16_rail_spike"]
+[ext_resource type="PackedScene" path="res://src/weapons/scrap_minigun/scrap_minigun.tscn" id="17_scrap_minigun"]
+[ext_resource type="PackedScene" path="res://src/weapons/swarm_launcher/swarm_launcher.tscn" id="18_swarm_launcher"]
+[ext_resource type="PackedScene" path="res://src/weapons/beam_cutter/beam_cutter.tscn" id="19_beam_cutter"]
+[ext_resource type="PackedScene" path="res://src/weapons/toaster_cannon/toaster_cannon.tscn" id="20_toaster_cannon"]
+[ext_resource type="PackedScene" path="res://src/weapons/peacekeeper/peacekeeper.tscn" id="21_peacekeeper"]
+[ext_resource type="PackedScene" path="res://src/weapons/black_box/black_box.tscn" id="22_black_box"]
+[ext_resource type="PackedScene" path="res://src/weapons/m7_line_rifle/m7_line_rifle.tscn" id="23_m7_line_rifle"]
 
 [sub_resource type="Resource" id="Resource_scattergun"]
 script = ExtResource("2_entry")
@@ -75,6 +87,91 @@ scene = ExtResource("11_firecracker")
 rarity = 1
 unlock_cost = 150
 
+[sub_resource type="Resource" id="Resource_junk_cannon"]
+script = ExtResource("2_entry")
+id = &"junk_cannon"
+scene = ExtResource("12_junk_cannon")
+rarity = 0
+unlock_cost = 60
+
+[sub_resource type="Resource" id="Resource_arc_caster"]
+script = ExtResource("2_entry")
+id = &"arc_caster"
+scene = ExtResource("13_arc_caster")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_overclock_pistol"]
+script = ExtResource("2_entry")
+id = &"overclock_pistol"
+scene = ExtResource("14_overclock_pistol")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_cryo_sprayer"]
+script = ExtResource("2_entry")
+id = &"cryo_sprayer"
+scene = ExtResource("15_cryo_sprayer")
+rarity = 1
+unlock_cost = 150
+
+[sub_resource type="Resource" id="Resource_rail_spike"]
+script = ExtResource("2_entry")
+id = &"rail_spike"
+scene = ExtResource("16_rail_spike")
+rarity = 2
+unlock_cost = 250
+
+[sub_resource type="Resource" id="Resource_scrap_minigun"]
+script = ExtResource("2_entry")
+id = &"scrap_minigun"
+scene = ExtResource("17_scrap_minigun")
+rarity = 2
+unlock_cost = 250
+
+[sub_resource type="Resource" id="Resource_swarm_launcher"]
+script = ExtResource("2_entry")
+id = &"swarm_launcher"
+scene = ExtResource("18_swarm_launcher")
+rarity = 2
+unlock_cost = 250
+
+[sub_resource type="Resource" id="Resource_beam_cutter"]
+script = ExtResource("2_entry")
+id = &"beam_cutter"
+scene = ExtResource("19_beam_cutter")
+rarity = 2
+unlock_cost = 250
+
+[sub_resource type="Resource" id="Resource_toaster_cannon"]
+script = ExtResource("2_entry")
+id = &"toaster_cannon"
+scene = ExtResource("20_toaster_cannon")
+rarity = 2
+unlock_cost = 250
+
+[sub_resource type="Resource" id="Resource_peacekeeper"]
+script = ExtResource("2_entry")
+id = &"peacekeeper"
+scene = ExtResource("21_peacekeeper")
+rarity = 3
+unlock_cost = 400
+
+[sub_resource type="Resource" id="Resource_black_box"]
+script = ExtResource("2_entry")
+id = &"black_box"
+scene = ExtResource("22_black_box")
+rarity = 3
+unlock_cost = 400
+
+[sub_resource type="Resource" id="Resource_m7_line_rifle"]
+script = ExtResource("2_entry")
+id = &"m7_line_rifle"
+scene = ExtResource("23_m7_line_rifle")
+rarity = 3
+unlock_cost = 0
+unlock_hint = "Beat WARDEN"
+
 [resource]
 script = ExtResource("1_catalog")
-entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker")])
+entries = Array[ExtResource("2_entry")]([SubResource("Resource_scattergun"), SubResource("Resource_buzz_smg"), SubResource("Resource_rivet_driver"), SubResource("Resource_bolt_revolver"), SubResource("Resource_ricochet_carbine"), SubResource("Resource_magnet_coil"), SubResource("Resource_volt_shotgun"), SubResource("Resource_longshot"), SubResource("Resource_firecracker"), SubResource("Resource_junk_cannon"), SubResource("Resource_arc_caster"), SubResource("Resource_overclock_pistol"), SubResource("Resource_cryo_sprayer"), SubResource("Resource_rail_spike"), SubResource("Resource_scrap_minigun"), SubResource("Resource_swarm_launcher"), SubResource("Resource_beam_cutter"), SubResource("Resource_toaster_cannon"), SubResource("Resource_peacekeeper"), SubResource("Resource_black_box"), SubResource("Resource_m7_line_rifle")])

@@ -6,14 +6,11 @@
 ## Open decisions
 | ID | Question | Options | Needed by | Notes |
 |---|---|---|---|---|
-| Q1 | What is Dr. Vorn's true role? | A) true ally · B) hidden villain who ordered or enabled the attack to get his test subject · C) morally grey, shown differently in each ending | Before the ending scripts (M5); ideally M4 | Until then, every Vorn line must work for A, B and C ([narrative.md](narrative.md) §5) |
 | Q2 | Art direction | Pixel art · HD hand-drawn or vector · other | M4 art test | Constraints are in [GDD](GDD.md) §11. Affects texture filter and pixel-snap settings |
 | Q3 | Final title | "Man vs AI" (working) · "Meatware" · "Flesh Protocol" · "Last Human Standing" | M5 (store listing) | Check trademark and store-name availability |
 | Q4 | Placeholder names (cast, city, gang, bosses, districts, weapons) | Keep or rename | M4 | Listed in [narrative.md](narrative.md) §12 |
-| Q5 | What happens after an ending? | Keep playing the same save · NG+ / threat levels · nothing | M5 | Permanent power makes repeat runs easy |
 | Q6 | Should human-path players get a RAM sink? | None (pure hard mode) · RAM → Crypto exchange at a bad rate · hacked terminals only | M4 balance | The owner chose "hard mode by design"; hacked terminals already use RAM |
 | Q7 | How to handle weapon-pool dilution | Accept it · "favorite" weights · let players disable unlocked guns | M5 | Unlocking weak guns lowers the odds of good ones; Gungeon has the same problem |
-| Q8 | Should the Normal ending have variants for Patched (1–2) and Hollow (3–5)? | One ending · two flavors | M5 | [narrative.md](narrative.md) §9 |
 | Q9 | Is the Second Chance ad allowed during the final boss? | Yes · no | M6 | |
 | Q10 | Voice acting scope | None · barks only · key lines | M4 (budget) | Every line is subtitled regardless |
 | Q11 | Sell an "ad-free rewards" IAP? | No · yes | M6 | Could read as pay-to-win; the owner said ads are "a small help" only |
@@ -50,8 +47,11 @@
 | M3 rooms | 16 greybox Rustline rooms built for M3 (start, 8 combat, 2 chest, memory, arena, repair, terminal, boss) |
 | M4 art test | Postponed: the vertical slice keeps placeholder art (Q2 stays open); every new visual is a scene node ready for real art |
 | M4 audio | Script-generated placeholder SFX and music behind a real audio system, to be replaced by real files |
-| M4 implants | Heart and Legs are playable (Mk I–III); the other four slots arrive in M5 |
-| M4 after Level 1 | The lab's elevator starts a fresh Level 1 run until Level 2 exists (M5) |
+| M4 implants | Heart and Legs are playable (Mk I–III); the other four slots arrived in M5 (Eyes and Brain with Level 2, Arms and Lungs with Level 3) |
+| M4 after Level 1 | The lab's elevator starts a fresh Level 1 run (replaced in M5 by the campaign: L1 → lab → L2 → …) |
+| Q1 Vorn's role (M5) | **Morally grey:** he saved Kade and means it, but he also wanted a test subject. Each ending shows a different side |
+| Q5 After an ending (M5) | **NG+ threat levels:** each ending unlocks the next threat level (up to 5), picked in the lab: +15% threat and +5% elite chance per level, +10% RAM per level |
+| Q8 Normal ending (M5) | **Two flavors:** Patched (1–2 slots) and Hollow (3–5) share the structure, with different closing lines and panels |
 
 ## Design risks
 | ID | Risk | Mitigation |

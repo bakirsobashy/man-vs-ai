@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LineSet" format=3]
+
+[ext_resource type="Script" path="res://src/ui/dialogue/line_set.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+speaker = "Vorn"
+lines = Array[String](["Still all you, Sergeant. I admire it. I also count the days it costs you.", "The chair isn't a threat. It's an offer. Offers keep.", "You fight like a man with something to lose. Keep it, if you can."])

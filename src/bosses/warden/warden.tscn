@@ -1,0 +1,373 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://src/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/drops.gd" id="3_drops"]
+[ext_resource type="Script" path="res://src/components/state_machine.gd" id="4_state_machine"]
+[ext_resource type="Script" path="res://src/enemies/states/spawn_in.gd" id="5_spawn_in"]
+[ext_resource type="Script" path="res://src/enemies/states/stunned.gd" id="6_stunned"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/warden.svg" id="7_sprite"]
+[ext_resource type="AnimationLibrary" path="res://src/enemies/enemy_animations.tres" id="8_flash"]
+[ext_resource type="PackedScene" path="res://src/pickups/ram_chip.tscn" id="9_ram"]
+[ext_resource type="PackedScene" path="res://src/fx/death_sparks.tscn" id="10_sparks"]
+[ext_resource type="Script" path="res://src/enemies/states/approach.gd" id="13_approach"]
+[ext_resource type="Script" path="res://src/enemies/states/telegraph.gd" id="14_telegraph"]
+[ext_resource type="Script" path="res://src/components/bullet_emitter.gd" id="16_emitter"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_sniper.tscn" id="17_sniper"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/enemy_bullet_small.tscn" id="18_small"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/telegraph_glow.svg" id="20_glow"]
+[ext_resource type="PackedScene" path="res://src/pickups/crypto_coin.tscn" id="21_crypto"]
+[ext_resource type="Script" path="res://src/components/laser_sight.gd" id="22_laser"]
+[ext_resource type="Script" path="res://src/components/boss_phases.gd" id="29_phases"]
+[ext_resource type="Script" path="res://src/enemies/states/phase_resume.gd" id="30_resume"]
+[ext_resource type="Script" path="res://src/enemies/states/build.gd" id="31_build"]
+[ext_resource type="Script" path="res://src/enemies/states/snipe.gd" id="32_snipe"]
+[ext_resource type="Script" path="res://src/enemies/states/sweep.gd" id="33_sweep"]
+[ext_resource type="Script" path="res://src/enemies/states/zone.gd" id="34_zone"]
+[ext_resource type="Script" path="res://src/enemies/states/wait.gd" id="35_wait"]
+[ext_resource type="Script" path="res://src/enemies/states/enrage.gd" id="36_enrage"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit.wav" id="37_hit"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/boss_roar.wav" id="38_roar"]
+[ext_resource type="PackedScene" path="res://src/enemies/drone/drone.tscn" id="40_drone"]
+[ext_resource type="PackedScene" path="res://src/levels/hazards/emp_zone.tscn" id="43_zone"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 12.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 14.0
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph"]
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.8, 0.8), Vector2(2, 2)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0.3, 0.4, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_telegraph_emp"]
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TelegraphGlow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TelegraphGlow:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.8, 0.8), Vector2(2, 2)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("TelegraphGlow:self_modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.5, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_attack"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"telegraph": SubResource("Animation_telegraph"),
+&"telegraph_emp": SubResource("Animation_telegraph_emp")
+}
+
+[node name="Warden" type="CharacterBody2D" groups=["enemies"] node_paths=PackedStringArray("attack_animation", "nav_agent")]
+collision_layer = 8
+collision_mask = 11
+motion_mode = 1
+script = ExtResource("1_enemy")
+move_speed = 40.0
+spawn_kind = 1
+death_fx_scene = ExtResource("10_sparks")
+attack_animation = NodePath("AttackAnimation")
+nav_agent = NodePath("NavAgent")
+is_boss = true
+clears_groups_on_death = Array[StringName]([&"warden_drones"])
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+texture = ExtResource("7_sprite")
+
+[node name="TelegraphGlow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("20_glow")
+
+[node name="LaserSight" type="Line2D" parent="." node_paths=PackedStringArray("ray")]
+visible = false
+width = 2.0
+default_color = Color(1, 0.2, 0.2, 0.45)
+script = ExtResource("22_laser")
+max_length = 520.0
+ray = NodePath("Ray")
+
+[node name="Ray" type="RayCast2D" parent="LaserSight"]
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 3
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+
+[node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 6.0
+target_desired_distance = 6.0
+radius = 6.0
+
+[node name="LineOfSight" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+enabled = false
+target_position = Vector2(0, 0)
+collision_mask = 515
+
+[node name="Health" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_health")
+max_hp = 1000
+
+[node name="Drops" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_drops")
+ram_mb = 112
+ram_scene = ExtResource("9_ram")
+crypto_min = 80
+crypto_max = 80
+crypto_scene = ExtResource("21_crypto")
+
+[node name="SnipeEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("17_sniper")
+aimed = false
+
+[node name="SweepEmitter" type="Marker2D" parent="."]
+script = ExtResource("16_emitter")
+bullet_scene = ExtResource("18_small")
+count = 2
+spread_deg = 8.0
+burst = 16
+burst_interval = 0.06
+aimed = false
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("37_hit")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="RoarSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("38_roar")
+pitch_scale = 1.2
+bus = &"SFX"
+
+[node name="Phases" type="Node" parent="." node_paths=PackedStringArray("state_machine", "roar")]
+script = ExtResource("29_phases")
+state_machine = NodePath("../StateMachine")
+boss_name = "WARDEN"
+thresholds = Array[float]([0.6, 0.3])
+phase_states = Array[StringName]([&"CallDrones", &"SuppressionStart", &"HuntStart"])
+phase_names = Array[String](["OVERWATCH", "SUPPRESSION", "HUNT"])
+roar = NodePath("../RoarSound")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+unique_name_in_owner = true
+script = ExtResource("4_state_machine")
+initial_state = NodePath("SpawnIn")
+
+[node name="SpawnIn" type="Node" parent="StateMachine"]
+script = ExtResource("5_spawn_in")
+next_state = &"Resume"
+
+[node name="Resume" type="Node" parent="StateMachine" node_paths=PackedStringArray("phases")]
+script = ExtResource("30_resume")
+phases = NodePath("../../Phases")
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("6_stunned")
+next_state = &"Resume"
+
+[node name="CallDrones" type="Node" parent="StateMachine"]
+script = ExtResource("31_build")
+minion_scene = ExtResource("40_drone")
+count = 2
+spot_group = &"drone_spots"
+minion_group = &"warden_drones"
+max_alive = 2
+next_state = &"Snipe"
+
+[node name="Snipe" type="Node" parent="StateMachine" node_paths=PackedStringArray("laser", "emitter")]
+script = ExtResource("32_snipe")
+laser = NodePath("../../LaserSight")
+emitter = NodePath("../../SnipeEmitter")
+aim_time = 1.0
+next_state = &"OverwatchWait"
+
+[node name="OverwatchWait" type="Node" parent="StateMachine"]
+script = ExtResource("35_wait")
+duration_min = 1.0
+duration_max = 1.4
+next_state = &"CallDrones"
+
+[node name="SuppressionStart" type="Node" parent="StateMachine"]
+script = ExtResource("34_zone")
+zone_scene = ExtResource("43_zone")
+count = 3
+scatter = 72.0
+next_state = &"SweepTell"
+
+[node name="SweepTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"Sweep"
+
+[node name="Sweep" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("33_sweep")
+emitter = NodePath("../../SweepEmitter")
+arc_deg = 100.0
+next_state = &"SuppressionApproach"
+
+[node name="SuppressionApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 110.0
+max_range = 190.0
+strafe_ratio = 0.6
+attack_state = &"EmpTell"
+attack_delay_min = 1.2
+attack_delay_max = 1.8
+needs_line_of_sight = false
+
+[node name="EmpTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+animation_name = &"telegraph_emp"
+next_state = &"EmpZones"
+
+[node name="EmpZones" type="Node" parent="StateMachine"]
+script = ExtResource("34_zone")
+zone_scene = ExtResource("43_zone")
+count = 2
+scatter = 64.0
+next_state = &"SweepTell"
+
+[node name="HuntStart" type="Node" parent="StateMachine"]
+script = ExtResource("36_enrage")
+speed_scale = 1.8
+next_state = &"HuntApproach"
+
+[node name="HuntApproach" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 70.0
+max_range = 140.0
+strafe_ratio = 1.0
+attack_state = &"HuntSweepTell"
+attack_delay_min = 0.8
+attack_delay_max = 1.2
+needs_line_of_sight = false
+
+[node name="HuntSweepTell" type="Node" parent="StateMachine"]
+script = ExtResource("14_telegraph")
+next_state = &"HuntSweep"
+
+[node name="HuntSweep" type="Node" parent="StateMachine" node_paths=PackedStringArray("emitter")]
+script = ExtResource("33_sweep")
+emitter = NodePath("../../SweepEmitter")
+arc_deg = 140.0
+next_state = &"HuntApproach2"
+
+[node name="HuntApproach2" type="Node" parent="StateMachine"]
+script = ExtResource("13_approach")
+min_range = 70.0
+max_range = 140.0
+strafe_ratio = 1.0
+attack_state = &"HuntSnipe"
+attack_delay_min = 0.6
+attack_delay_max = 1.0
+needs_line_of_sight = false
+
+[node name="HuntSnipe" type="Node" parent="StateMachine" node_paths=PackedStringArray("laser", "emitter")]
+script = ExtResource("32_snipe")
+laser = NodePath("../../LaserSight")
+emitter = NodePath("../../SnipeEmitter")
+aim_time = 0.7
+next_state = &"HuntApproach"
+
+[node name="FlashAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = ExtResource("8_flash")
+
+[node name="AttackAnimation" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_attack")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="changed" from="Health" to="." method="_on_health_changed"]
+[connection signal="changed" from="Health" to="Phases" method="_on_health_changed"]
+[connection signal="died" from="Health" to="." method="_on_health_died"]

@@ -1,0 +1,88 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/weapons/weapon.gd" id="1_weapon"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_cryo.tscn" id="2_bullet"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/cryo_sprayer.svg" id="3_gun"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/muzzle_flash.svg" id="4_flash"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/shot_energy.wav" id="90_shot"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_range"]
+radius = 84.0
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Muzzle/MuzzleFlash:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_flash"]
+length = 0.06
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Muzzle/MuzzleFlash:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_muzzle"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"flash": SubResource("Animation_flash")
+}
+
+[node name="CryoSprayer" type="Node2D"]
+script = ExtResource("1_weapon")
+display_name = "Cryo Sprayer"
+bullet_scene = ExtResource("2_bullet")
+damage = 1
+fire_rate = 15.0
+magazine_size = 60
+reload_time = 1.6
+ammo_pool = 400
+spread_deg = 14.0
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(8, 0)
+texture = ExtResource("3_gun")
+
+[node name="Muzzle" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(16, 0)
+
+[node name="MuzzleFlash" type="Sprite2D" parent="Muzzle"]
+visible = false
+texture = ExtResource("4_flash")
+
+[node name="Range" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 8
+
+[node name="Shape" type="CollisionShape2D" parent="Range"]
+shape = SubResource("CircleShape2D_range")
+
+[node name="MuzzleAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_muzzle")
+
+[node name="ShotSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("90_shot")
+volume_db = -4.0
+max_polyphony = 2
+bus = &"SFX"
+[connection signal="shot_fired" from="." to="ShotSound" method="play"]

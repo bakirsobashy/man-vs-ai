@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/weapons/bullets/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/player_blackbox.svg" id="2_sprite"]
+[ext_resource type="Script" path="res://src/weapons/bullets/bullet_eater.gd" id="3_eater"]
+[ext_resource type="PackedScene" path="res://src/weapons/bullets/player_bullet.tscn" id="4_shard"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bullet"]
+radius = 4.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_eater"]
+radius = 16.0
+
+[node name="PlayerBlackBox" type="Area2D"]
+collision_layer = 16
+collision_mask = 1027
+script = ExtResource("1_bullet")
+speed = 90.0
+damage = 3
+cover_damage = 2
+lifetime = 2.2
+pop_on_expire = true
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bullet")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = ExtResource("2_sprite")
+
+[node name="Eater" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 32
+script = ExtResource("3_eater")
+shard_scene = ExtResource("4_shard")
+
+[node name="Shape" type="CollisionShape2D" parent="Eater"]
+shape = SubResource("CircleShape2D_eater")
+
+[node name="ScreenNotifier" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-6, -6, 12, 12)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="launched" from="." to="Eater" method="_on_orb_launched"]
+[connection signal="popped" from="." to="Eater" method="_on_orb_popped"]
+[connection signal="area_entered" from="Eater" to="Eater" method="_on_area_entered"]
+[connection signal="screen_exited" from="ScreenNotifier" to="." method="_on_screen_notifier_screen_exited"]

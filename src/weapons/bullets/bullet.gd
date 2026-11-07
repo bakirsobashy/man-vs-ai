@@ -5,6 +5,11 @@ extends Area2D
 ## Physics flags are never toggled: an inactive bullet is hidden and parked at its pool's position,
 ## which the level scene places far outside the playfield.
 
+## Emitted when a pool launches this copy (components such as the Black Box's BulletEater reset on it).
+signal launched
+## Emitted where the bullet pops: on each hit, on walls and cover, and on expiry with pop_on_expire.
+signal popped(at: Vector2)
+
 ## Travel speed.
 @export_range(0.0, 2000.0, 1.0, "suffix:px/s") var speed := 160.0
 ## Damage to whatever it hits (hero: half-hearts; enemies: HP). A weapon can override it per shot.
@@ -30,6 +35,24 @@ extends Area2D
 @export_range(0.0, 2.0, 0.05, "suffix:s") var stun_time := 0.0
 ## Firecracker: copied at the hit point whenever the bullet hits something.
 @export var blast_scene: PackedScene
+## Also copy blast_scene where the bullet runs out of range (the Toaster Cannon's toast lands burning).
+@export var pop_on_expire := false
+## Peacekeeper: hits ignore enemy shields (shield hits from Hackers and Shielded elites, and Shield-bot plates when
+## the scene's mask leaves out the enemy_shields layer).
+@export var ignores_shields := false
+## Junk Cannon: hits of at least knockback_min_damage shove the robot this far.
+@export_range(0.0, 64.0, 1.0, "suffix:px") var knockback := 0.0
+@export_range(0, 999) var knockback_min_damage := 15
+## Cryo Sprayer: chill added to each robot hit; at 1 the robot freezes (a stun) for freeze_time.
+@export_range(0.0, 1.0, 0.01) var chill := 0.0
+@export_range(0.0, 5.0, 0.1, "suffix:s") var freeze_time := 1.5
+## Rail Spike: passes through cover (damaging it) and enemy shields; only walls stop it.
+@export var pierce_cover := false
+## Arc Caster: after a hit, lightning jumps to this many more robots within chain_range.
+@export_range(0, 6) var chain_count := 0
+@export_range(0.0, 200.0, 1.0, "suffix:px") var chain_range := 72.0
+## The lightning effect copied between chained robots (it reads its two points from set_points).
+@export var arc_scene: PackedScene
 
 var pool: BulletPool
 var active := false
@@ -57,6 +80,7 @@ func launch(at: Vector2, travel_direction: Vector2, damage_override := -1) -> vo
 	active = true
 	visible = true
 	set_physics_process(true)
+	launched.emit()
 
 
 ## Called by whatever the bullet hits. False if this target was already hit by this bullet.
@@ -70,6 +94,8 @@ func try_hit(target: Object) -> bool:
 	_hit_ids.append(id)
 	_hits_left -= 1
 	_pop()
+	if chain_count > 0 and target is Node2D:
+		_chain(target as Node2D)
 	if _hits_left <= 0:
 		despawn()
 	return true
@@ -99,9 +125,15 @@ func _park() -> void:
 func _physics_process(delta: float) -> void:
 	if homing > 0.0:
 		_steer(delta)
+	if Player.highlight_aimed and pool != null and pool.hostile:
+		var to_hero := Player.hero_position - global_position
+		var aimed := to_hero.length() < 220.0 and direction.dot(to_hero.normalized()) > 0.97
+		self_modulate = Color(1, 0.35, 0.35) if aimed else Color.WHITE
 	global_position += direction * speed * delta
 	_age += delta
 	if _age >= lifetime:
+		if pop_on_expire:
+			_pop()
 		despawn()
 
 
@@ -109,6 +141,10 @@ func _on_body_entered(body: Node2D) -> void:
 	if not active:
 		return
 	var cover := body as Cover
+	if pierce_cover and not _is_wall(body):
+		if cover != null:
+			cover.take_damage(cover_damage)
+		return
 	if cover != null:
 		cover.take_damage(cover_damage)
 	elif _bounces_left > 0 and wall_probe != null:
@@ -120,6 +156,12 @@ func _on_body_entered(body: Node2D) -> void:
 			return
 	_pop()
 	despawn()
+
+
+## Wall tiles and other world-layer bodies (a locked door's blocker).
+func _is_wall(body: Node2D) -> bool:
+	var solid := body as CollisionObject2D
+	return body is TileMapLayer or (solid != null and (solid.collision_layer & 1) != 0)
 
 
 ## Turns toward the nearest robot in range (re-picked a few times a second).
@@ -143,7 +185,40 @@ func _steer(delta: float) -> void:
 		rotation = angle
 
 
+## Arc Caster: damages up to chain_count more robots near `from`, one after another.
+func _chain(from: Node2D) -> void:
+	var hit: Array[Node] = [from]
+	var at := from
+	for _i: int in chain_count:
+		var next: Enemy = null
+		var best := chain_range
+		for node: Node in get_tree().get_nodes_in_group(&"enemies"):
+			var enemy := node as Enemy
+			if enemy == null or hit.has(enemy) or not enemy.is_targetable():
+				continue
+			var distance := enemy.global_position.distance_to(at.global_position)
+			if distance < best:
+				best = distance
+				next = enemy
+		if next == null:
+			return
+		hit.append(next)
+		_draw_arc(at.global_position, next.global_position)
+		next.take_damage(hit_damage)
+		at = next
+
+
+func _draw_arc(from: Vector2, to: Vector2) -> void:
+	var layer := get_tree().get_first_node_in_group(&"drop_layer") as Node2D
+	if arc_scene == null or layer == null:
+		return
+	var arc := arc_scene.instantiate() as ArcFx
+	layer.add_child.call_deferred(arc)
+	arc.set_points.call_deferred(layer.to_local(from), layer.to_local(to))
+
+
 func _pop() -> void:
+	popped.emit(global_position)
 	if blast_scene == null:
 		return
 	var layer := get_tree().get_first_node_in_group(&"drop_layer") as Node2D

@@ -22,7 +22,7 @@ func drop(at: Vector2) -> void:
 	if layer == null:
 		return
 	if ram_mb > 0 and ram_scene != null:
-		_spawn(layer, ram_scene, at, ram_mb)
+		_spawn(layer, ram_scene, at, roundi(ram_mb * RunState.reward_scale))
 	var crypto := randi_range(crypto_min, crypto_max)
 	if crypto > 0 and crypto_scene != null:
 		_spawn(layer, crypto_scene, at, crypto)

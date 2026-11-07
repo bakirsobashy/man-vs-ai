@@ -80,13 +80,15 @@ machines: sparks and scrap, no gore. The family's deaths are **never shown on sc
   three-note lullaby. That lullaby is the game's human leitmotif.
 - Her drawings, recordings and Button are the memory items.
 
-### Dr. Elias Vorn† (the mad scientist) [LOCKED: rescuer and lab owner; role OPEN]
+### Dr. Elias Vorn† (the mad scientist) [LOCKED: rescuer and lab owner; morally grey, decided in M5]
 - A former military cyberneticist who built augmentations during the war, then was banned and disgraced under the Accord.
   Brilliant, theatrical, and unsettlingly kind.
 - He pulled Kade from the wreckage, brought him to the underground lab, and does all the implant surgery. His retrieval
   drone brings Kade back after every death.
-- **His true role is [OPEN]:** ally, hidden villain, or morally grey ([open-questions.md](open-questions.md) Q1).
-- **Writing rule until that's decided:** every Vorn line has to read naturally under all three interpretations. Examples:
+- **His true role is morally grey** (Q1, decided in M5). He saved Kade and means it, and he also wanted a test
+  subject. He is proud of his work and honestly fond of Kade, and he never quite says which matters more. Each ending
+  shows a different side of him.
+- **Writing rule:** his lines stay warm and a little clinical, and never confirm or deny a hidden agenda outright. Examples:
   - *"You were always going to come to me, Sergeant."*
   - *"I can't give you back what you lost. I can give you what you need."*
   - *"Every part I give you is a part you chose."*
@@ -182,17 +184,28 @@ Kade stands over Zero's core as a man. The Syndicate's backups burn. Vorn offers
 and Kade refuses. The final panel shows Kade at the family memorial, setting down Button while the music box plays clean.
 *"I'm still here. That's how I know I won."*
 
-### Normal (1–5 slots)
+### Normal (1–5 slots; two flavors, decided in M5)
 Kade wins, but some memories are gone where the machines went in. The final panel shows Kade in the rain, half his face
-reflecting neon, while the music box skips a note. He keeps walking. Patched and Hollow could get different closing lines
-([OPEN], Q8).
+reflecting neon, while the music box skips a note. He keeps walking. Patched (1–2 slots) and Hollow (3–5) get different
+closing lines and panel details (Q8).
 
 ### Transformation (6 slots, the bad ending)
 Zero falls, and the Syndicate's robots kneel to the stronger machine. Kade's system warns that memory is low, so he
 deletes the last file, Mira's lullaby, to free space. The final panel shows the new Zero, red-eyed, on a throne of
 servers. *"You became what you wanted to destroy."*
 
-Once Q1 is decided, each ending gets a post-credits line that reveals Vorn's true role.
+Each ending closes on a post-credits line from Vorn. He's morally grey (Q1), so each one shows a different side of him:
+
+| Ending | Vorn, later |
+|---|---|
+| Humanity | *"Subject declined every upgrade. Outcome: better than anything I could have made of him. Note to self: stop offering."* |
+| Normal (Patched) | *"He kept most of himself. I kept my notes. I am still not sure which of us got the better deal."* |
+| Normal (Hollow) | *"He won with what I gave him and lost what I took. Every part was his choice. I made sure it was."* |
+| Transformation | *"Project complete. He is everything I built him to be. I should feel proud. I should feel something."* |
+
+**Built in M5:** four ending comics of four panels each (`src/ui/comic/ending_*.tscn`, placeholder art). The Normal
+flavors share the rain-and-music-box structure: Patched hums the missing note (*"Close enough."*), Hollow doesn't
+notice (*"Mission complete."*).
 
 ---
 

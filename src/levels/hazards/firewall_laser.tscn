@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/levels/hazards/firewall_laser.gd" id="1_firewall"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/firewall_beam.svg" id="2_beam"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(320, 6)
+
+[sub_resource type="Animation" id="Animation_sweep"]
+length = 1.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:progress")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_sweep"]
+_data = {
+&"sweep": SubResource("Animation_sweep")
+}
+
+[node name="FirewallLaser" type="Node2D"]
+script = ExtResource("1_firewall")
+
+[node name="Wall" type="Area2D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 4
+
+[node name="Shape" type="CollisionShape2D" parent="Wall"]
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="Beam" type="Sprite2D" parent="Wall"]
+texture = ExtResource("2_beam")
+
+[node name="TickTimer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="SweepAnimation" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_sweep")
+
+[connection signal="body_entered" from="Wall" to="." method="_on_wall_body_entered"]
+[connection signal="timeout" from="TickTimer" to="." method="_on_tick_timer_timeout"]

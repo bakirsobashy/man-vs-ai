@@ -22,8 +22,13 @@ func show_entry(catalog_entry: WeaponCatalogEntry, display_name: String) -> void
 
 func refresh() -> void:
 	var owned := GameState.is_unlocked(entry.id)
-	buy_button.text = "Owned" if owned else "%d Crypto" % entry.unlock_cost
-	buy_button.disabled = owned or GameState.crypto < entry.unlock_cost
+	if owned:
+		buy_button.text = "Owned"
+	elif entry.unlock_hint != "":
+		buy_button.text = entry.unlock_hint
+	else:
+		buy_button.text = "%d Crypto" % entry.unlock_cost
+	buy_button.disabled = owned or entry.unlock_hint != "" or GameState.crypto < entry.unlock_cost
 
 
 func _on_buy_button_pressed() -> void:
