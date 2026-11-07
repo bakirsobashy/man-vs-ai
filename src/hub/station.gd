@@ -3,13 +3,13 @@ extends Interactable
 ## A lab station (surgery chair, armory, elevator). Its prompt reports `action` through EventBus.station_used;
 ## the LabDirector opens the matching panel.
 
-@export var prompt := "Use"
+@export var prompt := "station.use"
 ## surgery, armory or elevator.
 @export var action := &"surgery"
 
 
 func prompt_text() -> String:
-	return prompt
+	return tr(prompt)
 
 
 func interact(_player: Player) -> void:

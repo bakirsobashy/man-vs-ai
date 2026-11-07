@@ -82,7 +82,7 @@ offset_right = 336.0
 offset_bottom = 210.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 18
-text = "SYNDICATE CORE"
+text = "room.core.start.sign1"
 horizontal_alignment = 1
 
 [node name="Sign2" type="Label" parent="."]
@@ -93,7 +93,7 @@ offset_right = 336.0
 offset_bottom = 232.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 10
-text = "Coolant slows you. Firewalls sweep: roll through them."
+text = "room.core.start.sign2"
 horizontal_alignment = 1
 
 [node name="SpawnPoints" type="Node2D" parent="."]

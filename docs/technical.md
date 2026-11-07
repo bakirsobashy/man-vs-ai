@@ -571,6 +571,11 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - **Who detects what:** hurtboxes monitor the bullet layers; bullets only watch for walls and cover (`body_entered`).
 - **Idle bullets are parked, not switched off.** A despawned bullet is hidden, stops processing, and moves back to its
   pool node's position, which the level places far outside the playfield. Physics flags are never toggled (§1.0).
+- **Player and enemy pools park apart (M6).** The player pools sit 2048 px below the enemy pools (`position` on
+  each `Player*` pool node). Parked areas still pair in the physics broadphase when one's mask matches the other's
+  layer. The Black Box bullet's `Eater` watches enemy bullets, so when its parked copies sat on top of the parked
+  enemy bullets, they made about 3,000 collision pairs, plus an area event every time an enemy bullet went back to
+  its pool. Keep any pool whose bullets watch bullet layers away from the pools they watch.
 - **Node-friendly performance:**
   - circle shapes only;
   - movement is a few lines in `_physics_process`;
@@ -951,6 +956,27 @@ checks that `validate()` catches broken layouts. `tools/smoke_test_level.gd` pla
 - `RunState.threat_level` is copied from the slot when a run starts and saved with the run; `RunState.reward_scale`
   (the RAM multiplier) is set by the LevelDirector and isn't saved.
 
+**Settings (M6):**
+- **Storage:** `SaveManager` keeps every setting in `settings.cfg` (audio, controls, feedback, accessibility,
+  display). Index fields pick from `data/settings/settings_options.tres` (`SettingsOptions`): stick radii, swipe
+  presets, bullet palettes, text scales, fps caps and languages.
+- **Applying:** `apply_settings()` writes the shared `controls_tuning.tres` (joystick shown, stick radius, swipe
+  preset, double-tap window). It also sets the bus volumes, `Engine.max_fps` and the locale, then emits
+  `EventBus.settings_changed`.
+- **Read where they're used:**
+  - the camera ignores shake requests when shake is off;
+  - the player hides the reticle;
+  - the HUD sets the stick's opacity.
+- **Bullet palettes:**
+  - every `BulletPool` sets its `material` from the palette (hostile or friendly side);
+  - bullet scenes and their `Sprite` use `use_parent_material`;
+  - `bullet_recolor.gdshader` keeps the art's brightness and replaces its hue, and the modulate (Threat Sight's
+    highlight) still applies on top.
+- **Text size:** a `TextScaler` node in each UI scene scales that scene's `Theme.default_font_size` (labels with
+  their own size keep it).
+- **The settings screen:** `src/settings/settings_panel.tscn` is instanced in the title, the HUD (the pause menu's
+  "More settings") and the lab.
+
 Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ```json
 {
@@ -985,45 +1011,167 @@ Slot file sketch (implants: 0 = human, 1–3 = Mk tier):
 ---
 
 ## 10. Localization
-- **Text typed in the editor:** type translation keys directly into the text of Labels and Buttons (for example `ui.play`),
-  and Godot translates them automatically.
-- **Text built in code:** use `tr()` only here (counters, numbers). Data Resources store keys, never text.
-- The source table is `localization/strings.csv` (columns `keys,en`). Godot imports it as translations, and it's registered under Project
-  Settings → Localization.
-- Comic panels are Control scenes: art without text, with `Label` or `RichTextLabel` bubbles placed in the editor.
-- Pick a font family with wide script coverage (Noto, for example) so new languages don't force a font change.
-- Keep layouts tolerant of text that's 30% longer, and avoid hard-coded left/right positions so right-to-left languages stay possible.
+**Built in M6.** Every player-facing string lives in one table, `localization/strings.csv` (columns `keys,en`; 477
+keys at M6). Godot imports it as a translation, registered under Project Settings → Localization → Translations
+(`internationalization/locale/translations`). The imported `strings.<locale>.translation` files are build output and
+are gitignored; the editor's import recreates them. Missing translations fall back to English.
+
+**Where keys go**
+- **Scene text:** Labels and Buttons hold a key as their text (for example `hud.pause_panel_title`). Godot
+  auto-translates it, and switches language at once when the locale changes. OptionButton items are keys too.
+- **Data:** Resources store keys, never text.
+
+  | Data | Fields |
+  |---|---|
+  | Memories | title, text, band texts |
+  | Dialogue | speaker, lines |
+  | Implants | name, description, Vorn's line |
+  | Endings | title, post-credits line |
+  | Levels | district, boss reward |
+  | Cosmetics | name, description |
+  | Weapon catalog | unlock hints |
+  | Settings choices | names |
+  | Palettes | names |
+  | Scene exports | weapon `display_name`, boss name and phase names, station prompts, surgery slot labels, tutorial instructions |
+
+  Code calls `tr()` where it displays them.
+- **Code:** display text is `tr("key")`, and formats are `tr("hud.ram") % mb`. EventBus text signals (`banner_requested`,
+  `toast_requested`, `memory_opened`, `run_summary_requested`, `interact_prompt_changed`) carry already-translated
+  text. The dialogue box `tr()`s the speaker and line keys it is given.
+- **Placeholders:** some labels are always filled in by code, like the HUD counters, row labels and slot cards.
+  Their scene text is only an editor preview and stays as it is.
+- **Not translated:** the debug panel, the debug button and the version number. Their `auto_translate_mode` is
+  Disabled.
+
+**Key names:** `<scene>.<node>` for scene text (`lab.shop_panel_title`, `comic.prologue.panel1_caption`,
+`room.rustline.start.sign1`). Data and code keys follow these patterns:
+
+| Content | Key |
+|---|---|
+| Memories | `memory.<id>.title`, `.text`, `.patched`, `.hollow`, `.machine` |
+| Dialogue lines | `talk.<file>.<n>` |
+| Speakers | `speaker.<name>` |
+| Implants | `implant.<file>.name`, `.desc`, `.vorn` |
+| Endings | `ending.<id>.*` |
+| Districts | `district.*` |
+| Weapons | `weapon.<folder>` |
+| Bosses | `boss.<name>.name`, `.phase<n>` |
+| Code strings | grouped by screen: `banner.*`, `toast.*`, `prompt.*`, `shop.*`, `slot.*`, `surgery.*`, `summary.*` |
+
+**Adding a language**
+1. Add a column named after the locale (`de`, `pt_BR`) to `strings.csv`.
+2. Add the code to `SettingsOptions.languages` and its name to `language_names`. Write the name as an endonym
+   ("Deutsch"); only "Device language" is translated.
+3. Check the font. The default font (Open Sans) covers Latin, Greek, Cyrillic and Vietnamese. CJK, Arabic or Hindi
+   need a Noto font set as the theme font or a fallback.
+
+**Pseudo-localization test.** The M6 smoke test reads the table and builds a pseudo-locale (`en_XA`) from it at
+runtime: brackets around each text, accented look-alike letters, and vowels doubled, which makes text about 30%
+longer. The test then lays out every screen at 360 × 640 and checks three things:
+- no plain ASCII letters show, which would mean English skipped the table;
+- the font has every character;
+- nothing sticks out of the screen.
+
+| Area | Screens checked |
+|---|---|
+| Title | title, save slots, settings |
+| Lab | the lab, a talk, the shop tabs, surgery, armory |
+| Level | HUD, pause menu, repair shop, memory, Second Chance, summary |
+| Other | credits, every comic, the rehab tutorial |
+
+It also checks that every key the scenes, data and code use is in the table, that every key in the table is used,
+and that room signs use keys. For a manual look in the editor, turn on Godot's own pseudolocalization (Project Settings → Internationalization →
+Pseudolocalization).
+
+**Layout rules:** layouts must hold text 30% longer than English. Labels in rows and panels autowrap
+(`autowrap_mode` Word (Smart)) instead of widening their container, and screens keep the 16 px side margins. Avoid
+hard-coded left/right positions so right-to-left languages stay possible. Comic panels are Control scenes: art
+without text, with `Label` caption and bubble nodes.
 
 ---
 
 ## 11. Android
-- Export with the official Godot 4.7 Android export template. The ad and billing plugins (M6) will need a Gradle build.
-- Build arm64-v8a; armeabi-v7a is optional for older devices.
-- Turn on immersive mode, which hides the navigation bar and cuts down on accidental system gestures.
+- **Export preset (M6):** `export_presets.cfg` has the **Android** preset. Owner steps are in
+  [release/android_build.md](release/android_build.md).
+  - Gradle build (the ad and billing plugins need it), exporting an **AAB** to `build/android/` (gitignored).
+  - **arm64-v8a** only.
+  - **Immersive mode**, which hides the navigation bar and cuts down on accidental system gestures.
+  - Permissions: Internet, Access network state and Vibrate.
+  - Godot 4.7's default target SDK, **36**, which is what Google Play requires since 31 August 2026.
+  - The version name comes from Project Settings → Application → Config → Version (`0.6.0`). Raise `version/code`
+    for every upload.
+  - `package/unique_name` is a `com.example` placeholder until the owner picks the permanent one.
 - Keep the 16 px edge margins of `%JoystickZone` clear so back and home gestures don't fight with swipes.
-- Target whatever API level Google Play requires at release time; check the Play Console before M6.
-- **Never commit signing keystores.** `*.keystore` and `*.jks` are gitignored; keep them in a password manager or a CI secret.
+- **Never commit signing keystores.** `*.keystore` and `*.jks` are gitignored. Godot keeps keystore paths and
+  passwords in `.godot/export_credentials.cfg`, not in the preset, so the preset is safe to commit.
 - Target an AAB of 150 MB or less.
 
 ---
 
 ## 12. Monetization integration (M6)
-The `Monetization` autoload exposes one interface:
+The `Monetization` autoload (`src/autoload/monetization.tscn`) is the only door to ads and purchases:
 ```gdscript
-signal rewarded_completed(placement: StringName, granted: bool)
-signal purchase_completed(product_id: StringName, success: bool)
-
-func show_rewarded(placement: StringName) -> void
+func gather_consent() -> void            # UMP once per session (the title screen calls it)
+func can_show_ads() -> bool              # consent gathered and ads allowed
+func needs_privacy_options() -> bool     # show a "Privacy options" button in the settings
+func show_privacy_options() -> void
+func show_rewarded(placement: StringName) -> void    # &"second_chance", &"salvage"
 func purchase(product_id: StringName) -> void
 func owns(product_id: StringName) -> bool
 func restore_purchases() -> void
 ```
-- **Desktop and debug builds:** a stub that grants everything instantly.
-- **Android:** an AdMob plugin for Godot 4 (including Google's UMP consent) plus a Google Play Billing plugin.
-  - When M6 starts, check that both work with Godot 4.7.
-  - Keep both behind this interface so either can be swapped out.
-- **Consent first:** no ads before the consent flow has run, and no personalized ads without consent.
-- **Purchases:** cosmetics only, so client-side purchase acknowledgment is enough.
+- **Results go through EventBus:** `consent_resolved(can_request_ads)`, `rewarded_ad_finished(placement, granted)`,
+  `purchase_finished(product_id, success)` and `purchases_restored`.
+- **Providers are child nodes**, and their signals are connected in the scene:
+  - `%Stub` (`StubMonetization`) runs on the desktop, in the editor, in tests and on Android without the plugins. It
+    answers at once; its exports (`consent_given`, `grant_rewards`, `purchases_succeed`,
+    `privacy_options_required`) let tests try the failure paths.
+  - `%AndroidAds` (`AndroidAds`) bridges the Poing Studios AdMob plugin: UMP update, the consent form when it's
+    required, then `MobileAds.initialize` and one preloaded rewarded ad, reloaded after each show.
+  - `%AndroidBilling` (`AndroidBilling`) bridges Godot Google Play Billing 2.x: connect, query product details and
+    purchases, purchase, acknowledge. One-time cosmetics need no consuming and no server.
+  - The bridges call the plugin singletons through `Engine.get_singleton()`, so the game compiles without the addons.
+    Setup and device checks: [release/monetization_setup.md](release/monetization_setup.md).
+- **Config:** `data/monetization/monetization.tres` (`MonetizationConfig`) holds the rewarded ad unit (Google's test
+  unit until release), `test_ads`, the consent age tag, the reward sizes and the product IDs.
+- **Owned products** are stored in `user://purchases.cfg`, not in a save slot, because purchases belong to the Play
+  account. On Android the store's list replaces the local one whenever it's read, so refunds remove items; the stub
+  only adds.
+- **Second Chance:** after the death beat the LevelDirector asks `can_offer_second_chance()`. That's not used this
+  run (`RunState.second_chance_used`, saved with the run), `Monetization.can_show_ads()`, and not ZERO's room (Q9).
+  When it can be offered, the tree pauses and `EventBus.second_chance_offered` opens the HUD's `SecondChancePanel`.
+  Its answer (`second_chance_answered`) shows the ad. A granted reward unpauses the tree and calls
+  `Player.revive_second_chance(hp)`: 1 heart, no armor, invulnerability, and an EMP fired at once on a free charge.
+  Otherwise the run ends as before.
+- **Salvage:** the HUD's `SalvageButton` on the run summary shows when ads are allowed and the run earned Crypto. A
+  granted ad adds `ceil(crypto_earned × salvage_share)` to the slot, once.
+
+### 12.1 Cosmetics (M6)
+- **Data:**
+  - `data/cosmetics/catalog.tres` is a `CosmeticCatalog` of `CosmeticData` items: id, Play product ID (empty means a
+    free default), kind (Outfit, Weapon skin, Lab decoration, EMP style), name, description, placeholder price label
+    and tint.
+  - `Monetization` sends the catalog's product IDs to the store.
+- **Ownership and what's equipped:**
+  - Ownership comes from `Monetization.owns()` (per account).
+  - The slot saves what's equipped: `GameState.equipped` maps "outfit", "weapon_skin" and "emp_style" to an item id,
+    and `GameState.hidden_decor` lists hidden decorations.
+  - `CosmeticCatalog.equipped(kind)` falls back to the free default when the choice isn't owned (a refund, a new
+    save).
+  - Changes emit `EventBus.cosmetics_changed`.
+- **Placeholder looks (tints on existing nodes):**
+  - every `HeroVisual` tints its unique `Body` with the outfit; implant overlays stay on top;
+  - `Weapon.apply_skin()` tints the gun's `Sprite` only, never bullets, the muzzle flash or the silhouette;
+  - the player's unique `EmpWave` takes the EMP style through `self_modulate`, so the EMP animation keeps its fade;
+  - each lab decoration is a hidden `Sprite2D` under the lab's `Decor` node, named after its id. `LabUI.refresh_decor()`
+    shows the owned ones that aren't hidden.
+  - Real art will replace these with layers and textures on the same nodes.
+- **Shop:**
+  - the lab's `ShopButton` opens `ShopPanel`, with tabs for the four kinds and a `cosmetic_row.tscn` copy per item;
+  - a row's button buys (the price), equips, says "Equipped", or shows or hides a decoration;
+  - a successful purchase equips the item;
+  - **Restore purchases** calls `Monetization.restore_purchases()`;
+  - the tree pauses while the shop is open, as it does for the other lab panels.
 
 ---
 
@@ -1042,6 +1190,32 @@ func restore_purchases() -> void
   for layout checks.
 - Settings offer an optional 30 fps cap to save battery.
 
+**Benchmark (M6):** `tools/benchmark.gd`, run with
+`godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd`.
+
+For every district's level (fixed seed) it:
+1. times each room's first entry, the transition hitch;
+2. fights in a combat room at the budget's worst case: 15 robots and 300 enemy bullets kept in flight for 5 seconds;
+3. frees the level and checks that no nodes are left behind.
+
+`--fixed-fps 60` makes every frame one physics step with no real-time wait, so the wall time between frames is the
+frame's whole logic cost. Godot's `TIME_PROCESS` and `TIME_PHYSICS_PROCESS` monitors report a per-second maximum,
+not the current frame. `-- --level=N --seconds=S` runs one level, longer.
+
+Results at M6 on the development machine (headless, so no rendering):
+
+| | Median | p95 | Max |
+|---|---|---|---|
+| Logic per frame at the worst case | 1.1–1.4 ms | 1.6–1.9 ms | about 5 ms |
+
+- Room entries take 3–6 ms, and 0 nodes leak.
+- Parking the player pools apart from the enemy pools (§6.2) cut collision pairs from about 3,200 to about 200 and
+  L1's median from 1.42 to 1.05 ms.
+
+The benchmark's alarms ring at a 3 ms median and a 5 ms p95: a regression alarm, not the device budget. A
+low-end phone is several times slower, so the budget itself is checked on the test devices with the debug panel's
+300-bullet storm ([release/android_build.md](release/android_build.md)).
+
 ---
 
 ## 14. Code conventions
@@ -1059,9 +1233,13 @@ func restore_purchases() -> void
 4. Tuning values are `@export`s with `##` doc comments, `@export_range` where useful.
 5. Same-scene signals are connected in the editor. Code connects only to `EventBus` and to runtime copies.
 6. Every scene loads and its connections are valid (`tools/check_scenes.gd` passes).
+7. Player-facing text is a translation key in `localization/strings.csv` (§10): keys in scene text and data, `tr()` in code.
 
 ## 15. Testing
 - **Scene-first check:** run `tools/check_scene_first.sh` from the repo root.
+- **Benchmark (M6):** run `godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd` after changes
+  that could cost frame time (bullets, enemies, physics, rooms). It's machine-dependent, so it's not in the list of
+  checks before every commit; see §13.
 - **Scene check:** run `godot --headless --path . --script res://tools/check_scenes.gd`. It instantiates every scene under `src/`
   and validates each editor connection.
 - **Controls smoke test (M1):** run `godot --headless --path . --script res://tools/smoke_test_controls.gd`.
@@ -1133,6 +1311,21 @@ func restore_purchases() -> void
   25 results: the ending for each band, ZERO handing over to the ending, the real flow ending comic → credits → lab,
   threat level scaling (threat, elites, RAM, banner), the lab selector, saves and the slot card. It saves to
   `user://test_saves_endings/`.
+- **M6 smoke test:** run `godot --headless --path . --script res://tools/smoke_test_m6.gd`. It saves to
+  `user://test_saves_m6/` and checks:
+  - the stub standing in on the desktop, consent gating, rewarded ads and purchases (owned, saved, cancelled,
+    restored);
+  - Second Chance in a real level (offer and pause, revive, EMP, once per run, saved);
+  - Salvage (+25%, once), no ads without consent, an ad closed early, and no Second Chance against ZERO;
+  - cosmetics: the catalog and product IDs, free defaults, buying in the lab shop (owned, equipped, the doll's look),
+    decorations shown and hidden, a cancelled purchase, Restore, saves, and the skin and EMP tints in a level
+    (bullets never tinted);
+  - settings: tuning, frame cap, saving, palettes, text size, shake, reticle and stick opacity, and the settings
+    screen in the lab, title and pause menu (privacy options only where required).
+  - localization (§10): the string table (unique keys, English for each, the import up to date, every used key
+    present, every key used, room signs as keys), then the pseudo-locale on the title, lab, HUD, credits, comics
+    and tutorial (no English, every glyph in the font, nothing off the 360 px screen), and back to English.
+  - 63 results in all.
 - **Level 5 smoke test (M5):** run `godot --headless --path . --script res://tools/smoke_test_l5.gd`. It checks 33
   results:
   - coolant slowing the hero (wet, dry, flooding under him, letting go) and firewalls (burns, rolls, inactive edges);

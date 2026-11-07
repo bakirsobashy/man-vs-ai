@@ -11,7 +11,7 @@ collision_layer = 128
 collision_mask = 0
 monitoring = false
 script = ExtResource("1_station")
-prompt = "Elevator: Rustline (Level 1)"
+prompt = "station.lab_elevator"
 action = &"elevator"
 
 [node name="Shape" type="CollisionShape2D" parent="."]

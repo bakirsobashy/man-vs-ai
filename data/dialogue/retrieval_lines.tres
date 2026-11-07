@@ -4,5 +4,5 @@
 
 [resource]
 script = ExtResource("1_lines")
-speaker = "Vorn"
-lines = Array[String](["My drone found you in a scrap heap. Lie still. You're home.", "Again? My drone is getting good at this.", "They come back from backups, Sergeant. You come back from me. Rest.", "You keep coming back. That's the part they never understand about you."])
+speaker = "speaker.vorn"
+lines = Array[String](["talk.retrieval_lines.1", "talk.retrieval_lines.2", "talk.retrieval_lines.3", "talk.retrieval_lines.4"])

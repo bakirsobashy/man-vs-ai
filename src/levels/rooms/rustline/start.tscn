@@ -81,7 +81,7 @@ offset_right = 336.0
 offset_bottom = 210.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 18
-text = "RUSTLINE SLUMS"
+text = "room.rustline.start.sign1"
 horizontal_alignment = 1
 
 [node name="Sign2" type="Label" parent="."]
@@ -92,7 +92,7 @@ offset_right = 336.0
 offset_bottom = 232.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 10
-text = "Walk through a door to begin"
+text = "room.rustline.start.sign2"
 horizontal_alignment = 1
 
 [node name="SpawnPoints" type="Node2D" parent="."]

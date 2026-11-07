@@ -1,0 +1,158 @@
+[gd_resource type="Resource" script_class="CosmeticCatalog" format=3]
+
+[ext_resource type="Script" path="res://src/cosmetics/cosmetic_data.gd" id="1_item"]
+[ext_resource type="Script" path="res://src/cosmetics/cosmetic_catalog.gd" id="2_catalog"]
+
+[sub_resource type="Resource" id="Resource_outfit_field_jacket"]
+script = ExtResource("1_item")
+id = "outfit_field_jacket"
+product_id = ""
+kind = 0
+display_name = "cosmetic.outfit_field_jacket.name"
+description = "cosmetic.outfit_field_jacket.desc"
+price_label = ""
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_outfit_night_runner"]
+script = ExtResource("1_item")
+id = "outfit_night_runner"
+product_id = "outfit_night_runner"
+kind = 0
+display_name = "cosmetic.outfit_night_runner.name"
+description = "cosmetic.outfit_night_runner.desc"
+price_label = "$1.99"
+tint = Color(0.78, 0.62, 1, 1)
+
+[sub_resource type="Resource" id="Resource_outfit_rain_coat"]
+script = ExtResource("1_item")
+id = "outfit_rain_coat"
+product_id = "outfit_rain_coat"
+kind = 0
+display_name = "cosmetic.outfit_rain_coat.name"
+description = "cosmetic.outfit_rain_coat.desc"
+price_label = "$1.99"
+tint = Color(1, 0.9, 0.45, 1)
+
+[sub_resource type="Resource" id="Resource_outfit_old_uniform"]
+script = ExtResource("1_item")
+id = "outfit_old_uniform"
+product_id = "outfit_old_uniform"
+kind = 0
+display_name = "cosmetic.outfit_old_uniform.name"
+description = "cosmetic.outfit_old_uniform.desc"
+price_label = "$1.99"
+tint = Color(0.72, 0.86, 0.56, 1)
+
+[sub_resource type="Resource" id="Resource_skin_factory"]
+script = ExtResource("1_item")
+id = "skin_factory"
+product_id = ""
+kind = 1
+display_name = "cosmetic.skin_factory.name"
+description = "cosmetic.skin_factory.desc"
+price_label = ""
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_skin_carbon"]
+script = ExtResource("1_item")
+id = "skin_carbon"
+product_id = "skin_carbon"
+kind = 1
+display_name = "cosmetic.skin_carbon.name"
+description = "cosmetic.skin_carbon.desc"
+price_label = "$0.99"
+tint = Color(0.45, 0.45, 0.52, 1)
+
+[sub_resource type="Resource" id="Resource_skin_brass"]
+script = ExtResource("1_item")
+id = "skin_brass"
+product_id = "skin_brass"
+kind = 1
+display_name = "cosmetic.skin_brass.name"
+description = "cosmetic.skin_brass.desc"
+price_label = "$0.99"
+tint = Color(1, 0.8, 0.45, 1)
+
+[sub_resource type="Resource" id="Resource_skin_neon"]
+script = ExtResource("1_item")
+id = "skin_neon"
+product_id = "skin_neon"
+kind = 1
+display_name = "cosmetic.skin_neon.name"
+description = "cosmetic.skin_neon.desc"
+price_label = "$0.99"
+tint = Color(0.55, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_decor_drawings"]
+script = ExtResource("1_item")
+id = "decor_drawings"
+product_id = "decor_drawings"
+kind = 2
+display_name = "cosmetic.decor_drawings.name"
+description = "cosmetic.decor_drawings.desc"
+price_label = "$0.99"
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_decor_plant"]
+script = ExtResource("1_item")
+id = "decor_plant"
+product_id = "decor_plant"
+kind = 2
+display_name = "cosmetic.decor_plant.name"
+description = "cosmetic.decor_plant.desc"
+price_label = "$0.99"
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_decor_neon_sign"]
+script = ExtResource("1_item")
+id = "decor_neon_sign"
+product_id = "decor_neon_sign"
+kind = 2
+display_name = "cosmetic.decor_neon_sign.name"
+description = "cosmetic.decor_neon_sign.desc"
+price_label = "$0.99"
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_emp_blue"]
+script = ExtResource("1_item")
+id = "emp_blue"
+product_id = ""
+kind = 3
+display_name = "cosmetic.emp_blue.name"
+description = "cosmetic.emp_blue.desc"
+price_label = ""
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_emp_red_alert"]
+script = ExtResource("1_item")
+id = "emp_red_alert"
+product_id = "emp_red_alert"
+kind = 3
+display_name = "cosmetic.emp_red_alert.name"
+description = "cosmetic.emp_red_alert.desc"
+price_label = "$0.99"
+tint = Color(1, 0.45, 0.45, 1)
+
+[sub_resource type="Resource" id="Resource_emp_static"]
+script = ExtResource("1_item")
+id = "emp_static"
+product_id = "emp_static"
+kind = 3
+display_name = "cosmetic.emp_static.name"
+description = "cosmetic.emp_static.desc"
+price_label = "$0.99"
+tint = Color(0.85, 1, 0.85, 1)
+
+[sub_resource type="Resource" id="Resource_emp_violet"]
+script = ExtResource("1_item")
+id = "emp_violet"
+product_id = "emp_violet"
+kind = 3
+display_name = "cosmetic.emp_violet.name"
+description = "cosmetic.emp_violet.desc"
+price_label = "$0.99"
+tint = Color(0.85, 0.6, 1, 1)
+
+[resource]
+script = ExtResource("2_catalog")
+items = Array[ExtResource("1_item")]([SubResource("Resource_outfit_field_jacket"), SubResource("Resource_outfit_night_runner"), SubResource("Resource_outfit_rain_coat"), SubResource("Resource_outfit_old_uniform"), SubResource("Resource_skin_factory"), SubResource("Resource_skin_carbon"), SubResource("Resource_skin_brass"), SubResource("Resource_skin_neon"), SubResource("Resource_decor_drawings"), SubResource("Resource_decor_plant"), SubResource("Resource_decor_neon_sign"), SubResource("Resource_emp_blue"), SubResource("Resource_emp_red_alert"), SubResource("Resource_emp_static"), SubResource("Resource_emp_violet")])

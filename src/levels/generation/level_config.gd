@@ -5,7 +5,7 @@ extends Resource
 
 @export_group("Identity")
 @export_range(1, 5) var level_number := 1
-@export var district_name := "Rustline Slums"
+@export var district_name := "district.rustline_slums"
 
 @export_group("Room counts")
 @export_range(1, 12) var combat_min := 4

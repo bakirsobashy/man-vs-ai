@@ -127,7 +127,7 @@ offset_right = 336.0
 offset_bottom = 312.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 14
-text = "GLITCH'S STAGE"
+text = "room.neon.boss.sign1"
 horizontal_alignment = 1
 
 [node name="SpawnPoints" type="Node2D" parent="."]

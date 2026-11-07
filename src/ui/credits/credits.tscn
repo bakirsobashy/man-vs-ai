@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/ui/credits/credits.gd" id="1_credits"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="3_music"]
 [ext_resource type="Script" path="res://src/levels/generation/ending_data.gd" id="4_ending"]
@@ -80,7 +81,7 @@ theme_override_constants/separation = 10
 [node name="Line1" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "MAN VS AI"
+text = "credits.line1"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -94,7 +95,7 @@ autowrap_mode = 3
 [node name="Line3" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "A grieving veteran. A city of machines. Five districts."
+text = "credits.line3"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -108,14 +109,14 @@ autowrap_mode = 3
 [node name="Line5" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Kade · Lena · Mira · Button"
+text = "credits.line5"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Line6" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Dr. Vorn · Patch"
+text = "credits.line6"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -129,7 +130,7 @@ autowrap_mode = 3
 [node name="Line8" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "SCRAPJAW · GLITCH · FORGEMOTHER · WARDEN · ZERO"
+text = "credits.line8"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -143,14 +144,14 @@ autowrap_mode = 3
 [node name="Line10" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Made with Godot Engine 4.7"
+text = "credits.line10"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Line11" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Placeholder art, sound and music made for the prototype"
+text = "credits.line11"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -164,7 +165,7 @@ autowrap_mode = 3
 [node name="Line13" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Team credits go here"
+text = "credits.line13"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -178,7 +179,7 @@ autowrap_mode = 3
 [node name="Line15" type="Label" parent="Roll"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "Thank you for playing."
+text = "credits.line15"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -201,7 +202,7 @@ theme_override_constants/separation = 14
 [node name="Speaker" type="Label" parent="PostCredits"]
 layout_mode = 2
 modulate = Color(0.6, 0.85, 1, 1)
-text = "VORN, LATER"
+text = "credits.post_credits_speaker"
 
 [node name="VornLine" type="Label" parent="PostCredits"]
 unique_name_in_owner = true
@@ -219,7 +220,7 @@ autowrap_mode = 3
 layout_mode = 2
 modulate = Color(1, 1, 1, 0.5)
 theme_override_font_sizes/font_size = 11
-text = "tap to return to the lab"
+text = "credits.post_credits_hint"
 
 [node name="SkipHint" type="Label" parent="."]
 unique_name_in_owner = true
@@ -238,11 +239,16 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
-text = "tap to skip"
+text = "credits.skip_hint"
 horizontal_alignment = 1
 
 [node name="RollAnimation" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_roll")
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_credits")
+base_size = 13
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]

@@ -312,10 +312,10 @@ bus = &"SFX"
 [node name="Phases" type="Node" parent="." node_paths=PackedStringArray("state_machine", "roar")]
 script = ExtResource("29_phases")
 state_machine = NodePath("../StateMachine")
-boss_name = "ZERO"
+boss_name = "boss.zero.name"
 thresholds = Array[float]([0.65, 0.3])
 phase_states = Array[StringName]([&"DuelApproach", &"SyndicateStart", &"ZeroHourStart"])
-phase_names = Array[String](["DUEL", "SYNDICATE", "ZERO HOUR"])
+phase_names = Array[String](["boss.zero.phase1", "boss.zero.phase2", "boss.zero.phase3"])
 roar = NodePath("../RoarSound")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]

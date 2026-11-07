@@ -6,13 +6,13 @@ extends Button
 signal selected(slot_name: String)
 
 @export var slot_name := "heart"
-@export var slot_label := "Heart"
+@export var slot_label := "implant_slot.heart"
 
 
 func refresh(catalog: ImplantCatalog) -> void:
 	var tier := GameState.implant_tier(slot_name)
-	var tiers := ["Human", "Mk I", "Mk II", "Mk III"]
-	text = "%s\n%s" % [slot_label, tiers[tier] if catalog.has_slot(slot_name) else "—"]
+	var tiers: Array[String] = ["implant.tier_human", "implant.tier_mk1", "implant.tier_mk2", "implant.tier_mk3"]
+	text = "%s\n%s" % [tr(slot_label), tr(tiers[tier]) if catalog.has_slot(slot_name) else "—"]
 
 
 func _on_pressed() -> void:

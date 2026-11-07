@@ -469,10 +469,10 @@ bus = &"SFX"
 script = ExtResource("29_phases")
 state_machine = NodePath("../StateMachine")
 roar = NodePath("../RoarSound")
-boss_name = "SCRAPJAW"
+boss_name = "boss.scrapjaw.name"
 thresholds = Array[float]([0.6, 0.25])
 phase_states = Array[StringName]([&"WreckApproach", &"MagnetTell", &"GrindSpin"])
-phase_names = Array[String](["WRECK", "MAGNET", "GRIND"])
+phase_names = Array[String](["boss.scrapjaw.phase1", "boss.scrapjaw.phase2", "boss.scrapjaw.phase3"])
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 unique_name_in_owner = true

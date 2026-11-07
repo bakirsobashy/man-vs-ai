@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/ui/comic/comic_player.gd" id="1_comic"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lab_theme.wav" id="90_music"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholder/comics/ending_core.svg" id="2_ending_core"]
@@ -101,7 +102,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel1/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "The Core goes dark. Zero's red eye flickers, and goes out."
+text = "comic.ending_normal_hollow.panel1_caption"
 autowrap_mode = 3
 
 [node name="Bubble" type="PanelContainer" parent="Panels/Panel1"]
@@ -122,7 +123,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 [node name="Text" type="Label" parent="Panels/Panel1/Bubble"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
-text = "Kade: Target down."
+text = "comic.ending_normal_hollow.panel1_bubble"
 autowrap_mode = 3
 
 [node name="Panel2" type="Control" parent="Panels"]
@@ -165,7 +166,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel2/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "Rain on Halcyon. Some memories are simply gone, where the machines went in."
+text = "comic.ending_normal_hollow.panel2_caption"
 autowrap_mode = 3
 
 [node name="Panel3" type="Control" parent="Panels"]
@@ -208,7 +209,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel3/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "The music box skips a note. He doesn't notice."
+text = "comic.ending_normal_hollow.panel3_caption"
 autowrap_mode = 3
 
 [node name="Bubble" type="PanelContainer" parent="Panels/Panel3"]
@@ -229,7 +230,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 [node name="Text" type="Label" parent="Panels/Panel3/Bubble"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
-text = "Kade: Mission complete."
+text = "comic.ending_normal_hollow.panel3_bubble"
 autowrap_mode = 3
 
 [node name="Panel4" type="Control" parent="Panels"]
@@ -272,7 +273,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
 [node name="Text" type="Label" parent="Panels/Panel4/Caption"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-text = "He keeps walking. He is not sure where."
+text = "comic.ending_normal_hollow.panel4_caption"
 autowrap_mode = 3
 
 [node name="Hint" type="Label" parent="."]
@@ -291,7 +292,12 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 11
-text = "tap to continue"
+text = "comic.ending_normal_hollow.hint"
 horizontal_alignment = 1
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_comic")
+base_size = 13
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]

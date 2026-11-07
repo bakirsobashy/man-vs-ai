@@ -91,6 +91,7 @@ All art is placeholder.
 | [Technical design](docs/technical.md) | Godot architecture, input, level generation, saves, Android |
 | [Roadmap](docs/roadmap.md) | Milestones M0–M6 and their exit gates |
 | [Open questions](docs/open-questions.md) | Pending decisions and design risks |
+| [Release material](docs/release/README.md) | Android build and signing, monetization setup, privacy policy, Play Console forms, store listing, testing tracks |
 
 ## Development principle: scene-first
 This project is built **node-based**. Everything you can see, collide with or position (sprites, `Area2D`s, collision
@@ -138,13 +139,22 @@ godot --headless --path . --script res://tools/smoke_test_l5.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_m6.gd
+```
+After changes that could cost frame time, also run the performance benchmark (machine-dependent, see
+`docs/technical.md` §13):
+```bash
+godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd
+```
 
 ## Getting started
 1. Install **Godot 4.7** (the standard build; the project uses GDScript only).
 2. Open `project.godot`. The project uses the Compatibility renderer and a 360×640 portrait base resolution, and it
    emulates touch from the mouse so you can test on desktop.
-3. For Android, install the Android export templates and SDK as described in the Godot docs, then add an Android export
-   preset. Turn on the **VIBRATE** permission for haptics, and keep signing keystores out of the repository (they're gitignored).
+3. For Android, follow [docs/release/android_build.md](docs/release/android_build.md): install the 4.7 export
+   templates, the SDK and the Android build template, then use the **Android** preset in `export_presets.cfg`. Keep
+   signing keystores out of the repository (they're gitignored).
 
 ## Project layout
 ```
@@ -152,6 +162,6 @@ assets/        art, audio, fonts (placeholders until the art direction is chosen
 data/          non-world .tres data: implants, level configs and waves, memories, dialogue, weapon catalog, control thresholds
 localization/  translation tables
 src/           scenes and their scripts by feature (components, input, player, enemies, weapons, cover, levels, hub, ui…)
-tools/         scene-first and scene-load checks, smoke tests, the level generator test
-docs/          design documents (Godot skips this folder via .gdignore)
+tools/         scene-first and scene-load checks, smoke tests, the level generator test, the benchmark
+docs/          design documents; docs/release/ has the Play Store material (Godot skips docs/ via .gdignore)
 ```

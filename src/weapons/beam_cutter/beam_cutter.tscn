@@ -46,7 +46,7 @@ _data = {
 
 [node name="BeamCutter" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Beam Cutter"
+display_name = "weapon.beam_cutter"
 damage = 3
 fire_rate = 10.0
 magazine_size = 30

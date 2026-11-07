@@ -316,5 +316,20 @@ Pickups are magnetic within 2.5 tiles.
 ### Rewarded ads (a small help only)
 | Placement | Reward | Limit |
 |---|---|---|
-| Second Chance | Revive with 1 heart and a free EMP | Once per run |
-| Salvage bonus | +25% of the run's Crypto | Once per run summary |
+| Second Chance | Revive with 1 heart and a free EMP | Once per run; never against ZERO (Q9); only after consent |
+| Salvage bonus | +25% of the run's Crypto (rounded up) | Once per run summary; only after consent |
+
+### Cosmetics (placeholder items, M6)
+Looks only. Prices are placeholders until the store reports localized prices.
+
+| Kind | Free default | For sale ($0.99 each, outfits $1.99) |
+|---|---|---|
+| Outfit (tints the hero's body) | Field Jacket | Night Runner, Rain Coat, Old Uniform |
+| Weapon skin (tints guns, never bullets) | Factory Finish | Carbon, Brass, Neon |
+| Lab decoration (a prop in the lab) | none | Mira's Drawings, Stubborn Plant, HOME Sign |
+| EMP style (tints the EMP wave) | Blue Pulse | Red Alert, Static, Violet |
+
+The data is in `data/cosmetics/catalog.tres`, and the product ID matches the item id.
+
+Both rewards are on `data/monetization/monetization.tres` (`second_chance_hp`, `salvage_share`). The revive also gives
+a short invulnerability, and the free EMP fires at once (clearing bullets, stunning nearby robots).

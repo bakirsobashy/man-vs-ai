@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_memory")
 id = "l2_miras_drawing"
-title = "Mira's Drawing"
-text = "A crayon drawing: the three of them under an enormous yellow sun. \"She drew us like this every day. Me always bigger than the house.\""
-band_texts = Array[String](["A crayon drawing: the three of them under an enormous yellow sun. \"She drew us like this every day. Me always bigger than the house.\"", "A crayon drawing. \"Her drawing. I remember the colors. Mostly.\"", "A drawing. Three figures. \"I know it mattered. I can't feel why.\"", "Image file: drawing_family.png. Emotional weight: unknown. ...Keep."])
+title = "memory.l2_miras_drawing.title"
+text = "memory.l2_miras_drawing.text"
+band_texts = Array[String](["memory.l2_miras_drawing.text", "memory.l2_miras_drawing.patched", "memory.l2_miras_drawing.hollow", "memory.l2_miras_drawing.machine"])
 heal = 1

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_ending")
 id = "humanity"
-title = "Humanity"
+title = "ending.humanity.title"
 band = 0
 comic_scene = "res://src/ui/comic/ending_humanity.tscn"
-post_credits = "Subject declined every upgrade. Outcome: better than anything I could have made of him. Note to self: stop offering."
+post_credits = "ending.humanity.post_credits"

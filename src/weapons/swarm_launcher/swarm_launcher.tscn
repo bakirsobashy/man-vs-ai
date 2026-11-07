@@ -47,7 +47,7 @@ _data = {
 
 [node name="SwarmLauncher" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Swarm Launcher"
+display_name = "weapon.swarm_launcher"
 bullet_scene = ExtResource("2_bullet")
 damage = 6
 fire_rate = 1.0

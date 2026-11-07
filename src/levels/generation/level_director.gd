@@ -68,6 +68,8 @@ func _ready() -> void:
 	EventBus.level_exit_requested.connect(_on_level_exit_requested)
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.summary_closed.connect(_on_summary_closed)
+	EventBus.second_chance_answered.connect(_on_second_chance_answered)
+	EventBus.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
 	if not RunState.active:
 		RunState.start_new_run()  # started straight from the editor or a test
 	use_config(campaign.config_for(RunState.level_number) if campaign != null else config)
@@ -99,8 +101,8 @@ func start_level(level_seed: int = 0) -> void:
 	RunState.start_level(config.level_number, layout.level_seed)
 	player.begin_level()
 	enter_room(layout.start_id, Vector2i.ZERO)
-	var threat := " · THREAT %d" % RunState.threat_level if RunState.threat_level > 0 else ""
-	EventBus.banner_requested.emit("%s · %d%s" % [config.district_name.to_upper(), levels_started, threat])
+	var threat := " · " + tr("banner.threat") % RunState.threat_level if RunState.threat_level > 0 else ""
+	EventBus.banner_requested.emit("%s · %d%s" % [tr(config.district_name).to_upper(), levels_started, threat])
 
 
 ## Continue a saved run: rebuild its level from the seed, mark what was done, and put the hero at the entrance of
@@ -119,7 +121,7 @@ func resume_run() -> void:
 		enter_room(RunState.room_id, RunState.entry_direction)
 	else:
 		enter_room(layout.start_id, Vector2i.ZERO)
-	EventBus.banner_requested.emit("RUN CONTINUED")
+	EventBus.banner_requested.emit(tr("banner.run_continued"))
 
 
 func _build_level(level_seed: int) -> void:
@@ -200,7 +202,7 @@ func _begin_fight(room: Room) -> void:
 		var spot := room.feature("BossSpot") as Node2D
 		wave_spawner.spawn_boss(config.boss_scene, spot.global_position, room.enemies)
 		AudioManager.play_music(_boss_music())
-		EventBus.banner_requested.emit("BOSS")
+		EventBus.banner_requested.emit(tr("banner.boss"))
 		return
 	var waves := room.waves if room.waves > 0 else _rng.randi_range(config.waves_min, config.waves_max)
 	wave_spawner.start_room(room.spawn_points, room.enemies, waves, config.room_threat * threat_scale(), elite_chance())
@@ -233,12 +235,12 @@ func _on_wave_spawner_room_cleared() -> void:
 		Room.RoomType.ARENA:
 			_drop_reward_chest(room.reward_spot.global_position)
 			arena_reward.drop(room.reward_spot.global_position + Vector2(0, 24))
-			EventBus.banner_requested.emit("CHALLENGE BEATEN")
+			EventBus.banner_requested.emit(tr("banner.challenge_beaten"))
 		Room.RoomType.BOSS:
 			var last := campaign != null and campaign.is_last(config.level_number)
 			if not last:
 				(room.feature("Elevator") as Elevator).reveal()
-			EventBus.banner_requested.emit("LEVEL CLEAR")
+			EventBus.banner_requested.emit(tr("banner.level_clear"))
 			GameState.add_stat("boss_kills")
 			GameState.stats["best_level"] = maxi(GameState.stat("best_level"), config.level_number)
 			GameState.set_flag("l%d_cleared" % config.level_number)
@@ -316,7 +318,7 @@ func _grant_boss_reward() -> void:
 	if config.boss_reward_weapon == &"" or GameState.is_unlocked(config.boss_reward_weapon):
 		return
 	GameState.unlock_weapon(config.boss_reward_weapon)
-	EventBus.toast_requested.emit("%s unlocked" % config.boss_reward_name.to_upper())
+	EventBus.toast_requested.emit(tr("toast.unlocked") % tr(config.boss_reward_name).to_upper())
 
 
 ## The run is over (death or the last boss): it's no longer resumable, and the slot keeps the currencies.
@@ -396,14 +398,55 @@ func _on_player_died() -> void:
 		death_timer.start()
 
 
-## After the death beat: the run ends and the HUD shows Vorn's retrieval panel with the run summary.
+## After the death beat: Second Chance is offered if it can be (the game pauses while the HUD asks); otherwise
+## the run ends.
 func _on_death_timer_timeout() -> void:
+	if can_offer_second_chance():
+		get_tree().paused = true
+		EventBus.second_chance_offered.emit()
+	else:
+		_finish_death()
+
+
+## Second Chance (GDD §9): once per run, only after the consent flow allowed ads, and never against the campaign's
+## last boss (Q9: the final fight stays earned).
+func can_offer_second_chance() -> bool:
+	if RunState.second_chance_used or not Monetization.can_show_ads():
+		return false
+	var final_boss := current != null and current.type == Room.RoomType.BOSS and campaign != null \
+		and campaign.is_last(config.level_number)
+	return not final_boss
+
+
+func _on_second_chance_answered(accepted: bool) -> void:
+	if accepted:
+		Monetization.show_rewarded(&"second_chance")
+	else:
+		get_tree().paused = false
+		_finish_death()
+
+
+func _on_rewarded_ad_finished(placement: StringName, granted: bool) -> void:
+	if placement != &"second_chance":
+		return
+	get_tree().paused = false
+	if not granted:
+		_finish_death()
+		return
+	RunState.second_chance_used = true
+	player.revive_second_chance(Monetization.config.second_chance_hp)
+	EventBus.toast_requested.emit(tr("toast.second_chance"))
+	_autosave()
+
+
+## The run ends and the HUD shows Vorn's retrieval panel with the run summary.
+func _finish_death() -> void:
 	GameState.add_stat("deaths")
 	GameState.set_flag("just_died")
-	var summary := "Crypto +%d · RAM +%d MB\nRobots destroyed: %d · Rooms cleared: %d" % [
+	var summary := tr("summary.stats") % [
 		RunState.crypto_earned, RunState.ram_earned, RunState.kills, RunState.rooms_cleared]
 	_end_run()
-	EventBus.run_summary_requested.emit("RETRIEVED", summary)
+	EventBus.run_summary_requested.emit(tr("summary.retrieved"), summary)
 
 
 func _on_summary_closed() -> void:

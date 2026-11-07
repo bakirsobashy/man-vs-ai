@@ -48,8 +48,13 @@ extends CanvasLayer
 @onready var summary_panel: Control = %SummaryPanel
 @onready var summary_title: Label = %SummaryTitle
 @onready var summary_stats: Label = %SummaryStats
+## M6 rewarded ads: the Salvage bonus on the run summary, and the Second Chance offer after a death.
+@onready var salvage_button: Button = %SalvageButton
+@onready var second_chance_panel: Control = %SecondChancePanel
 
-var _weapon_text := "Pistol"
+## Crypto the Salvage ad would add to this summary (0 once it's used).
+var salvage_amount := 0
+var _weapon_text := ""
 var _ammo_text := ""
 var _station: RepairStation
 
@@ -68,6 +73,8 @@ func _ready() -> void:
 	EventBus.shop_opened.connect(_on_shop_opened)
 	EventBus.memory_opened.connect(_on_memory_opened)
 	EventBus.run_summary_requested.connect(_on_run_summary_requested)
+	EventBus.second_chance_offered.connect(_on_second_chance_offered)
+	EventBus.rewarded_ad_finished.connect(_on_rewarded_ad_finished)
 	EventBus.screen_glitch_requested.connect(_on_screen_glitch_requested)
 	minimap_button.visible = show_minimap
 	set_joystick_zone_top(tuning.joystick_zone_top)
@@ -94,6 +101,7 @@ func set_joystick_zone_top(ratio: float) -> void:
 func show_stick(center: Vector2) -> void:
 	joystick.scale = Vector2.ONE * (tuning.stick_radius / (joystick.size.x * 0.5))
 	update_stick(center, Vector2.ZERO)
+	joystick.modulate.a = SaveManager.stick_opacity
 	joystick.visible = tuning.show_joystick
 
 
@@ -161,11 +169,11 @@ func _on_player_health_changed(hp: int, max_hp: int, armor: int) -> void:
 
 
 func _on_player_emp_changed(charges: int) -> void:
-	emp_label.text = "EMP %d" % charges
+	emp_label.text = tr("hud.emp") % charges
 
 
 func _on_player_weapon_changed(display_name: String, slot: int, slots: int) -> void:
-	_weapon_text = display_name if slots == 1 else "[%d/2] %s" % [slot, display_name]
+	_weapon_text = tr(display_name) if slots == 1 else "[%d/2] %s" % [slot, tr(display_name)]
 	_refresh_weapon_card()
 
 
@@ -174,17 +182,17 @@ func _on_player_ammo_changed(magazine: int, magazine_size: int, reserve: int, re
 	if reserve >= 0:
 		_ammo_text += " +%d" % reserve
 	if reloading:
-		_ammo_text += " RLD"
+		_ammo_text += " " + tr("hud.reloading")
 	_refresh_weapon_card()
 
 
 func _on_currency_changed(crypto: int, ram_mb: int) -> void:
 	crypto_label.text = str(crypto)
-	ram_label.text = "%d MB" % ram_mb
+	ram_label.text = tr("hud.ram") % ram_mb
 
 
 func _on_wave_started(wave: int, _threat: float) -> void:
-	wave_label.text = "WAVE %d" % wave
+	wave_label.text = tr("hud.wave") % wave
 	wave_animation.stop()
 	wave_animation.play(&"banner")
 
@@ -203,11 +211,11 @@ func _set_panel(panel: Control, open: bool) -> void:
 func _refresh_shop() -> void:
 	if _station == null:
 		return
-	var labels: Array[String] = ["+1/2 heart", "+1 armor", "+1 EMP", "Refill ammo"]
+	var labels: Array[String] = ["shop.heart", "shop.armor", "shop.emp", "shop.ammo"]
 	for i: int in shop_buttons.size():
-		shop_buttons[i].text = "%s — %d Crypto" % [labels[i], _station.price(i as RepairStation.Item)]
+		shop_buttons[i].text = tr("shop.item_price") % [tr(labels[i]), _station.price(i as RepairStation.Item)]
 		shop_buttons[i].disabled = _station.purchases_left <= 0
-	shop_info.text = "%d purchases left · you have %d Crypto" % [_station.purchases_left, GameState.crypto]
+	shop_info.text = tr("shop.info") % [_station.purchases_left, GameState.crypto]
 
 
 func _buy(item: RepairStation.Item) -> void:
@@ -240,6 +248,43 @@ func _on_run_summary_requested(title: String, summary: String) -> void:
 	summary_title.text = title
 	summary_stats.text = summary
 	summary_panel.visible = true
+	salvage_amount = ceili(RunState.crypto_earned * Monetization.config.salvage_share)
+	salvage_button.text = tr("summary.salvage") % salvage_amount
+	salvage_button.disabled = false
+	salvage_button.visible = salvage_amount > 0 and Monetization.can_show_ads()
+
+
+func _on_salvage_button_pressed() -> void:
+	salvage_button.disabled = true
+	Monetization.show_rewarded(&"salvage")
+
+
+func _on_second_chance_offered() -> void:
+	second_chance_panel.visible = true
+
+
+func _on_second_chance_watch_pressed() -> void:
+	second_chance_panel.visible = false
+	EventBus.second_chance_answered.emit(true)
+
+
+func _on_second_chance_decline_pressed() -> void:
+	second_chance_panel.visible = false
+	EventBus.second_chance_answered.emit(false)
+
+
+## Salvage pays out once per summary; a failed ad leaves the button for another try.
+func _on_rewarded_ad_finished(placement: StringName, granted: bool) -> void:
+	if placement != &"salvage":
+		return
+	if not granted:
+		salvage_button.disabled = false
+		return
+	GameState.add_crypto(salvage_amount)
+	SaveManager.save_slot()
+	summary_stats.text += "\n" + tr("summary.salvaged") % salvage_amount
+	salvage_amount = 0
+	salvage_button.visible = false
 
 
 func _on_shop_opened(station: Node) -> void:
@@ -341,3 +386,8 @@ func _on_weapon_card_pressed() -> void:
 
 func _on_prompt_bubble_pressed() -> void:
 	EventBus.interact_requested.emit()
+
+
+## The pause menu's "More settings": the full settings screen (shared settings_panel.tscn).
+func _on_settings_button_pressed() -> void:
+	(%SettingsPanel as SettingsPanel).open()

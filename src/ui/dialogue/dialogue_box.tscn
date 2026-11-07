@@ -51,7 +51,7 @@ autowrap_mode = 3
 modulate = Color(1, 1, 1, 0.5)
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
-text = "tap to continue"
+text = "dialogue.hint"
 horizontal_alignment = 2
 
 [connection signal="gui_input" from="." to="." method="_on_gui_input"]

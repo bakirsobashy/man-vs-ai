@@ -22,7 +22,7 @@ func price(item: Item) -> int:
 
 
 func prompt_text() -> String:
-	return "Repair station (%d left)" % purchases_left
+	return tr("prompt.repair_station") % purchases_left
 
 
 func can_interact(_player: Player) -> bool:
@@ -36,12 +36,12 @@ func interact(_player: Player) -> void:
 ## Tries to buy one item; returns the message the HUD shows.
 func buy(item: Item, player: Player) -> String:
 	if purchases_left <= 0:
-		return "Sold out"
+		return tr("shop.sold_out")
 	var cost := price(item)
 	if GameState.crypto < cost:
-		return "Not enough Crypto"
+		return tr("shop.no_crypto")
 	if not player.apply_repair(item):
-		return "You don't need that"
+		return tr("shop.not_needed")
 	GameState.spend_crypto(cost)
 	purchases_left -= 1
-	return "Bought for %d Crypto" % cost
+	return tr("shop.bought") % cost

@@ -492,10 +492,21 @@ Then Vorn introduces the surgery chair: *"When you're ready… I can make you be
 - **Impact:** 40 ms hit-stop on kills, screen shake (can be turned off), muzzle flash, damage flash.
 - **Audio cues:** reload complete, last bullet in the magazine, cover cracking, cover broken, low hearts.
 
-### 8.5 Accessibility and settings [PROPOSED]
+### 8.5 Accessibility and settings [built in M6]
 Joystick visibility, size and opacity · swipe sensitivity presets · double-tap window · haptics · reduced screen shake
 and flashing (glitch effects included) · colorblind-safe bullet palettes · text size · subtitles for all voice ·
 language · audio sliders · 30/60 fps (battery).
+
+**Built in M6:** one settings screen, opened from the title, the pause menu and the lab, and saved at once.
+- **Audio:** music and sound-effect volumes.
+- **Controls:** show the joystick, joystick size (Small, Normal, Large), joystick opacity, roll swipe sensitivity
+  (Low, Normal, High), the double-tap window for the EMP, and the aim reticle.
+- **Feedback:** vibration, screen shake and reduced flashing.
+- **Display:** bullet colors (Default, High contrast, Color-blind safe), text size (Normal, Large), frame rate
+  (60, 30), and language.
+- **Privacy options:** an ads entry that appears where the law requires it.
+
+There's no voice acting yet (Q10), so there are no subtitles to toggle.
 
 ---
 
@@ -510,6 +521,12 @@ language · audio sliders · 30/60 fps (battery).
 - No forced or interstitial ads, no loot boxes, and no real cryptocurrency or NFTs. "Crypto" is fictional in-game money.
 - Compliance work at M6: an ad consent flow (GDPR / UMP) before any ad, the Play data-safety form, and the content-rating
   questionnaire.
+- **Decided in M6:** Second Chance is never offered against ZERO (Q9), and there's no "ad-free rewards" purchase (Q11).
+- **Built in M6:** the title screen runs the consent flow once per session; without consent, neither ad is offered.
+  After a death the game pauses on a Second Chance panel (watch, or no thanks); the Retrieved summary offers Salvage
+  once. Purchases and ads go through the `Monetization` autoload (a stub on the desktop).
+- **Built in M6:** the lab's **Shop** sells placeholder outfits, weapon skins, lab decorations and EMP styles
+  ([content.md](content.md) §8). They're equipped per save slot, and Restore purchases is in the shop.
 
 ---
 

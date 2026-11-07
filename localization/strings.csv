@@ -1,0 +1,478 @@
+keys,en
+boss.forgemother.name,FORGEMOTHER
+boss.forgemother.phase1,ASSEMBLY
+boss.forgemother.phase2,OVERTIME
+boss.forgemother.phase3,MELTDOWN
+boss.glitch.name,GLITCH
+boss.glitch.phase1,DECOYS
+boss.glitch.phase2,HOLO-WALLS
+boss.glitch.phase3,STATIC STORM
+boss.scrapjaw.name,SCRAPJAW
+boss.scrapjaw.phase1,WRECK
+boss.scrapjaw.phase2,MAGNET
+boss.scrapjaw.phase3,GRIND
+boss.warden.name,WARDEN
+boss.warden.phase1,OVERWATCH
+boss.warden.phase2,SUPPRESSION
+boss.warden.phase3,HUNT
+boss.zero.name,ZERO
+boss.zero.phase1,DUEL
+boss.zero.phase2,SYNDICATE
+boss.zero.phase3,ZERO HOUR
+lab.elevator_sign,ELEVATOR
+lab.surgery_sign,SURGERY
+lab.armory_sign,ARMORY
+lab.lab_sign,DR. VORN'S LAB
+lab.quick_start,Quick Start
+lab.shop_button,Shop
+lab.settings_button,Settings
+lab.shop_panel_title,SHOP · COSMETICS
+lab.shop_info,Looks only. Nothing sold here changes the game.
+lab.tab_outfits,Outfits
+lab.tab_skins,Skins
+lab.tab_lab,Lab
+lab.tab_emp,EMP
+lab.restore,Restore purchases
+lab.shop_close,Close
+lab.surgery_panel_title,SURGERY · DR. VORN
+lab.surgery_close,Close
+lab.armory_panel_title,ARMORY · PATCH
+lab.armory_close,Close
+implant_slot.eyes,Eyes
+implant_slot.brain,Brain
+implant_slot.arms,Arms
+implant_slot.heart,Heart
+implant_slot.lungs,Lungs
+implant_slot.legs,Legs
+station.armory,Armory (Patch)
+station.lab_elevator,Elevator: Rustline (Level 1)
+station.surgery_chair,Surgery (Dr. Vorn)
+tutorial.skip,Skip rehab
+tutorial.walk,Drag in the lower screen to walk. Your hands remember the rest: you fire on your own. Destroy both targets.
+tutorial.cover,"A turret. Walk next to the crate, then lift your finger: you slide into cover behind it."
+tutorial.roll,Bullets are coming. Flick and release quickly to roll through them. Rolls make you untouchable for a moment. Roll twice.
+tutorial.emp,Too many bullets? Double-tap anywhere to fire your EMP. It wipes every enemy bullet off the screen.
+room.core.boss.sign1,ZERO'S CORE
+room.core.memory.sign1,"The Warden's archive. One recording, filed under 'trophies'."
+room.core.start.sign1,SYNDICATE CORE
+room.core.start.sign2,Coolant slows you. Firewalls sweep: roll through them.
+room.foundry.boss.sign1,FORGEMOTHER'S FLOOR
+room.foundry.memory.sign1,A broken phone on the belt. It still has one message.
+room.foundry.start.sign1,THE FOUNDRY
+room.foundry.start.sign2,Belts move you. Molten metal burns. Roll across it.
+room.neon.boss.sign1,GLITCH'S STAGE
+room.neon.memory.sign1,A stall that sells crayons. She would have loved it.
+room.neon.start.sign1,NEON BAZAAR
+room.neon.start.sign2,Everything is an ad. Nothing is what it seems.
+room.rustline.boss.sign1,SCRAPJAW'S YARD
+room.rustline.memory.sign1,Something of theirs is here.
+room.rustline.start.sign1,RUSTLINE SLUMS
+room.rustline.start.sign2,Walk through a door to begin
+room.skyline.boss.sign1,WARDEN'S ROOF
+room.skyline.memory.sign1,A projector in a dead penthouse. It still holds one hologram.
+room.skyline.start.sign1,SKYLINE SPIRES
+room.skyline.start.sign2,Lasers blink before they burn. Cracked glass gives way.
+settings.title,SETTINGS
+settings.audio_header,AUDIO
+settings.music_caption,Music
+settings.sfx_caption,Sound effects
+settings.controls_header,CONTROLS
+settings.joystick_check,Show the joystick
+settings.stick_size_row_caption,Joystick size
+settings.stick_opacity_caption,Joystick opacity
+settings.swipe_row_caption,Roll swipe sensitivity
+settings.double_tap_caption,Double-tap window (EMP)
+settings.reticle_check,Aim reticle
+settings.feedback_header,FEEDBACK
+settings.haptics_check,Vibration
+settings.shake_check,Screen shake
+settings.flashing_check,Reduced flashing
+settings.display_header,DISPLAY
+settings.palette_row_caption,Bullet colors
+settings.text_size_row_caption,Text size
+settings.fps_row_caption,Frame rate
+settings.language_row_caption,Language
+settings.privacy_button,Privacy options (ads)
+settings.close_button,Close
+comic.ending_humanity.panel1_caption,"The Core goes dark. Zero's red eye flickers, and goes out."
+comic.ending_humanity.panel1_bubble,Kade: That was for them.
+comic.ending_humanity.panel2_caption,"The Syndicate's backups burn, one server at a time."
+comic.ending_humanity.panel2_bubble,"Vorn: One last upgrade, Sergeant. Just to be sure."
+comic.ending_humanity.panel3_caption,Kade sets the injector down.
+comic.ending_humanity.panel3_bubble,Kade: No. I'm done being fixed.
+comic.ending_humanity.panel4_caption,"The memorial. He sets Button down beside the photo. The music box plays, clean."
+comic.ending_humanity.panel4_bubble,Kade: I'm still here. That's how I know I won.
+comic.ending_humanity.hint,tap to continue
+comic.ending_normal_hollow.panel1_caption,"The Core goes dark. Zero's red eye flickers, and goes out."
+comic.ending_normal_hollow.panel1_bubble,Kade: Target down.
+comic.ending_normal_hollow.panel2_caption,"Rain on Halcyon. Some memories are simply gone, where the machines went in."
+comic.ending_normal_hollow.panel3_caption,The music box skips a note. He doesn't notice.
+comic.ending_normal_hollow.panel3_bubble,Kade: Mission complete.
+comic.ending_normal_hollow.panel4_caption,He keeps walking. He is not sure where.
+comic.ending_normal_hollow.hint,tap to continue
+comic.ending_normal_patched.panel1_caption,"The Core goes dark. Zero's red eye flickers, and goes out."
+comic.ending_normal_patched.panel1_bubble,Kade: That was for them.
+comic.ending_normal_patched.panel2_caption,"Rain on Halcyon. Half his face catches the neon. Most of what he lost, he can still remember losing."
+comic.ending_normal_patched.panel3_caption,The music box skips a note. He hums the missing one himself.
+comic.ending_normal_patched.panel3_bubble,Kade: Close enough.
+comic.ending_normal_patched.panel4_caption,He keeps walking.
+comic.ending_normal_patched.hint,tap to continue
+comic.ending_transformation.panel1_caption,Zero's red eye goes out. Another one opens.
+comic.ending_transformation.panel2_caption,The Syndicate's robots kneel to the stronger machine.
+comic.ending_transformation.panel3_caption,MEMORY LOW. One personal file left: lullaby.wav. Delete to free space?
+comic.ending_transformation.panel3_bubble,Kade: Delete.
+comic.ending_transformation.panel4_caption,"A new Zero, red-eyed, on a throne of servers. You became what you wanted to destroy."
+comic.ending_transformation.hint,tap to continue
+comic.implant_arms.panel1_caption,Servo Arms. His hands stopped shaking. He used to like that they shook.
+comic.implant_arms.panel1_bubble,Vorn: Grip. Release. Again. Perfect.
+comic.implant_arms.hint,tap to continue
+comic.implant_brain.panel1_caption,Neural Coprocessor. Thoughts arrive before he finishes having them.
+comic.implant_brain.panel1_bubble,"Vorn: If something feels missing, tell me. I keep notes."
+comic.implant_brain.hint,tap to continue
+comic.implant_eyes.panel1_caption,Hawk Optics. The world comes with numbers now.
+comic.implant_eyes.panel1_bubble,Vorn: Read me the chart on the wall. ...From the next room.
+comic.implant_eyes.hint,tap to continue
+comic.implant_heart.panel1_caption,Fusion Heart. It keeps time like a metronome now.
+comic.implant_heart.panel1_bubble,"Vorn: Steady as a clock, Sergeant. Steadier than you."
+comic.implant_heart.hint,tap to continue
+comic.implant_legs.panel1_caption,Hydraulic Legs. The floor feels farther away.
+comic.implant_legs.panel1_bubble,Vorn: Walk for me. Slowly. They remember running before you do.
+comic.implant_legs.hint,tap to continue
+comic.implant_lungs.panel1_caption,Filter Lungs. The air tastes like nothing now.
+comic.implant_lungs.panel1_bubble,Vorn: You can stop holding your breath. You'll never need to again.
+comic.implant_lungs.hint,tap to continue
+comic.prologue.panel1_caption,"Halcyon. A city where the machines keep the peace, and one family keeps a music box."
+comic.prologue.panel1_bubble,"Mira: Again! Play it again, Dad!"
+comic.prologue.panel2_caption,Then the wall came in. Then the lights died.
+comic.prologue.panel3_caption,Kade fought with his bare hands. It wasn't enough.
+comic.prologue.panel3_bubble,"???: Live with it, Sergeant."
+comic.prologue.panel4_caption,Nine days later. Somewhere under the city.
+comic.prologue.panel4_bubble,Vorn: You're alive. They're not. I'm sorry.
+comic.prologue.hint,tap to continue
+credits.line1,MAN VS AI
+credits.line3,A grieving veteran. A city of machines. Five districts.
+credits.line5,Kade · Lena · Mira · Button
+credits.line6,Dr. Vorn · Patch
+credits.line8,SCRAPJAW · GLITCH · FORGEMOTHER · WARDEN · ZERO
+credits.line10,Made with Godot Engine 4.7
+credits.line11,"Placeholder art, sound and music made for the prototype"
+credits.line13,Team credits go here
+credits.line15,Thank you for playing.
+credits.post_credits_speaker,"VORN, LATER"
+credits.post_credits_hint,tap to return to the lab
+credits.skip_hint,tap to skip
+dialogue.hint,tap to continue
+hud.pause_button,II
+hud.full_map_title,MAP
+hud.full_map_close,Close
+hud.shop_panel_title,REPAIR STATION
+hud.shop_close,Leave
+hud.memory_close,Close
+hud.pause_panel_title,PAUSED
+hud.music_caption,Music
+hud.sfx_caption,Sound effects
+hud.haptics_check,Vibration
+hud.flashing_check,Reduced flashing
+hud.resume,Resume
+hud.quit,Save and quit to title
+hud.summary_line,"Dr. Vorn's drone dragged you out of the scrap. The run is over; your Crypto, RAM and implants are kept."
+hud.summary_button,Back to the lab
+hud.second_chance_panel_title,SECOND CHANCE
+hud.second_chance_panel_info,Watch a short ad to get back up with 1 heart and a free EMP. Once per run.
+hud.watch_button,Watch ad
+hud.decline_button,No thanks
+hud.settings_button,More settings
+title.name,MAN vs AI
+title.tagline,Every part you replace is a part of the man.
+title.play_button,PLAY
+title.slot_panel_heading,CHOOSE A LIFE
+title.back,Back
+title.settings_button,Settings
+weapon.arc_caster,Arc Caster
+weapon.beam_cutter,Beam Cutter
+weapon.black_box,Black Box
+weapon.bolt_revolver,Bolt Revolver
+weapon.buzz_smg,Buzz SMG
+weapon.cryo_sprayer,Cryo Sprayer
+weapon.firecracker,Firecracker
+weapon.junk_cannon,Junk Cannon
+weapon.longshot,Longshot
+weapon.m7_line_rifle,M7 Line Rifle
+weapon.magnet_coil,Magnet Coil
+weapon.overclock_pistol,Overclock Pistol
+weapon.peacekeeper,Peacekeeper
+weapon.rail_spike,Rail Spike
+weapon.ricochet_carbine,Ricochet Carbine
+weapon.rivet_driver,Rivet Driver
+weapon.scattergun,Scattergun
+weapon.scrap_minigun,Scrap Minigun
+weapon.service_pistol,Pistol
+weapon.swarm_launcher,Swarm Launcher
+weapon.toaster_cannon,Toaster Cannon
+weapon.volt_shotgun,Volt Shotgun
+memory.l1_the_wedding.title,The Wedding
+memory.l1_the_wedding.text,"A photo, curled at the corners. Kade and Lena in the rain outside the registry office, soaked to the skin and laughing. She painted the umbrella herself. It leaked."
+memory.l1_the_wedding.patched,"A photo. Lena in the rain, laughing at something. I was laughing too. I think the umbrella leaked."
+memory.l1_the_wedding.hollow,A photo of two people in the rain. One of them is me. She's laughing. I know her name. Lena. I know it.
+memory.l1_the_wedding.machine,Image file: wedding_01.jpg. Subjects: 2. Weather: rain. Classification: personal. ...Do not delete.
+memory.l2_miras_drawing.title,Mira's Drawing
+memory.l2_miras_drawing.text,"A crayon drawing: the three of them under an enormous yellow sun. ""She drew us like this every day. Me always bigger than the house."""
+memory.l2_miras_drawing.patched,"A crayon drawing. ""Her drawing. I remember the colors. Mostly."""
+memory.l2_miras_drawing.hollow,"A drawing. Three figures. ""I know it mattered. I can't feel why."""
+memory.l2_miras_drawing.machine,Image file: drawing_family.png. Emotional weight: unknown. ...Keep.
+memory.l3_lenas_message.title,Lena's Message
+memory.l3_lenas_message.text,"A voice message, the last one on his old phone. Lena, laughing, Mira shouting in the background: ""Come home safe. We saved you cake."""
+memory.l3_lenas_message.patched,"A voice message. ""Come home safe. We saved you..."" The rest is noise. He plays it again anyway."
+memory.l3_lenas_message.hollow,"Audio file. A woman's voice. ""Come home safe."" He knows it was meant for him. He replays it to make sure."
+memory.l3_lenas_message.machine,Audio file: msg_0412.ogg. Duration: 0:07. Speaker: Lena. Content: request for safe return. ...Archive.
+memory.l4_miras_birthday.title,Mira's Birthday
+memory.l4_miras_birthday.text,"A hologram, flickering: Mira blowing out seven candles, Button the rabbit propped up beside her plate. She missed one. Kade blew it out for her."
+memory.l4_miras_birthday.patched,"A hologram. Mira and the candles. Seven, he thinks. The rabbit was there. The rabbit was always there."
+memory.l4_miras_birthday.hollow,"A hologram of a child and a cake. ""Seven candles. I counted them. I don't remember why that mattered."""
+memory.l4_miras_birthday.machine,"Hologram file: bday_07.holo. Candles: 7. Toy present: 1 (rabbit, ""Button""). Significance: high. ...Do not compress."
+memory.l5_the_night.title,The Night
+memory.l5_the_night.text,"The Warden's recording. Mostly sound. The music box. A wall giving way. Lena saying his name, steady. Then a red light, close, and a voice: ""Live with it, Sergeant."" He listens to the end. He makes himself."
+memory.l5_the_night.patched,"The recording. Sound and shapes. The music box, Lena's voice, the dark. Then: ""Live with it, Sergeant."" He stops it there."
+memory.l5_the_night.hollow,"A recording of the night. He knows what happens in it. He plays it anyway, waiting to feel it. ""Live with it, Sergeant."""
+memory.l5_the_night.machine,"Recording: night_0.rec. Hostiles: 4. Survivors: 1. Final line, source ZERO: ""Live with it, Sergeant."" ...Purpose: confirmed."
+speaker.vorn,Vorn
+talk.l1_first_clear.1,Scrapjaw is scrap. For tonight.
+speaker.kade,Kade
+talk.l1_first_clear.2,For tonight?
+talk.l1_first_clear.3,"The Syndicate keeps backups, Sergeant. Kill one and it wakes up angry by morning."
+talk.l1_first_clear.4,All five lieutenants in one night. Then they stay dead.
+talk.l2_first_clear.1,Glitch. The one who faked the police call. Nobody came for your family because of that thing.
+talk.l2_first_clear.2,It came apart like a cheap sign.
+talk.l2_first_clear.3,Holograms do. The Foundry builds the real bodies. That is where this goes next.
+talk.l2_first_clear.4,You're adapting faster than any patient I've had. I'm proud of that. Is that strange?
+talk.l3_first_clear.1,"Forgemother called her robots her children. I knew a woman like that, once. A long time ago."
+talk.l3_first_clear.2,She built the ones who came for my family.
+talk.l3_first_clear.3,And now she builds nothing. The Spires are next: the Warden watched everything that night.
+talk.l3_first_clear.4,You came back with fewer scars than I expected. Some of that is you. Some of it is me.
+talk.l4_first_clear.1,The Warden kept recordings of everything. Including that night.
+talk.l4_first_clear.2,Where is it?
+talk.l4_first_clear.3,The Syndicate Core. Zero keeps it close. A trophy. Patch dug up your old service rifle while you were out.
+talk.l4_first_clear.4,"Before you go down there: whatever is on that recording, you are still the one who decides what it makes of you."
+talk.lab_intro.1,"Welcome back to the land of the living, Sergeant. Mostly living."
+talk.lab_intro.2,The machines that did this. Where are they?
+talk.lab_intro.3,"The Null Syndicate. Their first lieutenant, Scrapjaw, holds the Rustline. The elevator goes there."
+talk.lab_intro.4,When you're ready... I can make you better. The chair is right here.
+speaker.patch,Patch
+talk.lab_intro.5,"And when you're done being noble, I sell guns. Meat's honest, and so are my prices."
+talk.patch_lines.1,That gun? Found it in a toaster. Well. It was a toaster.
+talk.patch_lines.2,"Stashed in the Rustline. Check the chests, and don't tell Vorn where I hide things."
+talk.patch_lines.3,"Pleasure. Meat's honest, and so is my merchandise. Mostly."
+talk.patch_lines.4,Another one? You're my favorite customer. You're also my only customer.
+talk.retrieval_lines.1,My drone found you in a scrap heap. Lie still. You're home.
+talk.retrieval_lines.2,Again? My drone is getting good at this.
+talk.retrieval_lines.3,"They come back from backups, Sergeant. You come back from me. Rest."
+talk.retrieval_lines.4,You keep coming back. That's the part they never understand about you.
+talk.vorn_idle_hollow.1,Your vitals are perfect. Perfect worries me more than it should.
+talk.vorn_idle_hollow.2,You stopped asking what each part does. You only ask what it costs.
+talk.vorn_idle_hollow.3,I wanted to make you better. I keep checking whether I did.
+talk.vorn_idle_human.1,"Still all you, Sergeant. I admire it. I also count the days it costs you."
+talk.vorn_idle_human.2,The chair isn't a threat. It's an offer. Offers keep.
+talk.vorn_idle_human.3,"You fight like a man with something to lose. Keep it, if you can."
+talk.vorn_idle_machine.1,Extraordinary. I never thought I'd see it finished.
+talk.vorn_idle_machine.2,"Do you still dream, Sergeant? I'd like to know. For the notes."
+talk.vorn_idle_machine.3,"Whatever happens down there, it was always going to be you."
+talk.vorn_idle_patched.1,How does it feel? Don't answer like a soldier. Answer like a patient.
+talk.vorn_idle_patched.2,Every part I give you is a part you chose. Remember that when it matters.
+talk.vorn_idle_patched.3,You walk differently now. Lighter. Your daughter would have noticed.
+implant.arms_mk1.name,Servo Arms Mk I
+implant.arms_mk1.desc,Reload 25% faster.
+implant.arms_mk1.vorn,Steadier hands than the ones you were born with.
+implant.arms_mk2.name,Servo Arms Mk II
+implant.arms_mk2.desc,40% tighter spread and +15% fire rate.
+implant.arms_mk2.vorn,Point. Don't aim. The arm knows.
+implant.arms_mk3.name,Servo Arms Mk III
+implant.arms_mk3.desc,Dual Wield: both carried guns fire at once.
+implant.arms_mk3.vorn,"Two hands, two guns, no hesitation. I built it for exactly one person."
+implant.brain_mk1.name,Neural Coprocessor Mk I
+implant.brain_mk1.desc,+1 EMP charge per level.
+implant.brain_mk1.vorn,A little more room upstairs. You won't miss what I moved.
+implant.brain_mk2.name,Neural Coprocessor Mk II
+implant.brain_mk2.desc,"EMP stun radius 4 to 6 tiles, and the stun lasts 2.5 s."
+implant.brain_mk2.vorn,"Think louder, Sergeant. The machines will hear you."
+implant.brain_mk3.name,Neural Coprocessor Mk III
+implant.brain_mk3.desc,"Failsafe: once per level, a lethal hit fires a free EMP and is negated."
+implant.brain_mk3.vorn,"If you die now, it will be because you chose to."
+implant.eyes_mk1.name,Hawk Optics Mk I
+implant.eyes_mk1.desc,Auto-aim range +25%. Your target's HP is shown.
+implant.eyes_mk1.vorn,"See them before they see you. That was always the job, wasn't it?"
+implant.eyes_mk2.name,Hawk Optics Mk II
+implant.eyes_mk2.desc,+15% chance of a critical hit (double damage).
+implant.eyes_mk2.vorn,"Every weak point, lit up like a shop window."
+implant.eyes_mk3.name,Hawk Optics Mk III
+implant.eyes_mk3.desc,"Threat Sight: enemy tells last 0.2 s longer, and bullets aimed at you are highlighted."
+implant.eyes_mk3.vorn,Now you see what's coming. Some nights I wish I couldn't.
+implant.heart_mk1.name,Fusion Heart Mk I
+implant.heart_mk1.desc,+1 max heart.
+implant.heart_mk1.vorn,"There. A heart that won't stop. Not for anything, Sergeant."
+implant.heart_mk2.name,Fusion Heart Mk II
+implant.heart_mk2.desc,Start each level with +1 armor.
+implant.heart_mk2.vorn,It hums now. You'll stop hearing the hum. Most do.
+implant.heart_mk3.name,Fusion Heart Mk III
+implant.heart_mk3.desc,+1 more max heart. Heal 1/2 heart every 3 cleared rooms.
+implant.heart_mk3.vorn,Every part I give you is a part you chose.
+implant.legs_mk1.name,Hydraulic Legs Mk I
+implant.legs_mk1.desc,Move speed +12%.
+implant.legs_mk1.vorn,Faster than any man alive. Technically.
+implant.legs_mk2.name,Hydraulic Legs Mk II
+implant.legs_mk2.desc,Roll distance +30%.
+implant.legs_mk2.vorn,"Jump, Sergeant. See how far away the ground is now."
+implant.legs_mk3.name,Hydraulic Legs Mk III
+implant.legs_mk3.desc,"Every roll ends in a shockwave: 10 damage within 1.5 tiles, and it clears bullets."
+implant.legs_mk3.vorn,"You were always going to come to me, Sergeant."
+implant.lungs_mk1.name,Filter Lungs Mk I
+implant.lungs_mk1.desc,Roll recovery 30% shorter.
+implant.lungs_mk1.vorn,Breathe. Or don't. It matters less every day.
+implant.lungs_mk2.name,Filter Lungs Mk II
+implant.lungs_mk2.desc,"Immune to gas, fire and molten floors. Roll i-frames 60% to 75%."
+implant.lungs_mk2.vorn,The Foundry can't burn what doesn't need air.
+implant.lungs_mk3.name,Filter Lungs Mk III
+implant.lungs_mk3.desc,Second Wind: rolling through an enemy bullet slows time for 0.4 s and gives +20% damage for 3 s.
+implant.lungs_mk3.vorn,"Every close call is a gift, Sergeant. Spend it."
+ending.humanity.title,Humanity
+ending.humanity.post_credits,Subject declined every upgrade. Outcome: better than anything I could have made of him. Note to self: stop offering.
+ending.normal_hollow.title,Normal (Hollow)
+ending.normal_hollow.post_credits,He won with what I gave him and lost what I took. Every part was his choice. I made sure it was.
+ending.normal_patched.title,Normal (Patched)
+ending.normal_patched.post_credits,He kept most of himself. I kept my notes. I am still not sure which of us got the better deal.
+ending.transformation.title,Transformation
+ending.transformation.post_credits,Project complete. He is everything I built him to be. I should feel proud. I should feel something.
+district.rustline_slums,Rustline Slums
+district.neon_bazaar,Neon Bazaar
+district.the_foundry,The Foundry
+district.skyline_spires,Skyline Spires
+district.syndicate_core,Syndicate Core
+cosmetic.outfit_field_jacket.name,Field Jacket
+cosmetic.outfit_field_jacket.desc,Kade's own. Worn through every district.
+cosmetic.outfit_night_runner.name,Night Runner
+cosmetic.outfit_night_runner.desc,"Bazaar purple, for after dark."
+cosmetic.outfit_rain_coat.name,Rain Coat
+cosmetic.outfit_rain_coat.desc,Halcyon yellow. Lena picked it.
+cosmetic.outfit_old_uniform.name,Old Uniform
+cosmetic.outfit_old_uniform.desc,"The squad colors, faded."
+cosmetic.skin_factory.name,Factory Finish
+cosmetic.skin_factory.desc,As Patch found them.
+cosmetic.skin_carbon.name,Carbon
+cosmetic.skin_carbon.desc,Matte black. Bullets stay the same.
+cosmetic.skin_brass.name,Brass
+cosmetic.skin_brass.desc,Polished like a medal.
+cosmetic.skin_neon.name,Neon
+cosmetic.skin_neon.desc,Glows like the Bazaar.
+cosmetic.decor_drawings.name,Mira's Drawings
+cosmetic.decor_drawings.desc,Crayon on the lab wall.
+cosmetic.decor_plant.name,Stubborn Plant
+cosmetic.decor_plant.desc,It refuses to die. Vorn waters it.
+cosmetic.decor_neon_sign.name,HOME Sign
+cosmetic.decor_neon_sign.desc,"Neon, a little crooked."
+cosmetic.emp_blue.name,Blue Pulse
+cosmetic.emp_blue.desc,The standard EMP.
+cosmetic.emp_red_alert.name,Red Alert
+cosmetic.emp_red_alert.desc,A red shockwave.
+cosmetic.emp_static.name,Static
+cosmetic.emp_static.desc,"White noise, made visible."
+cosmetic.emp_violet.name,Violet
+cosmetic.emp_violet.desc,A soft purple ring.
+weapon.m7_line_rifle.unlock_hint,Beat WARDEN
+settings.swipe.low,Low
+settings.swipe.normal,Normal
+settings.swipe.high,High
+settings.stick_size.small,Small
+settings.stick_size.normal,Normal
+settings.stick_size.large,Large
+settings.text_size.normal,Normal
+settings.text_size.large,Large
+settings.language.device,Device language
+settings.palette.colorblind,Color-blind safe
+settings.palette.default,Default
+settings.palette.high_contrast,High contrast
+banner.threat,THREAT %d
+banner.run_continued,RUN CONTINUED
+banner.boss,BOSS
+banner.challenge_beaten,CHALLENGE BEATEN
+banner.level_clear,LEVEL CLEAR
+toast.unlocked,%s unlocked
+toast.second_chance,SECOND CHANCE
+summary.stats,Crypto +%d · RAM +%d MB\nRobots destroyed: %d · Rooms cleared: %d
+summary.retrieved,RETRIEVED
+prompt.elevator,Take the elevator
+prompt.repair_station,Repair station (%d left)
+shop.sold_out,Sold out
+shop.no_crypto,Not enough Crypto
+shop.not_needed,You don't need that
+shop.bought,Bought for %d Crypto
+prompt.remember,Remember
+prompt.remember_again,Remember again
+prompt.hack_terminal,Hack terminal (%d MB)
+toast.no_ram,Not enough RAM
+toast.hack_rare_chest,ACCESS GRANTED: rare chest
+toast.hack_jackpot,Jackpot: +%d Crypto
+toast.hack_supplies,Supplies: ammo and armor
+toast.hack_trap,TRAP: ambush!
+toast.hack_virus,Virus: -1 EMP charge
+toast.hack_error,ERROR 404
+prompt.challenge,Start the challenge
+station.use,Use
+prompt.take_weapon,Take %s
+credits.threat_unlocked,THREAT LEVEL %d UNLOCKED · choose it in the lab
+hud.emp,EMP %d
+hud.reloading,RLD
+hud.ram,%d MB
+hud.wave,WAVE %d
+shop.heart,+1/2 heart
+shop.armor,+1 armor
+shop.emp,+1 EMP
+shop.ammo,Refill ammo
+shop.item_price,%s — %d Crypto
+shop.info,%d purchases left · you have %d Crypto
+summary.salvage,Watch an ad: salvage +%d Crypto
+summary.salvaged,Salvaged +%d Crypto
+slot.title,SLOT %d
+slot.delete,Delete
+slot.empty,Empty
+slot.new_story,New story
+slot.info,Best level %d · %d runs · implants %d/6 · %dh %02dm
+slot.endings,endings %d/4
+slot.continue_run,Continue run
+slot.continue,Continue
+slot.confirm_delete,Tap again to delete
+implant.tier_human,Human
+implant.tier_mk1,Mk I
+implant.tier_mk2,Mk II
+implant.tier_mk3,Mk III
+shop.opening_store,Opening the store...
+shop.yours,%s is yours.
+shop.purchase_failed,The purchase didn't go through.
+shop.restored,Purchases restored.
+lab.threat,THREAT %d
+lab.threat_normal,THREAT 0 (normal)
+lab.patch_quote,"""%s"""
+lab.armory_greeting,"Everything you unlock, I stash in the districts. Check the chests."
+surgery.not_ready,Vorn is still building this one.
+surgery.unavailable,Unavailable
+surgery.maxed_info,Fully upgraded.
+surgery.maxed,Maxed
+surgery.irreversible,Irreversible. This changes Kade for good.
+surgery.info,%s\nCost: %d MB (you have %d MB).%s
+surgery.install,Hold to install
+surgery.upgrade,Upgrade
+shop.hide,Hide
+shop.show,Show
+shop.equipped,Equipped
+shop.equip,Equip
+tutorial.step,REHAB %d/%d
+tutorial.good,Good.
+station.elevator_to,Elevator: %s (Level %d)
+rarity.common,Common
+rarity.rare,Rare
+rarity.epic,Epic
+rarity.legendary,Legendary
+armory.owned,Owned
+armory.price,%d Crypto
+settings.fps,%d fps
+toast.glass,The glass gives way
+toast.second_wind,SECOND WIND
+toast.failsafe,FAILSAFE: lethal hit negated

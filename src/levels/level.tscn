@@ -157,81 +157,97 @@ touch = NodePath("../TouchController")
 position = Vector2(-4096, -4096)
 
 [node name="PlayerBullets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("5_player_bullet")
 size = 128
 
 [node name="PlayerPellets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("6_player_pellet")
 size = 120
 
 [node name="PlayerRivets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("7_player_rivet")
 size = 64
 
 [node name="PlayerRicochets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("23_ricochet")
 size = 80
 
 [node name="PlayerHoming" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("24_homing")
 size = 64
 
 [node name="PlayerVoltPellets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("25_volt")
 size = 60
 
 [node name="PlayerLongshots" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("26_longshot")
 size = 16
 
 [node name="PlayerFirecrackers" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("27_firecracker")
 size = 64
 
 [node name="PlayerScrap" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("36_scrap_shot")
 size = 24
 
 [node name="PlayerArcs" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("37_arc")
 size = 40
 
 [node name="PlayerCryo" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("38_cryo")
 size = 80
 
 [node name="PlayerRails" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("39_rail")
 size = 8
 
 [node name="PlayerMissiles" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("41_missile")
 size = 48
 
 [node name="PlayerToast" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("42_toast")
 size = 24
 
 [node name="PlayerPeacekeeper" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("44_peacekeeper")
 size = 64
 
 [node name="PlayerBlackBox" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("4_bullet_pool")
 bullet_scene = ExtResource("45_blackbox")
 size = 6

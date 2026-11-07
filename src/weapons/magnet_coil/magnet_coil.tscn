@@ -47,7 +47,7 @@ _data = {
 
 [node name="MagnetCoil" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Magnet Coil"
+display_name = "weapon.magnet_coil"
 bullet_scene = ExtResource("2_bullet")
 damage = 5
 fire_rate = 4.0

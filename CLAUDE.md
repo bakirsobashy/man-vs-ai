@@ -81,6 +81,14 @@ godot --headless --path . --script res://tools/smoke_test_l5.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```
+```bash
+godot --headless --path . --script res://tools/smoke_test_m6.gd
+```
+After changes that could cost frame time (bullets, enemies, physics, rooms), also run the benchmark. It's
+machine-dependent, so its alarms are a regression signal (`docs/technical.md` §13):
+```bash
+godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd
+```
 Before writing physics or tool code, read the Godot 4.7 gotchas in `docs/technical.md` §1.0:
 - `Area2D` sensors keep `monitorable` on;
 - pooled areas are parked, never toggled;
@@ -98,4 +106,7 @@ If Godot isn't installed (for example in a cloud container), download the offici
 ## Conventions
 - Static typing everywhere (`untyped_declaration` warnings are on).
 - Follow the official GDScript style guide; files are snake_case, `class_name`s are PascalCase.
+- Player-facing text is a translation key in `localization/strings.csv` (keys,en), never a literal. Scene texts
+  hold keys (Godot auto-translates Labels and Buttons), data `.tres` files store keys, and code uses `tr("key")`
+  (`tr("hud.ram") % mb`). See `docs/technical.md` §10; the M6 smoke test checks it under a pseudo-locale.
 - When behavior or numbers change, keep the design docs in `docs/` in sync.

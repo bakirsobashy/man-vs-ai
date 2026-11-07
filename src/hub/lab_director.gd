@@ -48,7 +48,7 @@ func _name_elevator() -> void:
 		return
 	var number := RunState.level_number if run_in_progress() else 1
 	var next := campaign.config_for(number)
-	elevator.prompt = "Elevator: %s (Level %d)" % [next.district_name, number]
+	elevator.prompt = tr("station.elevator_to") % [tr(next.district_name), number]
 
 
 func _play_due_talks() -> void:

@@ -234,10 +234,10 @@ bus = &"SFX"
 [node name="Phases" type="Node" parent="." node_paths=PackedStringArray("state_machine", "roar")]
 script = ExtResource("29_phases")
 state_machine = NodePath("../StateMachine")
-boss_name = "WARDEN"
+boss_name = "boss.warden.name"
 thresholds = Array[float]([0.6, 0.3])
 phase_states = Array[StringName]([&"CallDrones", &"SuppressionStart", &"HuntStart"])
-phase_names = Array[String](["OVERWATCH", "SUPPRESSION", "HUNT"])
+phase_names = Array[String](["boss.warden.phase1", "boss.warden.phase2", "boss.warden.phase3"])
 roar = NodePath("../RoarSound")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]

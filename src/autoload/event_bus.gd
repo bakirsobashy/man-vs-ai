@@ -84,3 +84,29 @@ signal shop_opened(station: Node)
 signal toast_requested(text: String)
 @warning_ignore("unused_signal")
 signal banner_requested(text: String)
+
+# --- Monetization (M6): ads and purchases report back here ---
+## The consent flow finished (Monetization.gather_consent): ads may be requested only when this says so.
+@warning_ignore("unused_signal")
+signal consent_resolved(can_request_ads: bool)
+## A rewarded ad closed. `granted` is true only when the viewer earned the reward.
+@warning_ignore("unused_signal")
+signal rewarded_ad_finished(placement: StringName, granted: bool)
+## A purchase flow ended (success: the product is now owned).
+@warning_ignore("unused_signal")
+signal purchase_finished(product_id: StringName, success: bool)
+## Owned products were re-read from the store (Restore purchases, or the store connecting).
+@warning_ignore("unused_signal")
+signal purchases_restored
+## The hero died and Second Chance can be offered (the HUD shows its panel; the game is paused).
+@warning_ignore("unused_signal")
+signal second_chance_offered
+## The player answered the Second Chance panel.
+@warning_ignore("unused_signal")
+signal second_chance_answered(accepted: bool)
+## Equipped cosmetics or visible lab decorations changed (the hero, guns, EMP and lab re-tint).
+@warning_ignore("unused_signal")
+signal cosmetics_changed
+## The player changed a setting (SaveManager.apply_settings): palettes, text size and the like re-apply.
+@warning_ignore("unused_signal")
+signal settings_changed

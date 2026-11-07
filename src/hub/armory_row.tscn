@@ -10,17 +10,20 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Gun"
+autowrap_mode = 3
 
 [node name="RarityLabel" type="Label" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 text = "Common"
+autowrap_mode = 3
 
 [node name="BuyButton" type="Button" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 text = "60 Crypto"
+autowrap_mode = 3
 
 [connection signal="pressed" from="BuyButton" to="." method="_on_buy_button_pressed"]

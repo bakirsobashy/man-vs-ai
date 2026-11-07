@@ -15,7 +15,7 @@ func _ready() -> void:
 
 
 func prompt_text() -> String:
-	return "Take %s" % weapon().display_name if weapon() != null else ""
+	return tr("prompt.take_weapon") % tr(weapon().display_name) if weapon() != null else ""
 
 
 func can_interact(_player: Player) -> bool:

@@ -47,7 +47,7 @@ _data = {
 
 [node name="Peacekeeper" type="Node2D"]
 script = ExtResource("1_weapon")
-display_name = "Peacekeeper"
+display_name = "weapon.peacekeeper"
 bullet_scene = ExtResource("2_bullet")
 damage = 8
 fire_rate = 8.0

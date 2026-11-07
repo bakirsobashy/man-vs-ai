@@ -16,6 +16,20 @@ var sfx_volume := 1.0
 var haptics := true
 ## Tones down screen flashes and glitches (GDD §8.5).
 var reduced_flashing := false
+## M6 settings and accessibility (GDD §3.5, §8.5). Index fields pick from SettingsOptions' lists.
+var show_joystick := true
+var stick_size := 1
+var stick_opacity := 0.8
+var swipe_sensitivity := 1
+var double_tap_window := 0.3
+var show_reticle := true
+var screen_shake := true
+var bullet_palette := 0
+var text_size := 0
+var fps_cap := 0
+## A locale code ("en"); empty = the device language.
+var language := ""
+var options: SettingsOptions = preload("res://data/settings/settings_options.tres")
 
 
 func _ready() -> void:
@@ -133,15 +147,45 @@ func load_settings() -> void:
 	sfx_volume = clampf(float(config.get_value("audio", "sfx", sfx_volume)), 0.0, 1.0)
 	haptics = bool(config.get_value("feedback", "haptics", haptics))
 	reduced_flashing = bool(config.get_value("accessibility", "reduced_flashing", reduced_flashing))
+	show_joystick = bool(config.get_value("controls", "show_joystick", show_joystick))
+	stick_size = clampi(int(config.get_value("controls", "stick_size", stick_size)), 0, options.stick_radii.size() - 1)
+	stick_opacity = clampf(float(config.get_value("controls", "stick_opacity", stick_opacity)), 0.2, 1.0)
+	swipe_sensitivity = clampi(int(config.get_value("controls", "swipe_sensitivity", swipe_sensitivity)), 0, options.swipe_presets.size() - 1)
+	double_tap_window = clampf(float(config.get_value("controls", "double_tap_window", double_tap_window)), 0.2, 0.5)
+	show_reticle = bool(config.get_value("controls", "show_reticle", show_reticle))
+	screen_shake = bool(config.get_value("feedback", "screen_shake", screen_shake))
+	bullet_palette = clampi(int(config.get_value("accessibility", "bullet_palette", bullet_palette)), 0, options.palettes.size() - 1)
+	text_size = clampi(int(config.get_value("accessibility", "text_size", text_size)), 0, options.text_scales.size() - 1)
+	fps_cap = clampi(int(config.get_value("display", "fps_cap", fps_cap)), 0, options.fps_caps.size() - 1)
+	language = str(config.get_value("display", "language", language))
 
 
-## Sets the Music and SFX bus volumes (default_bus_layout.tres) from the settings.
+## Applies every setting: bus volumes (default_bus_layout.tres), the shared controls tuning (joystick, swipe preset,
+## double-tap window), the frame-rate cap and the language. Everything else reads its setting when it needs it,
+## and EventBus.settings_changed tells the palettes and text scalers to re-apply.
 func apply_settings() -> void:
 	for bus: String in ["Music", "SFX"]:
 		var index := AudioServer.get_bus_index(bus)
 		if index >= 0:
 			var volume := music_volume if bus == "Music" else sfx_volume
 			AudioServer.set_bus_volume_db(index, linear_to_db(maxf(volume, 0.0001)))
+	var tuning := options.tuning
+	tuning.show_joystick = show_joystick
+	tuning.stick_radius = options.stick_radii[stick_size]
+	tuning.double_tap_window = double_tap_window
+	if swipe_sensitivity < options.swipe_presets.size():
+		options.swipe_presets[swipe_sensitivity].apply_to(tuning)
+	Engine.max_fps = options.fps_caps[fps_cap]
+	TranslationServer.set_locale(language if language != "" else OS.get_locale_language())
+	EventBus.settings_changed.emit()
+
+
+func palette() -> BulletPalette:
+	return options.palettes[bullet_palette] if bullet_palette < options.palettes.size() else null
+
+
+func text_scale() -> float:
+	return options.text_scales[text_size] if text_size < options.text_scales.size() else 1.0
 
 
 func save_settings() -> void:
@@ -150,6 +194,17 @@ func save_settings() -> void:
 	config.set_value("audio", "sfx", sfx_volume)
 	config.set_value("feedback", "haptics", haptics)
 	config.set_value("accessibility", "reduced_flashing", reduced_flashing)
+	config.set_value("controls", "show_joystick", show_joystick)
+	config.set_value("controls", "stick_size", stick_size)
+	config.set_value("controls", "stick_opacity", stick_opacity)
+	config.set_value("controls", "swipe_sensitivity", swipe_sensitivity)
+	config.set_value("controls", "double_tap_window", double_tap_window)
+	config.set_value("controls", "show_reticle", show_reticle)
+	config.set_value("feedback", "screen_shake", screen_shake)
+	config.set_value("accessibility", "bullet_palette", bullet_palette)
+	config.set_value("accessibility", "text_size", text_size)
+	config.set_value("display", "fps_cap", fps_cap)
+	config.set_value("display", "language", language)
 	config.save(save_dir.path_join("settings.cfg"))
 
 

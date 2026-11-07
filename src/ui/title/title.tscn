@@ -1,5 +1,7 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://src/settings/settings_panel.tscn" id="97_settings"]
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/ui/title/title.gd" id="1_title"]
 [ext_resource type="PackedScene" path="res://src/ui/title/slot_card.tscn" id="2_card"]
 [ext_resource type="Script" path="res://src/components/music_cue.gd" id="91_music_cue"]
@@ -46,7 +48,9 @@ anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
+offset_left = 16.0
 offset_top = -150.0
+offset_right = -16.0
 offset_bottom = 60.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -56,13 +60,13 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.35, 0.3, 1)
 theme_override_font_sizes/font_size = 40
-text = "MAN vs AI"
+text = "title.name"
 horizontal_alignment = 1
 
 [node name="Tagline" type="Label" parent="Logo"]
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-text = "Every part you replace is a part of the man."
+text = "title.tagline"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -80,9 +84,11 @@ offset_bottom = -150.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_font_sizes/font_size = 18
-text = "PLAY"
+text = "title.play_button"
 
 [node name="Version" type="Label" parent="."]
+auto_translate_mode = 2
+unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.4)
 layout_mode = 1
 anchors_preset = 3
@@ -120,7 +126,7 @@ theme_override_constants/separation = 10
 [node name="Heading" type="Label" parent="SlotPanel/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "CHOOSE A LIFE"
+text = "title.slot_panel_heading"
 horizontal_alignment = 1
 
 [node name="Slot1" parent="SlotPanel/VBox" instance=ExtResource("2_card")]
@@ -141,11 +147,34 @@ slot = 3
 [node name="Back" type="Button" parent="SlotPanel/VBox"]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "Back"
+text = "title.back"
 
 [node name="MusicCue" type="Node" parent="."]
 script = ExtResource("91_music_cue")
 stream = ExtResource("92_lab_theme")
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_ui")
+base_size = 12
+
+[node name="SettingsButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -110.0
+offset_right = 70.0
+offset_bottom = -78.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "title.settings_button"
+
+[node name="SettingsPanel" parent="." instance=ExtResource("97_settings")]
+unique_name_in_owner = true
 
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_pressed"]
 [connection signal="pressed" from="SlotPanel/VBox/Back" to="." method="_on_back_pressed"]
@@ -155,3 +184,4 @@ stream = ExtResource("92_lab_theme")
 [connection signal="delete_requested" from="SlotPanel/VBox/Slot2" to="." method="_on_slot_delete_requested"]
 [connection signal="chosen" from="SlotPanel/VBox/Slot3" to="." method="_on_slot_chosen"]
 [connection signal="delete_requested" from="SlotPanel/VBox/Slot3" to="." method="_on_slot_delete_requested"]
+[connection signal="pressed" from="SettingsButton" to="." method="_on_settings_button_pressed"]

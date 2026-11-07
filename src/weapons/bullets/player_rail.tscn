@@ -7,6 +7,7 @@
 radius = 2.0
 
 [node name="PlayerRail" type="Area2D"]
+use_parent_material = true
 collision_layer = 16
 collision_mask = 1027
 script = ExtResource("1_bullet")
@@ -21,6 +22,7 @@ pierce_cover = true
 shape = SubResource("CircleShape2D_bullet")
 
 [node name="Sprite" type="Sprite2D" parent="."]
+use_parent_material = true
 texture = ExtResource("2_sprite")
 
 [node name="ScreenNotifier" type="VisibleOnScreenNotifier2D" parent="."]

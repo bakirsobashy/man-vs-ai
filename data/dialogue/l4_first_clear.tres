@@ -5,23 +5,23 @@
 
 [sub_resource type="Resource" id="Resource_line0"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "The Warden kept recordings of everything. Including that night."
+speaker = "speaker.vorn"
+text = "talk.l4_first_clear.1"
 
 [sub_resource type="Resource" id="Resource_line1"]
 script = ExtResource("2_line")
-speaker = "Kade"
-text = "Where is it?"
+speaker = "speaker.kade"
+text = "talk.l4_first_clear.2"
 
 [sub_resource type="Resource" id="Resource_line2"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "The Syndicate Core. Zero keeps it close. A trophy. Patch dug up your old service rifle while you were out."
+speaker = "speaker.vorn"
+text = "talk.l4_first_clear.3"
 
 [sub_resource type="Resource" id="Resource_line3"]
 script = ExtResource("2_line")
-speaker = "Vorn"
-text = "Before you go down there: whatever is on that recording, you are still the one who decides what it makes of you."
+speaker = "speaker.vorn"
+text = "talk.l4_first_clear.4"
 
 [resource]
 script = ExtResource("1_conversation")

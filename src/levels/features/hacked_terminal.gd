@@ -24,7 +24,7 @@ func cost() -> int:
 
 
 func prompt_text() -> String:
-	return "Hack terminal (%d MB)" % cost()
+	return tr("prompt.hack_terminal") % cost()
 
 
 func can_interact(_player: Player) -> bool:
@@ -33,7 +33,7 @@ func can_interact(_player: Player) -> bool:
 
 func interact(player: Player) -> void:
 	if not GameState.spend_ram(cost()):
-		EventBus.toast_requested.emit("Not enough RAM")
+		EventBus.toast_requested.emit(tr("toast.no_ram"))
 		return
 	used = true
 	sprite.frame = 1
@@ -41,23 +41,23 @@ func interact(player: Player) -> void:
 	match outcome:
 		Outcome.RARE_CHEST:
 			EventBus.reward_chest_requested.emit(drop_spot.global_position)
-			EventBus.toast_requested.emit("ACCESS GRANTED: rare chest")
+			EventBus.toast_requested.emit(tr("toast.hack_rare_chest"))
 		Outcome.CRYPTO_JACKPOT:
 			GameState.add_crypto(jackpot_per_level * RunState.level_number)
-			EventBus.toast_requested.emit("Jackpot: +%d Crypto" % (jackpot_per_level * RunState.level_number))
+			EventBus.toast_requested.emit(tr("toast.hack_jackpot") % (jackpot_per_level * RunState.level_number))
 		Outcome.SUPPLIES:
 			player.apply_repair(RepairStation.Item.AMMO)
 			player.apply_repair(RepairStation.Item.ARMOR)
-			EventBus.toast_requested.emit("Supplies: ammo and armor")
+			EventBus.toast_requested.emit(tr("toast.hack_supplies"))
 		Outcome.AMBUSH:
-			EventBus.toast_requested.emit("TRAP: ambush!")
+			EventBus.toast_requested.emit(tr("toast.hack_trap"))
 			EventBus.ambush_requested.emit()
 		Outcome.VIRUS:
 			player.emp_charges = maxi(player.emp_charges - 1, 0)
 			EventBus.player_emp_changed.emit(player.emp_charges)
-			EventBus.toast_requested.emit("Virus: -1 EMP charge")
+			EventBus.toast_requested.emit(tr("toast.hack_virus"))
 		_:
-			EventBus.toast_requested.emit("ERROR 404")
+			EventBus.toast_requested.emit(tr("toast.hack_error"))
 
 
 func _roll() -> int:

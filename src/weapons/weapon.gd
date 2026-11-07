@@ -155,6 +155,14 @@ func _emit(aim: Vector2) -> void:
 		_pool.spawn(muzzle.global_position, aim.rotated(angle), _roll_damage())
 
 
+## A weapon skin (cosmetic): tints the gun's Sprite only. Bullets, muzzle flash and the silhouette never change
+## (GDD §9: readability).
+func apply_skin(tint: Color) -> void:
+	var sprite := get_node_or_null(^"Sprite") as CanvasItem
+	if sprite != null:
+		sprite.self_modulate = tint
+
+
 ## Shots per second right now (the Overclock Pistol's ramp included).
 func current_fire_rate() -> float:
 	if ramp_fire_rate <= fire_rate:

@@ -32,8 +32,8 @@ func _on_roll_finished() -> void:
 	vorn_line.text = ""
 	for ending: EndingData in endings:
 		if ending.id == GameState.last_ending:
-			vorn_line.text = ending.post_credits
-	unlock_label.text = "THREAT LEVEL %d UNLOCKED · choose it in the lab" % GameState.threat_unlocked if GameState.threat_unlocked > 0 else ""
+			vorn_line.text = tr(ending.post_credits)
+	unlock_label.text = tr("credits.threat_unlocked") % GameState.threat_unlocked if GameState.threat_unlocked > 0 else ""
 	post_credits.visible = true
 	skip_hint.visible = false
 

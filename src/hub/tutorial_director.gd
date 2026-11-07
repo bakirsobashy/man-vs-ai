@@ -39,8 +39,8 @@ func next_step() -> void:
 		return
 	current = steps_root.get_child(_index) as TutorialStep
 	current.set_active(true)
-	step_label.text = "REHAB %d/%d" % [_index + 1, step_count()]
-	instruction_label.text = current.instruction
+	step_label.text = tr("tutorial.step") % [_index + 1, step_count()]
+	instruction_label.text = tr(current.instruction)
 
 
 ## Marks the tutorial done and goes to the lab (also the Skip button).
@@ -58,7 +58,7 @@ func _count(goal: TutorialStep.Goal) -> void:
 		return
 	progress += 1
 	if progress >= current.count:
-		instruction_label.text = "Good."
+		instruction_label.text = tr("tutorial.good")
 		step_timer.start()
 
 

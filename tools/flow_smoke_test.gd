@@ -183,7 +183,10 @@ func _test_death() -> void:
 	player.health.take_hit(99)
 	await _wait(1.6)
 	var hud := get_tree().current_scene.get_node(^"HUD") as Hud
-	_check(hud.summary_panel.visible and hud.summary_title.text == "RETRIEVED", "dying shows the Retrieved summary")
+	_check(hud.second_chance_panel.visible and get_tree().paused, "after consent at the title, dying first offers Second Chance (paused)")
+	hud._on_second_chance_decline_pressed()
+	await _wait(0.2)
+	_check(not get_tree().paused and hud.summary_panel.visible and hud.summary_title.text == "RETRIEVED", "declining it shows the Retrieved summary")
 	_check(GameState.stat("deaths") == deaths + 1 and not SaveManager.has_run(1) and not RunState.active,
 		"the run ends: it can't be continued, and the death is counted")
 	hud._on_summary_button_pressed()
@@ -211,13 +214,17 @@ func _test_boss_elevator() -> void:
 	await _wait(1.0)
 	director = get_tree().current_scene.get_node(^"LevelDirector") as LevelDirector
 	player = get_tree().current_scene.get_node(^"Player") as Player
-	_check(_scene_name() == "Level" and director.config.level_number == 2 and director.config.district_name == "Neon Bazaar",
+	_check(_scene_name() == "Level" and director.config.level_number == 2 and director.config.district_name == "district.neon_bazaar",
 		"the elevator starts Level 2")
 	_check(player.health.hp == hp, "the hero keeps the hearts from Level 1 (%d)" % player.health.hp)
 	player.health.invuln_timer.stop()
 	player.health.take_hit(99)
 	await _wait(1.6)
-	(get_tree().current_scene.get_node(^"HUD") as Hud)._on_summary_button_pressed()
+	var level_hud := get_tree().current_scene.get_node(^"HUD") as Hud
+	if level_hud.second_chance_panel.visible:
+		level_hud._on_second_chance_decline_pressed()
+		await _wait(0.2)
+	level_hud._on_summary_button_pressed()
 	await _wait(1.0)
 	_check(_scene_name() == "Lab" and not RunState.active and (get_tree().current_scene.get_node(^"LabDirector") as LabDirector).elevator.prompt.contains("Level 1"),
 		"dying in Level 2 ends the run: the next one starts at Level 1")

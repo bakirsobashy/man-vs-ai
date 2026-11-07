@@ -1,0 +1,35 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/autoload/monetization.gd" id="1_monetization"]
+[ext_resource type="Resource" path="res://data/monetization/monetization.tres" id="2_config"]
+[ext_resource type="Script" path="res://src/monetization/stub_monetization.gd" id="3_stub"]
+[ext_resource type="Script" path="res://src/monetization/android_ads.gd" id="4_ads"]
+[ext_resource type="Script" path="res://src/monetization/android_billing.gd" id="5_billing"]
+[ext_resource type="Resource" path="res://data/cosmetics/catalog.tres" id="80_cosmetics"]
+
+[node name="Monetization" type="Node"]
+process_mode = 3
+script = ExtResource("1_monetization")
+config = ExtResource("2_config")
+cosmetic_catalog = ExtResource("80_cosmetics")
+
+[node name="Stub" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_stub")
+
+[node name="AndroidAds" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_ads")
+
+[node name="AndroidBilling" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("5_billing")
+
+[connection signal="consent_resolved" from="Stub" to="." method="_on_consent_resolved"]
+[connection signal="rewarded_finished" from="Stub" to="." method="_on_rewarded_finished"]
+[connection signal="purchase_finished" from="Stub" to="." method="_on_purchase_finished"]
+[connection signal="restored" from="Stub" to="." method="_on_restored"]
+[connection signal="consent_resolved" from="AndroidAds" to="." method="_on_consent_resolved"]
+[connection signal="rewarded_finished" from="AndroidAds" to="." method="_on_rewarded_finished"]
+[connection signal="purchase_finished" from="AndroidBilling" to="." method="_on_purchase_finished"]
+[connection signal="restored" from="AndroidBilling" to="." method="_on_restored"]

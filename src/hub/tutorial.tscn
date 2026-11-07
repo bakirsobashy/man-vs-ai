@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://src/components/text_scaler.gd" id="96_text_scaler"]
 [ext_resource type="Script" path="res://src/hub/tutorial_director.gd" id="1_director"]
 [ext_resource type="TileSet" path="res://src/levels/rooms/greybox_tiles.tres" id="2_tiles"]
 [ext_resource type="PackedScene" path="res://src/player/player.tscn" id="3_player"]
@@ -62,7 +63,7 @@ position = Vector2(280, 420)
 
 [node name="Walk" type="Node2D" parent="Steps"]
 script = ExtResource("11_step")
-instruction = "Drag in the lower screen to walk. Your hands remember the rest: you fire on your own. Destroy both targets."
+instruction = "tutorial.walk"
 goal = 0
 count = 2
 
@@ -74,7 +75,7 @@ position = Vector2(240, 200)
 
 [node name="Cover" type="Node2D" parent="Steps"]
 script = ExtResource("11_step")
-instruction = "A turret. Walk next to the crate, then lift your finger: you slide into cover behind it."
+instruction = "tutorial.cover"
 goal = 1
 count = 1
 
@@ -83,7 +84,7 @@ position = Vector2(176, 120)
 
 [node name="Roll" type="Node2D" parent="Steps"]
 script = ExtResource("11_step")
-instruction = "Bullets are coming. Flick and release quickly to roll through them. Rolls make you untouchable for a moment. Roll twice."
+instruction = "tutorial.roll"
 goal = 2
 count = 2
 
@@ -92,7 +93,7 @@ position = Vector2(176, 140)
 
 [node name="Emp" type="Node2D" parent="Steps"]
 script = ExtResource("11_step")
-instruction = "Too many bullets? Double-tap anywhere to fire your EMP. It wipes every enemy bullet off the screen."
+instruction = "tutorial.emp"
 goal = 3
 count = 1
 
@@ -117,6 +118,7 @@ respawn_point = NodePath("../PlayerStart")
 position = Vector2(-4096, -4096)
 
 [node name="PlayerBullets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("8_pool")
 bullet_scene = ExtResource("9_player_bullet")
 size = 64
@@ -188,7 +190,7 @@ offset_right = -8.0
 offset_bottom = 84.0
 grow_horizontal = 0
 theme = SubResource("Theme_ui")
-text = "Skip rehab"
+text = "tutorial.skip"
 
 [node name="TutorialDirector" type="Node" parent="." node_paths=PackedStringArray("steps_root", "step_label", "instruction_label", "step_timer")]
 script = ExtResource("1_director")
@@ -204,6 +206,11 @@ one_shot = true
 [node name="MusicCue" type="Node" parent="."]
 script = ExtResource("91_music_cue")
 stream = ExtResource("92_lab_theme")
+
+[node name="TextScaler" type="Node" parent="."]
+script = ExtResource("96_text_scaler")
+theme = SubResource("Theme_ui")
+base_size = 12
 
 [connection signal="touch_started" from="TouchController" to="Player" method="_on_touch_started"]
 [connection signal="rolled" from="TouchController" to="Player" method="_on_touch_rolled"]

@@ -40,6 +40,8 @@ func snap() -> void:
 
 
 func _on_screen_shake_requested(strength: float) -> void:
+	if not SaveManager.screen_shake:
+		return
 	_trauma = clampf(_trauma + strength, 0.0, 1.0)
 
 

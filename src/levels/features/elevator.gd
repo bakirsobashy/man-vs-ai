@@ -11,7 +11,7 @@ func reveal() -> void:
 
 
 func prompt_text() -> String:
-	return "Take the elevator"
+	return tr("prompt.elevator")
 
 
 func can_interact(_player: Player) -> bool:

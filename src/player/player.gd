@@ -46,6 +46,8 @@ extends CharacterBody2D
 @export_range(0.0, 1.0, 0.05) var ammo_pickup_share := 0.25
 ## Copied to put a dropped gun on the floor.
 @export var weapon_pickup_scene: PackedScene
+## Cosmetics (M6): weapon skins tint the guns, EMP styles tint the EMP wave.
+@export var cosmetic_catalog: CosmeticCatalog
 
 @export_group("Feedback")
 ## Vibrate on hits, rolls, cover and EMP (Android needs the VIBRATE permission in the export preset).
@@ -95,6 +97,7 @@ extends CharacterBody2D
 @onready var body_animation: AnimationPlayer = %BodyAnimation
 @onready var flash_animation: AnimationPlayer = %FlashAnimation
 @onready var emp_animation: AnimationPlayer = %EmpAnimation
+@onready var emp_wave: CanvasItem = %EmpWave
 @onready var roll_shockwave: Area2D = %RollShockwave
 @onready var shockwave_animation: AnimationPlayer = %ShockwaveAnimation
 @onready var target_hp: ProgressBar = %TargetHp
@@ -176,7 +179,9 @@ func _ready() -> void:
 	EventBus.interact_requested.connect(interact)
 	EventBus.implants_changed.connect(apply_implants)
 	EventBus.room_cleared.connect(_on_room_cleared)
+	EventBus.cosmetics_changed.connect(apply_cosmetics)
 	apply_implants()
+	apply_cosmetics()
 	health.reset()
 	_announce.call_deferred()
 
@@ -334,7 +339,7 @@ func update_aim(move_direction: Vector2) -> void:
 	if target != null:
 		gun_pivot.rotation = (target.global_position - gun_pivot.global_position).angle()
 		reticle.global_position = target.global_position
-		reticle.visible = true
+		reticle.visible = SaveManager.show_reticle
 		var enemy := target as Enemy
 		target_hp.visible = show_target_hp and enemy != null
 		if target_hp.visible:
@@ -367,6 +372,7 @@ func _off_hand() -> Weapon:
 
 ## Implant multipliers on one gun.
 func _tune(gun: Weapon) -> void:
+	gun.apply_skin(_skin_tint())
 	gun.crit_chance = crit_chance
 	gun.set_range_scale(aim_range_scale)
 	gun.spread_scale = spread_scale
@@ -465,7 +471,7 @@ func fall_to(spot: Vector2, amount: int) -> void:
 	if state_machine.is_in(&"Dead"):
 		return
 	global_position = spot
-	EventBus.toast_requested.emit("The glass gives way")
+	EventBus.toast_requested.emit(tr("toast.glass"))
 	if not health.is_invulnerable():
 		_hurt(amount)
 	if not state_machine.is_in(&"Dead"):
@@ -510,7 +516,7 @@ func _trigger_second_wind() -> void:
 	for gun: Weapon in [primary, secondary]:
 		if gun != null:
 			gun.damage_scale = 1.2
-	EventBus.toast_requested.emit("SECOND WIND")
+	EventBus.toast_requested.emit(tr("toast.second_wind"))
 
 
 func _on_slow_mo_timer_timeout() -> void:
@@ -535,7 +541,7 @@ func _hurt(amount: int) -> void:
 		failsafe_ready = false
 		emp_charges += 1
 		fire_emp()
-		EventBus.toast_requested.emit("FAILSAFE: lethal hit negated")
+		EventBus.toast_requested.emit(tr("toast.failsafe"))
 		return
 	health.take_hit(amount)
 
@@ -562,6 +568,34 @@ func fire_emp() -> void:
 	haptic(haptic_emp_ms)
 	EventBus.screen_shake_requested.emit(0.4)
 	EventBus.player_emp_changed.emit(emp_charges)
+
+
+## Equipped cosmetics: the weapon skin on both guns and the EMP style on the EMP wave (looks only).
+func apply_cosmetics() -> void:
+	for gun: Weapon in [primary, secondary]:
+		if gun != null:
+			gun.apply_skin(_skin_tint())
+	var style := cosmetic_catalog.equipped(CosmeticData.Kind.EMP_STYLE) if cosmetic_catalog != null else null
+	emp_wave.self_modulate = style.tint if style != null else Color.WHITE
+
+
+func _skin_tint() -> Color:
+	var skin := cosmetic_catalog.equipped(CosmeticData.Kind.WEAPON_SKIN) if cosmetic_catalog != null else null
+	return skin.tint if skin != null else Color.WHITE
+
+
+## Second Chance (a rewarded ad): back on his feet with `hp` half-hearts and no armor, briefly invulnerable, and a
+## free EMP clears the bullets and stuns the robots around him.
+func revive_second_chance(hp: int) -> void:
+	health.hp = clampi(hp, 1, health.max_hp)
+	health.armor = 0
+	health.changed.emit(health.hp, health.max_hp, health.armor, false)
+	flash_animation.play(&"RESET")
+	state_machine.transition_to(&"Stand")
+	health.invuln_timer.start()
+	emp_charges += 1
+	fire_emp()
+	_announce()
 
 
 func haptic(duration_ms: int) -> void:
