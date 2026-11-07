@@ -67,7 +67,7 @@
 | R6 | Outfits × implant overlays multiply the art cost | Outfits change only the base and clothing layers; overlays draw above outfits; limit the number of outfits |
 | R7 | The thumb hides part of the portrait screen | Hero anchored at ~45%, off-screen arrows, joystick-zone tests |
 | R8 | Android system gestures steal swipes | 16 px edge margins; immersive mode |
-| R9 | Bullet performance on low-end phones | Pooled bullet scenes from day one, node-friendly optimizations ([technical.md](technical.md) §6.2), a cap of 300 bullets. A node-less bullet system only with the owner's approval |
+| R9 | Bullet performance on low-end phones | Pooled bullet scenes from day one, node-friendly optimizations ([technical.md](technical.md) §6.2), a cap of 300 bullets. A node-less bullet system only with the owner's approval. **M6:** the benchmark measures 1.1–1.4 ms of logic per frame at the worst case on desktop; the low-end phone check is an owner step ([release/android_build.md](release/android_build.md)) |
 | R10 | A child's death is a sensitive subject (store rating, players) | Always implied, never shown; rating questionnaire at M6 |
 | R11 | Scope for a small team (5 districts, 5 bosses, 21 weapons, 18 overlays) | Vertical-slice gate at M4; some content (weapons, outfits) can ship in post-launch updates |
 | R12 | Implants can't be undone on a save | Hold-to-confirm, a clear warning, and 3 save slots |

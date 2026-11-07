@@ -84,6 +84,11 @@ godot --headless --path . --script res://tools/smoke_test_endings.gd
 ```bash
 godot --headless --path . --script res://tools/smoke_test_m6.gd
 ```
+After changes that could cost frame time (bullets, enemies, physics, rooms), also run the benchmark. It's
+machine-dependent, so its alarms are a regression signal (`docs/technical.md` §13):
+```bash
+godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd
+```
 Before writing physics or tool code, read the Godot 4.7 gotchas in `docs/technical.md` §1.0:
 - `Area2D` sensors keep `monitorable` on;
 - pooled areas are parked, never toggled;

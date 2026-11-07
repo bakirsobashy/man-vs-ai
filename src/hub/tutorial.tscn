@@ -118,6 +118,7 @@ respawn_point = NodePath("../PlayerStart")
 position = Vector2(-4096, -4096)
 
 [node name="PlayerBullets" type="Node2D" parent="BulletPools" groups=["bullet_pools"]]
+position = Vector2(0, 2048)
 script = ExtResource("8_pool")
 bullet_scene = ExtResource("9_player_bullet")
 size = 64

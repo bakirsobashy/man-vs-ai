@@ -8,3 +8,6 @@
 
 # Translations are imported from localization/strings.csv
 localization/*.translation
+
+# Export output (export_presets.cfg writes here); keystores and passwords live outside the repository
+/build/

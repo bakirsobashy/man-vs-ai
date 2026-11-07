@@ -230,7 +230,7 @@ audio layers are left.**
 - No blocker bugs.
 
 ## M6: Release
-**Status: in progress.**
+**Status: built; the owner steps for launch remain.**
 - **Owner decisions:**
   - ads and billing get a tested stub plus Android bridges, which need a device build to test;
   - Second Chance isn't offered against ZERO (Q9);
@@ -253,8 +253,28 @@ audio layers are left.**
   - The test caught three layout problems, now fixed: the armory rows were too wide; the lab's buttons drew over its
     panels; the title tagline had no side margins.
   - The title shows the app version (0.6.0).
+- **Built so far: performance.**
+  - A headless benchmark (`tools/benchmark.gd`) plays every level at the worst case: 300 enemy bullets and 15 robots.
+  - It costs 1.1–1.4 ms of logic per frame (median) on the development machine. Room entries take 3–6 ms, with no
+    leaks.
+  - Parked Black Box bullets were pairing with every parked enemy bullet. Parking the player pools apart cut
+    collision pairs from about 3,200 to about 200.
+- **Built so far: release material.**
+  - The Android export preset: AAB, arm64, Gradle, immersive, target SDK 36.
+  - Release docs in [release/](release/README.md):
+    - build and signing;
+    - device performance checks;
+    - privacy policy draft;
+    - Data safety and content rating answers;
+    - store listing texts;
+    - the testing-track checklist.
 - The M6 smoke test passes 63/63.
-- **Next:** performance, then the Play Console material.
+- **Owner steps left:**
+  - accounts, plugins, signing keys and the package name;
+  - the device tests: the 30/60 fps checks, the ad and billing bridges;
+  - the closed test (12 testers × 14 days for new personal accounts);
+  - the final title (Q3) and launch languages (Q12);
+  - then launch.
 
 **Scope**
 - Rewarded ads (Second Chance, Salvage bonus) with the consent flow.

@@ -571,6 +571,11 @@ The hero is `player.tscn` (tree in §0.8): a `CharacterBody2D` whose states are 
 - **Who detects what:** hurtboxes monitor the bullet layers; bullets only watch for walls and cover (`body_entered`).
 - **Idle bullets are parked, not switched off.** A despawned bullet is hidden, stops processing, and moves back to its
   pool node's position, which the level places far outside the playfield. Physics flags are never toggled (§1.0).
+- **Player and enemy pools park apart (M6).** The player pools sit 2048 px below the enemy pools (`position` on
+  each `Player*` pool node). Parked areas still pair in the physics broadphase when one's mask matches the other's
+  layer. The Black Box bullet's `Eater` watches enemy bullets, so when its parked copies sat on top of the parked
+  enemy bullets, they made about 3,000 collision pairs, plus an area event every time an enemy bullet went back to
+  its pool. Keep any pool whose bullets watch bullet layers away from the pools they watch.
 - **Node-friendly performance:**
   - circle shapes only;
   - movement is a few lines in `_physics_process`;
@@ -1086,12 +1091,19 @@ without text, with `Label` caption and bubble nodes.
 ---
 
 ## 11. Android
-- Export with the official Godot 4.7 Android export template. The ad and billing plugins (M6) will need a Gradle build.
-- Build arm64-v8a; armeabi-v7a is optional for older devices.
-- Turn on immersive mode, which hides the navigation bar and cuts down on accidental system gestures.
+- **Export preset (M6):** `export_presets.cfg` has the **Android** preset. Owner steps are in
+  [release/android_build.md](release/android_build.md).
+  - Gradle build (the ad and billing plugins need it), exporting an **AAB** to `build/android/` (gitignored).
+  - **arm64-v8a** only.
+  - **Immersive mode**, which hides the navigation bar and cuts down on accidental system gestures.
+  - Permissions: Internet, Access network state and Vibrate.
+  - Godot 4.7's default target SDK, **36**, which is what Google Play requires since 31 August 2026.
+  - The version name comes from Project Settings → Application → Config → Version (`0.6.0`). Raise `version/code`
+    for every upload.
+  - `package/unique_name` is a `com.example` placeholder until the owner picks the permanent one.
 - Keep the 16 px edge margins of `%JoystickZone` clear so back and home gestures don't fight with swipes.
-- Target whatever API level Google Play requires at release time; check the Play Console before M6.
-- **Never commit signing keystores.** `*.keystore` and `*.jks` are gitignored; keep them in a password manager or a CI secret.
+- **Never commit signing keystores.** `*.keystore` and `*.jks` are gitignored. Godot keeps keystore paths and
+  passwords in `.godot/export_credentials.cfg`, not in the preset, so the preset is safe to commit.
 - Target an AAB of 150 MB or less.
 
 ---
@@ -1178,6 +1190,32 @@ func restore_purchases() -> void
   for layout checks.
 - Settings offer an optional 30 fps cap to save battery.
 
+**Benchmark (M6):** `tools/benchmark.gd`, run with
+`godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd`.
+
+For every district's level (fixed seed) it:
+1. times each room's first entry, the transition hitch;
+2. fights in a combat room at the budget's worst case: 15 robots and 300 enemy bullets kept in flight for 5 seconds;
+3. frees the level and checks that no nodes are left behind.
+
+`--fixed-fps 60` makes every frame one physics step with no real-time wait, so the wall time between frames is the
+frame's whole logic cost. Godot's `TIME_PROCESS` and `TIME_PHYSICS_PROCESS` monitors report a per-second maximum,
+not the current frame. `-- --level=N --seconds=S` runs one level, longer.
+
+Results at M6 on the development machine (headless, so no rendering):
+
+| | Median | p95 | Max |
+|---|---|---|---|
+| Logic per frame at the worst case | 1.1–1.4 ms | 1.6–1.9 ms | about 5 ms |
+
+- Room entries take 3–6 ms, and 0 nodes leak.
+- Parking the player pools apart from the enemy pools (§6.2) cut collision pairs from about 3,200 to about 200 and
+  L1's median from 1.42 to 1.05 ms.
+
+The benchmark's alarms ring at a 3 ms median and a 5 ms p95: a regression alarm, not the device budget. A
+low-end phone is several times slower, so the budget itself is checked on the test devices with the debug panel's
+300-bullet storm ([release/android_build.md](release/android_build.md)).
+
 ---
 
 ## 14. Code conventions
@@ -1199,6 +1237,9 @@ func restore_purchases() -> void
 
 ## 15. Testing
 - **Scene-first check:** run `tools/check_scene_first.sh` from the repo root.
+- **Benchmark (M6):** run `godot --headless --fixed-fps 60 --path . --script res://tools/benchmark.gd` after changes
+  that could cost frame time (bullets, enemies, physics, rooms). It's machine-dependent, so it's not in the list of
+  checks before every commit; see §13.
 - **Scene check:** run `godot --headless --path . --script res://tools/check_scenes.gd`. It instantiates every scene under `src/`
   and validates each editor connection.
 - **Controls smoke test (M1):** run `godot --headless --path . --script res://tools/smoke_test_controls.gd`.
